@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --aiub-blue: #004D98;        /* Exact AIUB Header/Sidebar Blue */
+  --aiub-blue-dark: #00366D; 
+  --aiub-bg: #F5F7FA;          /* Light grayish-blue background */
+  --aiub-border: #E0E4E8;      /* Soft borders */
+  --aiub-text: #333333;        /* Dark gray text, not pure black */
+  --aiub-light-blue: #337AB7;  /* For buttons and links */
+  --aiub-green: #5CB85C;       /* Success messages/buttons */
+  --aiub-red: #D9534F;         /* Alerts */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--aiub-bg);
+  color: var(--aiub-text);
+  font-family: Arial, Helvetica, sans-serif; /* AIUB uses basic web-safe fonts */
+  margin: 0;
+  padding: 0;
+}
+
+/* Sidebar Menu Styles */
+.sidebar-menu-item {
+  @apply block px-4 py-3 text-sm font-medium text-white border-b border-[#00366D] transition-colors;
+}
+.sidebar-menu-item:hover {
+  background-color: var(--aiub-blue-dark);
+}
+
+/* Card Styles */
+.panel {
+  background: white;
+  border: 1px solid var(--aiub-border);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.panel-heading {
+  background-color: #F5F5F5;
+  border-bottom: 1px solid var(--aiub-border);
+  padding: 10px 15px;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--aiub-text);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.panel-heading-blue {
+  background-color: var(--aiub-blue);
+  color: white;
+  border-bottom: none;
+}
+
+.panel-body {
+  padding: 15px;
+}
+
+/* Form Styles */
+.form-control {
+  @apply w-full border border-[#CCC] px-3 py-1.5 text-sm rounded-sm focus:border-[#66AFE9] focus:outline-none focus:ring-1 focus:ring-[#66AFE9] transition-all;
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-[#337AB7] border border-[#2E6DA4] text-white px-4 py-1.5 rounded-sm text-sm hover:bg-[#286090] transition-colors;
+}
+.btn-success {
+  @apply bg-[#5CB85C] border border-[#4CAE4C] text-white px-4 py-1.5 rounded-sm text-sm hover:bg-[#449D44] transition-colors;
 }

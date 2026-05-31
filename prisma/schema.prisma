@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+ datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+ 
+// Eid Reunion Registration Table
+model ReunionRegistration {
+  id                    String   @id @default(cuid()) 
+  fullName              String
+  nickname              String?
+  mobileNumber          String   @unique
+  email                 String?
+  batchPassingYear      String
+  bloodGroup            String?
+  
+  currentProfession     String?
+  currentLocation       String?
+  tShirtSize            String   
+  foodPreference        String   
+  facebookLink          String?
+  emergencyContact      String?
+  additionalMessage     String?
+  
+  transactionId         String   @unique
+  paymentScreenshotUrl  String?  
+  uploadedPhotoUrl      String?  
+  
+  paymentStatus         String   @default("PENDING") 
+  registrationDate      DateTime @default(now())
+}
+
+// Admin Panel User Table
+model AdminUser {
+  id       String @id @default(cuid())
+  username String @unique
+  password String 
+  role     String @default("EXECUTIVE")
+}
+
+// Karjokori Committee Table (For Portal Login)
+model CommitteeMember {
+  id            String   @id @default(cuid())
+  memberId      String   @unique  // Eita hobe tader login ID (e.g., MOC-26-01)
+  password      String   // Login Password
+  fullName      String
+  designation   String   // e.g., President, Sports Secretary
+  bloodGroup    String?
+  mobileNumber  String
+  email         String?
+  profileImage  String?  // Chobir jonno
+  role          String   @default("COMMITTEE") // Role (ADMIN ba COMMITTEE)
+  createdAt     DateTime @default(now())
+}
+// General Club Membership Application Table
+model ClubMemberApplication {
+  id               String   @id @default(cuid())
+  fullName         String
+  mobileNumber     String   @unique
+  bloodGroup       String
+  presentAddress   String
+  occupation       String?
+  status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  applicationDate  DateTime @default(now())
+}
