@@ -242,7 +242,7 @@ export default function Home() {
                 {/* --- AWAY CRICKET UPDATE --- */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
                   <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/away-cricket.jpeg" alt="Away Cricket Tournament" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Cricket' }} />
+                    <img src="/cricket-tournament.jpeg" alt="Away Cricket Tournament" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Cricket' }} />
                   </div>
                   <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
                     <h3 className="text-white font-bold text-xl md:text-2xl font-serif">Away Cricket Tournament</h3>
