@@ -1,44 +1,57 @@
 "use client";
 import { useState, useEffect } from "react";
+import { CldUploadWidget } from "next-cloudinary";
 
 export default function PortalDashboard() {
-  // 1. SHOB STATES EKDOM UPORE (Etai React er niyam)
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [reunionData, setReunionData] = useState([]);
   const [membershipData, setMembershipData] = useState([]);
   const [committeeData, setCommitteeData] = useState([]);
+  const [albums, setAlbums] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Committee States
+  // Form States
   const [newCommittee, setNewCommittee] = useState({ fullName: "", designation: "", mobileNumber: "", email: "", bloodGroup: "A+", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
-
-  // Reunion States
+  
   const [editingReunionId, setEditingReunionId] = useState(null);
   const [editReunionData, setEditReunionData] = useState({ fullName: "", batchPassingYear: "", mobileNumber: "", transactionId: "", tShirtSize: "M" });
-
-  // Membership States
+  
   const [editingJoinId, setEditingJoinId] = useState(null);
   const [editJoinData, setEditJoinData] = useState({ fullName: "", mobileNumber: "", bloodGroup: "A+", presentAddress: "" });
-
-  // Admin User State
+  
   const [adminUser, setAdminUser] = useState(null);
 
-  // 2. FETCH DATA & ROUTE PROTECTION
+  // Gallery Upload & Edit States
+  const [galleryTitle, setGalleryTitle] = useState("");
+  const [galleryCategory, setGalleryCategory] = useState("football");
+  const [galleryImages, setGalleryImages] = useState([]); 
+  const [isGallerySubmitting, setIsGallerySubmitting] = useState(false);
+  
+  // 🌟 NEW: Album Edit States
+  const [editingAlbumId, setEditingAlbumId] = useState(null);
+  const [editAlbumData, setEditAlbumData] = useState({ title: "", category: "football" });
+
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      const [reunionRes, memberRes, commRes] = await Promise.all([
-        fetch('/api/register'), fetch('/api/join'), fetch('/api/committee')
+      const [reunionRes, memberRes, commRes, galleryRes] = await Promise.all([
+        fetch('/api/register', { cache: 'no-store' }), 
+        fetch('/api/join', { cache: 'no-store' }), 
+        fetch('/api/committee', { cache: 'no-store' }), 
+        fetch('/api/gallery', { cache: 'no-store' })
       ]);
+      
       const reunionJson = await reunionRes.json();
       const memberJson = await memberRes.json();
       const commJson = await commRes.json();
+      const galleryJson = await galleryRes.json();
 
       if (reunionJson.success) setReunionData(reunionJson.data);
       if (memberJson.success) setMembershipData(memberJson.data);
       if (commJson.success) setCommitteeData(commJson.data);
+      if (galleryJson.success) setAlbums(galleryJson.data);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -47,14 +60,9 @@ export default function PortalDashboard() {
   };
 
   useEffect(() => {
-    // Check if user is logged in
     const user = localStorage.getItem("moc_user");
-    if (!user) {
-      window.location.href = "/login"; // Login na thakle ber kore dibe
-    } else {
-      setAdminUser(JSON.parse(user));
-      fetchDashboardData();
-    }
+    if (!user) window.location.href = "/login";
+    else { setAdminUser(JSON.parse(user)); fetchDashboardData(); }
   }, []);
 
   const handleLogout = () => {
@@ -64,136 +72,73 @@ export default function PortalDashboard() {
     }
   };
 
-  // -----------------------------------------
-  // COMMITTEE LOGIC
-  // -----------------------------------------
+  // --- COMMITTEE LOGIC ---
   const handleCommitteeChange = (e) => setNewCommittee({ ...newCommittee, [e.target.name]: e.target.value });
-  
-  const handleEditClick = (member) => {
-    setEditingId(member.id);
-    setNewCommittee({ fullName: member.fullName, designation: member.designation, mobileNumber: member.mobileNumber, email: member.email || "", bloodGroup: member.bloodGroup || "A+", password: "" });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  const cancelEdit = () => {
-    setEditingId(null);
-    setNewCommittee({ fullName: "", designation: "", mobileNumber: "", email: "", bloodGroup: "A+", password: "" });
-  };
+  const handleEditClick = (member) => { setEditingId(member.id); setNewCommittee({ fullName: member.fullName, designation: member.designation, mobileNumber: member.mobileNumber, email: member.email || "", bloodGroup: member.bloodGroup || "A+", password: "" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelEdit = () => { setEditingId(null); setNewCommittee({ fullName: "", designation: "", mobileNumber: "", email: "", bloodGroup: "A+", password: "" }); };
+  const handleCommitteeSubmit = async (e) => { e.preventDefault(); setIsSubmitting(true); try { const url = editingId ? `/api/committee/${editingId}` : '/api/committee'; const method = editingId ? 'PATCH' : 'POST'; const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCommittee) }); const result = await res.json(); if (result.success) { alert(editingId ? "Updated Successfully!" : `Added! System ID: ${result.data.memberId}`); cancelEdit(); fetchDashboardData(); } else alert("Error: " + result.message); } catch (error) { alert("Server error."); } finally { setIsSubmitting(false); } };
+  const handleDeleteCommittee = async (id) => { if (!confirm("⚠️ Delete this committee member permanently?")) return; try { const res = await fetch(`/api/committee/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
 
-  const handleCommitteeSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const url = editingId ? `/api/committee/${editingId}` : '/api/committee';
-      const method = editingId ? 'PATCH' : 'POST';
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCommittee) });
-      const result = await res.json();
-      if (result.success) {
-        alert(editingId ? "Updated Successfully!" : `Added! System ID: ${result.data.memberId}`);
-        cancelEdit(); fetchDashboardData();
-      } else alert("Error: " + result.message);
-    } catch (error) { alert("Server error."); } 
-    finally { setIsSubmitting(false); }
-  };
-
-  const handleDeleteCommittee = async (id) => {
-    if (!confirm("⚠️ Delete this committee member permanently?")) return;
-    try {
-      const res = await fetch(`/api/committee/${id}`, { method: 'DELETE' });
-      if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); }
-    } catch (error) { alert("Server error."); }
-  };
-
-  // -----------------------------------------
-  // REUNION LOGIC
-  // -----------------------------------------
-  const handleEditReunionClick = (reg) => {
-    setEditingReunionId(reg.id);
-    setEditReunionData({ fullName: reg.fullName, batchPassingYear: reg.batchPassingYear, mobileNumber: reg.mobileNumber, transactionId: reg.transactionId, tShirtSize: reg.tShirtSize || "M" });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // --- REUNION LOGIC ---
+  const handleEditReunionClick = (reg) => { setEditingReunionId(reg.id); setEditReunionData({ fullName: reg.fullName, batchPassingYear: reg.batchPassingYear, mobileNumber: reg.mobileNumber, transactionId: reg.transactionId, tShirtSize: reg.tShirtSize || "M" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelReunionEdit = () => setEditingReunionId(null);
+  const handleReunionUpdate = async (e) => { e.preventDefault(); try { const res = await fetch(`/api/register/${editingReunionId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editReunionData) }); if ((await res.json()).success) { alert("Reunion Data Updated!"); cancelReunionEdit(); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
+  const handleDeleteReunion = async (id) => { if (!confirm("⚠️ Delete this Reunion Registration permanently?")) return; try { const res = await fetch(`/api/register/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
+  const downloadReunionExcel = () => { if (reunionData.length === 0) return alert("No data available!"); const headers = ["Full Name", "Batch", "Mobile Number", "TrxID", "T-Shirt Size"]; const rows = reunionData.map(reg => [reg.fullName, reg.batchPassingYear, reg.mobileNumber, reg.transactionId, reg.tShirtSize || "M"]); const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n"); const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "MOC_Reunion_Data.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); };
 
-  const handleReunionUpdate = async (e) => {
+  // --- MEMBERSHIP LOGIC ---
+  const handleApprove = async (id) => { if (!confirm("Approve this member?")) return; try { const res = await fetch(`/api/join/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: "APPROVED" }) }); if ((await res.json()).success) { alert("Approved!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
+  const handleEditJoinClick = (app) => { setEditingJoinId(app.id); setEditJoinData({ fullName: app.fullName, mobileNumber: app.mobileNumber, bloodGroup: app.bloodGroup || "A+", presentAddress: app.presentAddress || "" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelJoinEdit = () => setEditingJoinId(null);
+  const handleJoinUpdate = async (e) => { e.preventDefault(); try { const res = await fetch(`/api/join/${editingJoinId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editJoinData) }); if ((await res.json()).success) { alert("Membership Data Updated!"); cancelJoinEdit(); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
+  const handleDeleteJoin = async (id) => { if (!confirm("⚠️ Delete this Membership Application permanently?")) return; try { const res = await fetch(`/api/join/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
+
+  // --- ALBUM GALLERY LOGIC ---
+  const handleGalleryUploadSuccess = (result) => { setGalleryImages((prev) => [...prev, result.info.secure_url]); };
+  
+  const handleGallerySubmit = async (e) => {
     e.preventDefault();
+    if (galleryImages.length === 0) return alert("❌ Bhai, kompokkhe ekta chobi upload koro!");
+    setIsGallerySubmitting(true);
     try {
-      const res = await fetch(`/api/register/${editingReunionId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editReunionData) });
-      if ((await res.json()).success) { alert("Reunion Data Updated!"); cancelReunionEdit(); fetchDashboardData(); }
+      const res = await fetch("/api/gallery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: galleryTitle, category: galleryCategory, images: galleryImages }), });
+      const data = await res.json();
+      if (data.success) { alert("🎉 Album successfully database-e save hoyeche!"); setGalleryTitle(""); setGalleryImages([]); fetchDashboardData(); } 
+      else alert("❌ Error: " + data.message);
+    } catch (error) { alert("Server error during gallery upload."); } finally { setIsGallerySubmitting(false); }
+  };
+
+  const handleDeleteAlbum = async (id) => {
+    if (!confirm("⚠️ Tumi ki shotti ei Album ar er vitorer SHOB chobi muchhe felte chaw?")) return;
+    try {
+      const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) { alert("✅ Album Deleted!"); fetchDashboardData(); } else alert("❌ Failed to delete!");
     } catch (error) { alert("Server error."); }
   };
 
-  const handleDeleteReunion = async (id) => {
-    if (!confirm("⚠️ Delete this Reunion Registration permanently?")) return;
-    try {
-      const res = await fetch(`/api/register/${id}`, { method: 'DELETE' });
-      if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); }
-    } catch (error) { alert("Server error."); }
-  };
-
-
-  // --- EXCEL/CSV DOWNLOAD LOGIC ---
-  const downloadReunionExcel = () => {
-    if (reunionData.length === 0) {
-      alert("No data available to download!");
-      return;
-    }
-
-    // 1. Excel er Header banano
-    const headers = ["Full Name", "Batch", "Mobile Number", "TrxID", "T-Shirt Size"];
-    
-    // 2. Data guloke row te sajano
-    const rows = reunionData.map(reg => [
-      reg.fullName,
-      reg.batchPassingYear,
-      reg.mobileNumber,
-      reg.transactionId,
-      reg.tShirtSize || "M"
-    ]);
-
-    // 3. CSV format e convert kora
-    const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    
-    // 4. Download file toiri kora
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "MOC_Reunion_Data.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // -----------------------------------------
-  // MEMBERSHIP LOGIC
-  // -----------------------------------------
-  const handleApprove = async (id) => {
-    if (!confirm("Approve this member?")) return;
-    try {
-      const res = await fetch(`/api/join/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: "APPROVED" }) });
-      if ((await res.json()).success) { alert("Approved!"); fetchDashboardData(); }
-    } catch (error) { alert("Server error."); }
-  };
-
-  const handleEditJoinClick = (app) => {
-    setEditingJoinId(app.id);
-    setEditJoinData({ fullName: app.fullName, mobileNumber: app.mobileNumber, bloodGroup: app.bloodGroup || "A+", presentAddress: app.presentAddress || "" });
+  // 🌟 NEW: Album Edit Handlers 🌟
+  const handleEditAlbumClick = (album) => {
+    setEditingAlbumId(album.id);
+    setEditAlbumData({ title: album.title, category: album.category });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const cancelJoinEdit = () => setEditingJoinId(null);
+  const cancelAlbumEdit = () => setEditingAlbumId(null);
 
-  const handleJoinUpdate = async (e) => {
+  const handleAlbumUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/join/${editingJoinId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editJoinData) });
-      if ((await res.json()).success) { alert("Membership Data Updated!"); cancelJoinEdit(); fetchDashboardData(); }
-    } catch (error) { alert("Server error."); }
-  };
-
-  const handleDeleteJoin = async (id) => {
-    if (!confirm("⚠️ Delete this Membership Application permanently?")) return;
-    try {
-      const res = await fetch(`/api/join/${id}`, { method: 'DELETE' });
-      if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); }
+      const res = await fetch(`/api/gallery/${editingAlbumId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editAlbumData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ Album Info Updated!");
+        cancelAlbumEdit();
+        fetchDashboardData();
+      } else alert("❌ Error: " + data.message);
     } catch (error) { alert("Server error."); }
   };
 
@@ -210,9 +155,9 @@ export default function PortalDashboard() {
         </div>
         <div className="text-white text-xs font-bold uppercase px-4 py-3 mt-2 bg-[#00366D]">Main Navigation</div>
         <nav className="flex-1 flex flex-col">
-          {['dashboard', 'reunion', 'membership', 'committee'].map((menu) => (
+          {['dashboard', 'reunion', 'membership', 'committee', 'gallery'].map((menu) => (
             <button key={menu} onClick={() => setActiveMenu(menu)} className={`text-left px-4 py-3 text-sm font-medium transition-colors border-b border-[#00366D] capitalize ${activeMenu === menu ? 'bg-[#00366D] text-white border-l-4 border-l-[#D9534F]' : 'text-gray-300 hover:bg-[#00366D] hover:text-white'}`}>
-              {menu === 'dashboard' ? '📊 System Dashboard' : menu === 'reunion' ? '🌙 Reunion Registrations' : menu === 'membership' ? '👥 Membership Requests' : '⚙️ Manage Committee'}
+              {menu === 'dashboard' ? '📊 System Dashboard' : menu === 'reunion' ? '🌙 Reunion Registrations' : menu === 'membership' ? '👥 Membership Requests' : menu === 'committee' ? '⚙️ Manage Committee' : '📸 Media Gallery'}
             </button>
           ))}
         </nav>
@@ -233,10 +178,11 @@ export default function PortalDashboard() {
             <>
               {/* DASHBOARD TAB */}
               {activeMenu === "dashboard" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
                   <div className="bg-white p-6 rounded border shadow-sm border-l-4 border-l-[#337AB7]"><h3 className="text-gray-500 text-sm font-bold uppercase mb-1">Total Reunion</h3><p className="text-3xl font-bold text-[#333333]">{reunionData.length}</p></div>
                   <div className="bg-white p-6 rounded border shadow-sm border-l-4 border-l-[#5CB85C]"><h3 className="text-gray-500 text-sm font-bold uppercase mb-1">Membership Apps</h3><p className="text-3xl font-bold text-[#333333]">{membershipData.length}</p></div>
                   <div className="bg-white p-6 rounded border shadow-sm border-l-4 border-l-[#D9534F]"><h3 className="text-gray-500 text-sm font-bold uppercase mb-1">Committee Members</h3><p className="text-3xl font-bold text-[#333333]">{committeeData.length}</p></div>
+                  <div className="bg-white p-6 rounded border shadow-sm border-l-4 border-l-purple-500"><h3 className="text-gray-500 text-sm font-bold uppercase mb-1">Photo Albums</h3><p className="text-3xl font-bold text-[#333333]">{albums.length}</p></div>
                 </div>
               )}
 
@@ -258,16 +204,12 @@ export default function PortalDashboard() {
                   )}
                   <div className="bg-white border rounded shadow-sm">
                     <div className="bg-[#F5F5F5] border-b px-4 py-3 flex justify-between items-center">
-  <h3 className="font-bold text-[#2D1B4E] text-sm">Reunion List</h3>
-  <div className="flex gap-2">
-    <button onClick={downloadReunionExcel} className="bg-[#7CD326] hover:bg-[#68B61D] text-[#2D1B4E] font-bold px-3 py-1 text-xs rounded shadow-sm flex items-center gap-1">
-      📊 Export Excel
-    </button>
-    <button onClick={fetchDashboardData} className="bg-[#2D1B4E] text-white px-3 py-1 text-xs rounded hover:bg-[#1f1235]">
-      🔄 Refresh
-    </button>
-  </div>
-</div>
+                      <h3 className="font-bold text-[#2D1B4E] text-sm">Reunion List</h3>
+                      <div className="flex gap-2">
+                        <button onClick={downloadReunionExcel} className="bg-[#7CD326] hover:bg-[#68B61D] text-[#2D1B4E] font-bold px-3 py-1 text-xs rounded shadow-sm flex items-center gap-1">📊 Export Excel</button>
+                        <button onClick={fetchDashboardData} className="bg-[#2D1B4E] text-white px-3 py-1 text-xs rounded hover:bg-[#1f1235]">🔄 Refresh</button>
+                      </div>
+                    </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-[#004D98] text-white"><tr><th className="p-2">Name</th><th className="p-2">Batch</th><th className="p-2">Mobile</th><th className="p-2">TrxID</th><th className="p-2 text-center">Actions</th></tr></thead>
@@ -340,6 +282,120 @@ export default function PortalDashboard() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+
+              {/* 🌟 GALLERY UPLOAD & MANAGEMENT TAB 🌟 */}
+              {activeMenu === "gallery" && (
+                <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+                  
+                  {/* 🟢 NEW: ALBUM EDIT FORM (Amber Box) 🟢 */}
+                  {editingAlbumId && (
+                    <div className="bg-amber-50 border border-amber-400 rounded-xl shadow-sm mb-6">
+                      <div className="border-b border-amber-200 px-6 py-3 flex justify-between items-center">
+                        <h3 className="font-bold text-amber-700 text-sm">✏️ Edit Album Information</h3>
+                        <button onClick={cancelAlbumEdit} className="text-xs text-red-600 font-bold hover:underline">Cancel</button>
+                      </div>
+                      <form onSubmit={handleAlbumUpdate} className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                          <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Album Title *</label>
+                            <input required value={editAlbumData.title} onChange={(e)=>setEditAlbumData({...editAlbumData, title: e.target.value})} className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Category *</label>
+                            <select value={editAlbumData.category} onChange={(e)=>setEditAlbumData({...editAlbumData, category: e.target.value})} className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none text-sm">
+                              <option value="football">⚽ Football</option>
+                              <option value="cricket">🏏 Cricket</option>
+                              <option value="badminton">🏸 Badminton</option>
+                              <option value="social">🤝 Social Work</option>
+                            </select>
+                          </div>
+                        </div>
+                        <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition-all text-sm">
+                          Save Changes
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Upload Form Box */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-[#004D98] text-white px-6 py-4 border-b">
+                      <h2 className="text-lg font-bold">📸 Create Media Album</h2>
+                    </div>
+                    <div className="p-6">
+                      <form onSubmit={handleGallerySubmit} className="space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div><label className="block text-sm font-bold text-gray-700 mb-1">Album Title *</label><input required value={galleryTitle} onChange={(e) => setGalleryTitle(e.target.value)} placeholder="e.g. Winter Badminton 2026" className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-[#004D98] outline-none text-sm" /></div>
+                          <div><label className="block text-sm font-bold text-gray-700 mb-1">Category *</label><select value={galleryCategory} onChange={(e) => setGalleryCategory(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-[#004D98] outline-none text-sm"><option value="football">⚽ Football</option><option value="cricket">🏏 Cricket</option><option value="badminton">🏸 Badminton</option><option value="social">🤝 Social Work</option></select></div>
+                        </div>
+
+                        <div className="border-2 border-dashed border-[#004D98] bg-blue-50/30 p-6 text-center rounded-lg transition-all hover:bg-blue-50">
+                          <CldUploadWidget uploadPreset="moc_gallery" options={{ multiple: true }} onSuccess={handleGalleryUploadSuccess}>
+                            {({ open }) => (
+                              <button type="button" onClick={() => open()} className="bg-[#004D98] hover:bg-[#00366D] text-white px-5 py-2.5 rounded shadow-sm text-sm font-bold transition-all">
+                                📤 Select Multiple Photos
+                              </button>
+                            )}
+                          </CldUploadWidget>
+                          
+                          {galleryImages.length > 0 && (
+                            <div className="mt-6 text-left">
+                              <p className="text-sm font-bold text-gray-700 mb-2">Selected Photos ({galleryImages.length}):</p>
+                              <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                                {galleryImages.map((img, i) => (
+                                  <div key={i} className="relative h-16 w-full"><img src={img} alt="preview" className="h-full w-full object-cover rounded border border-gray-300 shadow-sm" />{i === 0 && <span className="absolute top-0 left-0 bg-yellow-400 text-[8px] font-bold px-1 rounded">COVER</span>}</div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <button type="submit" disabled={isGallerySubmitting} className="w-full bg-[#5CB85C] hover:bg-[#4CAE4C] text-white font-bold py-3 rounded-lg shadow-sm transition-all text-sm disabled:opacity-50">{isGallerySubmitting ? "Creating Album..." : "🚀 Publish Album"}</button>
+                      </form>
+                    </div>
+                  </div>
+
+                  {/* Album Management List */}
+                  <div className="bg-white border rounded shadow-sm overflow-hidden">
+                    <div className="bg-[#F5F5F5] border-b px-4 py-3 flex justify-between items-center">
+                      <h3 className="font-bold text-sm">Manage Uploaded Albums</h3>
+                      <button onClick={fetchDashboardData} className="bg-[#337AB7] text-white px-3 py-1 text-xs rounded">Refresh List</button>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-700">
+                          <tr><th className="p-3">Cover</th><th className="p-3">Album Title</th><th className="p-3">Category</th><th className="p-3">Photos</th><th className="p-3 text-center">Action</th></tr>
+                        </thead>
+                        <tbody>
+                          {albums.length === 0 ? (
+                            <tr><td colSpan="5" className="p-4 text-center text-gray-500">No albums found.</td></tr>
+                          ) : (
+                            albums.map((album) => (
+                              <tr key={album.id} className="border-b hover:bg-gray-50">
+                                <td className="p-3">
+                                  <img src={album.coverImage} alt="cover" className="w-12 h-12 object-cover rounded border shadow-sm" onError={(e) => e.target.src="https://placehold.co/100x100?text=Error"} />
+                                </td>
+                                <td className="p-3 font-bold text-[#004D98]">{album.title}</td>
+                                <td className="p-3 uppercase text-xs font-bold text-gray-500">{album.category}</td>
+                                <td className="p-3 font-bold">{album.photos?.length || 1}</td>
+                                <td className="p-3 text-center flex justify-center gap-2">
+                                  {/* 🟢 NEW: Edit Button */}
+                                  <button onClick={() => handleEditAlbumClick(album)} className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded shadow-sm text-xs font-bold transition-colors">
+                                    ✏️ Edit
+                                  </button>
+                                  <button onClick={() => handleDeleteAlbum(album.id)} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded shadow-sm text-xs font-bold transition-colors">
+                                    🗑️ Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
                 </div>
               )}
             </>

@@ -103,7 +103,7 @@ export default function ExecutiveTeam() {
           {teamMembers.map((member, index) => (
             <div key={index} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden group hover:border-[#7CD326] transition-all duration-300 hover:-translate-y-2 text-center">
               <div className="h-64 relative overflow-hidden bg-gray-100">
-                <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src={member.image || "https://placehold.co/400x400/2D1B4E/7CD326?text=MOC+Member"} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
               <div className="p-6 border-t-4 border-[#2D1B4E] group-hover:border-[#7CD326] transition-colors">
                 <h3 className="text-[#2D1B4E] font-bold text-xl font-serif mb-1">{member.name}</h3>

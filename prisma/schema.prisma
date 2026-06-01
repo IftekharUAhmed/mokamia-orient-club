@@ -65,3 +65,19 @@ model ClubMemberApplication {
   status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
   applicationDate  DateTime @default(now())
 }
+ model Album {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  coverImage  String?  // Ei album-er main ba cover chobi
+  createdAt   DateTime @default(now())
+  photos      Photo[]  // Ei album-er vitore thaka onnanno shob chobir list
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  albumId     String
+  album       Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
