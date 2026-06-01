@@ -640,4 +640,4 @@ export default function Home() {
       <a href="https://wa.me/8801644874309" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center text-3xl shadow-lg z-50 animate-bounce">💬</a>
     </div>
   );
-}
+} 
