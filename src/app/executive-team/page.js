@@ -12,12 +12,12 @@ export default function ExecutiveTeam() {
 
     // 📋 General Secretary
     { name: "MOHIN UDDIN SHIPON", role: "General Secretary", image: "/shipon.jpg " },
-    { name: "MD JAHED", role: "Assistant General Secretary", image: "/jahed.jpg " },
+    { name: "MD JAHED", role: "Assistant General Secretary", image: "/jahed.jpeg " },
 
     // 🤝 Organizing
     { name: "SAIFUL ISLAM MASUD", role: "Organizing Secretary", image: "/masud.jpg " },
     { name: "H.A.M EKRAM", role: "Assistant Organizing Secretary", image: "/ekram.jpg " },
-    { name: "SAIDUL ISLAM SOJIB", role: "Assistant Organizing Secretary", image: "/sojib.jpg " },
+    { name: "SAIDUL ISLAM SOJIB", role: "Assistant Organizing Secretary", image: "/sojib.jpeg " },
 
     // 💰 Finance
     { name: "JAHID HOSSIAN SHAKIL", role: "Finance Secretary", image: "/shakil.jpeg" },
