@@ -112,12 +112,15 @@ export default function Home() {
                <p className="text-[#7CD326] text-xs font-bold tracking-wider hidden sm:block">Est. 1985 • Social & Sports Organization</p>
              </div>
           </div>
-          <div className="flex gap-4 font-bold text-[#2D1B4E] text-sm md:text-base overflow-x-auto pb-2 md:pb-0">
+          <div className="flex gap-4 font-bold text-[#2D1B4E] text-sm md:text-base overflow-x-auto pb-2 md:pb-0 items-center">
             <button onClick={() => setActiveTab("home")} className={`hover:text-[#7CD326] whitespace-nowrap ${activeTab === 'home' ? 'border-b-4 border-[#7CD326] pb-1' : ''}`}>HOME</button>
             <button onClick={() => setActiveTab("events")} className={`hover:text-[#7CD326] whitespace-nowrap ${activeTab === 'events' ? 'border-b-4 border-[#7CD326] pb-1' : ''}`}>EVENTS</button>
             <button onClick={() => setActiveTab("charity")} className={`hover:text-[#7CD326] whitespace-nowrap ${activeTab === 'charity' ? 'border-b-4 border-[#7CD326] pb-1' : ''}`}>SOCIAL WORK</button>
             <button onClick={() => setActiveTab("reunion")} className={`hover:text-[#7CD326] whitespace-nowrap ${activeTab === 'reunion' ? 'border-b-4 border-[#7CD326] pb-1' : ''}`}>SCHOOL REUNION</button>
             <button onClick={() => setActiveTab("join")} className={`hover:text-[#7CD326] whitespace-nowrap ${activeTab === 'join' ? 'border-b-4 border-[#7CD326] pb-1' : ''}`}>JOIN CLUB</button>
+            
+            {/* 🌟 NEW COMMITTEE LINK IN NAVBAR 🌟 */}
+            <Link href="/executive-team" className="hover:text-[#7CD326] whitespace-nowrap border border-[#2D1B4E] px-2 py-1 rounded hover:bg-[#2D1B4E] hover:text-white transition-colors">COMMITTEE</Link>
           </div>
         </div>
       </nav>
@@ -239,10 +242,9 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* --- AWAY CRICKET UPDATE --- */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
                   <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/cricket-tournament.jpeg" alt="Away Cricket Tournament" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Cricket' }} />
+                    <img src="/away-cricket.jpeg" alt="Away Cricket Tournament" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Cricket' }} />
                   </div>
                   <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
                     <h3 className="text-white font-bold text-xl md:text-2xl font-serif">Away Cricket Tournament</h3>
@@ -273,11 +275,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* --- 🌟 CHARITY / SOCIAL WORK TAB (WITH IMAGES) 🌟 --- */}
+        {/* --- CHARITY / SOCIAL WORK TAB --- */}
         {activeTab === "charity" && (
           <div className="animate-fade-in max-w-5xl mx-auto">
              
-             {/* Charity Banner */}
              <div className="bg-[#2D1B4E] text-white py-12 px-6 text-center rounded-2xl mb-12 shadow-xl relative overflow-hidden">
                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7CD326] via-white to-[#7CD326]"></div>
                <h2 className="text-3xl md:text-5xl font-extrabold font-serif mb-4 relative z-10">
@@ -288,12 +289,9 @@ export default function Home() {
                </p>
              </div>
 
-             {/* Social Initiatives Content */}
              <div className="space-y-8 mb-12">
-                
-                {/* 1. Shikkhabritti (Scholarship) */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row group hover:border-[#7CD326] transition-all">
-                  <div className="md:w-2/5 relative min-h-[250px] md:min-h-[auto] overflow-hidden bg-gray-100">
+                  <div className="md:w-2/5 relative min-h-[250px] md:minh-[auto] overflow-hidden bg-gray-100">
                     <img src="/shikkhabritti.jpeg" alt="Shikkhabritti" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/2D1B4E/7CD326?text=Scholarship' }} />
                   </div>
                   <div className="md:w-3/5 p-8 flex flex-col justify-center">
@@ -305,7 +303,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 2. Blood Donation & Medical Help */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row-reverse group hover:border-[#7CD326] transition-all">
                   <div className="md:w-2/5 relative min-h-[250px] md:min-h-[auto] overflow-hidden bg-gray-100">
                     <img src="/blood.jpeg" alt="Blood Donation" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/FF3B30/FFF?text=Blood+Support' }} />
@@ -319,7 +316,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 3. Community Relief & Winter Clothes */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row group hover:border-[#7CD326] transition-all">
                   <div className="md:w-2/5 relative min-h-[250px] md:min-h-[auto] overflow-hidden bg-gray-100">
                     <img src="/support.jpeg" alt="Community Relief" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/FF9500/FFF?text=Community+Relief' }} />
@@ -332,7 +328,6 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-
              </div>
           </div>
         )}
@@ -411,7 +406,8 @@ export default function Home() {
               <li><button onClick={() => setActiveTab("events")} className="hover:text-[#7CD326] transition-colors">Tournaments & Events</button></li>
               <li><button onClick={() => setActiveTab("charity")} className="hover:text-[#7CD326] transition-colors">Social Work & Charity</button></li>
               <li><button onClick={() => setActiveTab("join")} className="hover:text-[#7CD326] transition-colors">Apply for Membership</button></li>
-              <li><Link href="/committee" className="hover:text-[#7CD326] transition-colors">Our Executive Committee</Link></li>
+              {/* 🌟 THIS LINK WAS FIXED 🌟 */}
+              <li><Link href="/executive-team" className="hover:text-[#7CD326] transition-colors">Our Executive Committee</Link></li>
             </ul>
           </div>
           <div>
