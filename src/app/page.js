@@ -1,12 +1,34 @@
-"use client";
-import { useState, useEffect } from "react";
+ "use client";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-// --- 🌟 COUNT-UP ANIMATION COMPONENT 🌟 ---
+// --- 🌟 ADVANCED COUNT-UP ANIMATION (SCROLL SENSOR) 🌟 ---
 const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const counterRef = useRef(null);
 
+  // 1. Sensor: Check if user scrolled to this section
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 } // Starts when 10% of the box is visible
+    );
+
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  // 2. Animate: Run animation ONLY when visible
+  useEffect(() => {
+    if (!isVisible) return; // Wait until visible
+
     let startTimestamp = null;
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
@@ -19,12 +41,13 @@ const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
       }
     };
     window.requestAnimationFrame(step);
-  }, [target, duration]);
+  }, [target, duration, isVisible]);
 
-  return <>{count}{suffix}</>;
+  return <span ref={counterRef}>{count}{suffix}</span>;
 };
 
 export default function Home() {
+// ... (Er nicher tomar aager joto code chilo, shob ekdom theek thakbe)
   const [activeTab, setActiveTab] = useState("home");
   const [galleryFilter, setGalleryFilter] = useState("all");
 
@@ -172,9 +195,11 @@ export default function Home() {
                </div>
                <div className="w-px h-16 bg-gray-600 hidden md:block relative z-10"></div>
                <div className="p-4 relative z-10 group">
-                 <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 transition-transform">⚽</h4>
-                 <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Sports Focus</p>
-               </div>
+                 <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 group-hover:scale-110 transition-transform">
+                   <CountUpAnimation target={24} suffix="/7" duration={2500} />
+                 </h4>
+                 <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Active Community</p>
+               </div>  
             </div>
 
             {/* THE LEGACY SECTION */}
