@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
+ import { TypeAnimation } from 'react-type-animation';// Window size bujhar jonno
  
 import AdvisorsSlider from "@/components/AdvisorsSlider"; // 🌟 Eita notun add koro
 
@@ -117,6 +120,8 @@ export default function Home() {
 
   const handleReunionChange = (e) => setReunionData({ ...reunionData, [e.target.name]: e.target.value });
   const handleJoinChange = (e) => setJoinData({ ...joinData, [e.target.name]: e.target.value });
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { width, height } = useWindowSize(); // Window er map ney
 
   const handleReunionSubmit = async (e) => {
     e.preventDefault();
@@ -124,7 +129,12 @@ export default function Home() {
     setIsReunionSubmitting(true);
     try {
       const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reunionData) });
-      if ((await res.json()).success) { alert("🎉 Registration Successful!"); setReunionData({ fullName: "", mobileNumber: "", batchPassingYear: "", tShirtSize: "M", currentLocation: "", transactionId: "" }); }
+      if ((await res.json()).success) { 
+        alert("🎉 Registration Successful!"); 
+        setShowConfetti(true); // 🌟 Brishti shuru!
+        setTimeout(() => setShowConfetti(false), 5000); // 5 second por bondho
+        setReunionData({ fullName: "", mobileNumber: "", batchPassingYear: "", tShirtSize: "M", currentLocation: "", transactionId: "" }); 
+      }
     } catch (err) { alert("Server Error!"); } finally { setIsReunionSubmitting(false); }
   };
 
@@ -134,8 +144,49 @@ export default function Home() {
     setIsJoinSubmitting(true);
     try {
       const res = await fetch('/api/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(joinData) });
-      if ((await res.json()).success) { alert("✅ Application Submitted!"); setJoinData({ fullName: "", mobileNumber: "", bloodGroup: "A+", presentAddress: "", occupation: "" }); }
+      if ((await res.json()).success) { 
+        alert("✅ Application Submitted!"); 
+        
+        // 🌟 Confetti Brishti Shuru!
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000); // 5 second por bondho hobe
+
+        // 🧹 Form khali kora hocche
+        setJoinData({ fullName: "", mobileNumber: "", bloodGroup: "A+", presentAddress: "", occupation: "" }); 
+      }
     } catch (err) { alert("Server Error!"); } finally { setIsJoinSubmitting(false); }
+  }; 
+
+// 🚀 NEW: Player Profile Magic State
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+
+  // 📁 Player Database (Ekhane pore ashol chobi link boshabe)
+  // 📁 Player Database (Updated with real PNG images)
+  const playerDatabase = {
+    "Abdullah Supto": { role: "Striker", team: "Mokamia Lusitans", stats: "3 Goals", bio: "A lethal finisher inside the box with unmatched pace.", img: "/supto.jpg" },
+    "Tourjoy": { role: "Forward", team: "Mokamia Allianz", stats: "2 Goals", bio: "Known for his incredible agility and precise passes.", img: "/tourjoy.jpg" },
+    "Munna": { role: "Midfielder", team: "Galacticos of Mokamia", stats: "1 Goal", bio: "The midfield maestro and playmaker of the team.", img: "/munna.jpg" },
+    "Noman": { role: "Lead Bowler", team: "MOC Cricket", stats: "12 Wkts (Econ 5.2)", bio: "Pace spearhead known for his deadly yorkers in the death overs.", img: "/noman.jpg" },
+    "Istiak Shadin": { role: "All-Rounder", team: "MOC", stats: "11 Wkts / Badminton Champ", bio: "A versatile athlete excelling in both Cricket and Badminton courts.", img: "/shadin.jpg" },
+    "Abdullah Fahad": { role: "Opening Batsman", team: "MOC Cricket", stats: "212 Runs (SR 145)", bio: "Aggressive opening batter who gives explosive starts.", img: "/fahad.jpg" },
+    "Mobarak Hossain": { role: "Middle Order Anchor", team: "MOC Cricket", stats: "196 Runs (SR 140)", bio: "The backbone of the batting lineup, steady under pressure.", img: "/mobarak.jpg" },
+    "Iftekhar Ahmed": { role: "Star All-Rounder", team: "MOC Cricket / AIUB Main Team", stats: "143 Runs + 8 Wkts", bio: "Dynamic all-rounder taking crucial breakthroughs. Currently shaping his skills on and off the pitch.", img: "/ifti.jpg" },
+    "Mohammad Sayed Hossain": { role: "All-Rounder", team: "MOC Cricket", stats: "131 Runs + 7 Wkts", bio: "Consistent match-winner with both bat and ball.", img: "/sayed.jpg" },
+    "Imtiaz Hossain Ontor": { role: "Badminton Champ", team: "MOC Badminton", stats: "Men's Singles Gold", bio: "The undisputed king of the winter badminton championship.", img: "/ontor.jpeg" },
+    "Shaiful Islam Tamim": { role: "Badminton Pro", team: "MOC Badminton", stats: "Singles Runner-up", bio: "Fierce competitor with excellent court coverage.", img: "/tamim.jpg" },
+    "Sojib Bhuiyan": { role: "Doubles Specialist", team: "MOC Badminton", stats: "Doubles Runner-up", bio: "Master of quick reflexes and net play.", img: "/sojib.jpg" },
+    // Teams
+     // Teams
+    "Mokamia Lusitans": { role: "MPL Champion", team: "MPL 5th Edition", stats: "9 Points", bio: "The undisputed champions of the tournament, dominating every match with tactical brilliance.", img: " " },
+    "Mokamia Allianz": { role: "Runners-Up", team: "MPL 5th Edition", stats: "7 Points", bio: "A fiercely competitive team that fought till the very last minute.", img: "/mpl-champ.jpeg " },
+    "Galacticos of Mokamia": { role: "3rd Place", team: "MPL 5th Edition", stats: "3 Points", bio: "Fought hard but fell short, promising a strong comeback next season.", img: " " },
+    "Majestic Mokamia": { role: "4th Place", team: "MPL 5th Edition", stats: "1 Point", bio: "Gained valuable experience and showed flashes of brilliance on the field.", img: " " },
+  };
+
+  const openPlayerProfile = (name) => {
+    if (playerDatabase[name]) {
+      setSelectedPlayer({ name, ...playerDatabase[name] });
+    }
   };
 
   // Static Gallery Data
@@ -152,11 +203,6 @@ export default function Home() {
   const filteredGallery = galleryFilter === "all" ? allGalleryItems : allGalleryItems.filter(item => item.category === galleryFilter);
 
   return (
-
-
-
-    
-    
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col relative">
 
 
@@ -192,6 +238,68 @@ export default function Home() {
           </div>
         </div>
       </div>
+{selectedPlayer && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedPlayer(null)}>
+          <div className="bg-[#1A0F2E] w-full max-w-sm rounded-2xl border border-[#7CD326] shadow-[0_0_50px_rgba(124,211,38,0.2)] overflow-hidden transform transition-all scale-100 relative group" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#7CD326] blur-[80px] rounded-full opacity-30"></div>
+            
+            <div className="relative h-64 bg-gray-800">
+              <img src={selectedPlayer.img} alt={selectedPlayer.name} className="w-full h-full object-cover opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] to-transparent"></div>
+              <button onClick={() => setSelectedPlayer(null)} className="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#7CD326] hover:text-black transition border border-white/20">✕</button>
+            </div>
+            
+            <div className="px-6 pb-8 pt-2 relative z-10 text-center">
+              <span className="inline-block px-3 py-1 bg-[#7CD326]/20 text-[#7CD326] text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 border border-[#7CD326]/30">{selectedPlayer.team}</span>
+              <h3 className="text-2xl font-black text-white font-serif mb-1 uppercase tracking-wide">{selectedPlayer.name}</h3>
+              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">{selectedPlayer.role}</p>
+              
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5 mb-4">
+                <p className="text-[#7CD326] text-xl font-black">{selectedPlayer.stats}</p>
+                <p className="text-gray-500 text-[10px] uppercase font-bold mt-1">Top Achievement</p>
+              </div>
+              
+              <p className="text-sm text-gray-300 leading-relaxed italic border-l-2 border-[#7CD326] pl-3 text-left">"{selectedPlayer.bio}"</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 👆👆 EKHANE PLAYER MODAL SHESH 👆👆 */}
+
+      {/* 🌟 ALBUM MODAL (Popup) (Eita tor aage thekei ache) 🌟 */}
+       {/* 👆👆 EKHANE PLAYER MODAL SHESH 👆👆 */}
+
+      {/* 🌟 ALBUM MODAL (Popup) (Eita tor aage thekei ache) 🌟 */}
+      {selectedAlbum && (
+        <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col backdrop-blur-sm animate-fade-in">
+          <div className="p-4 md:p-6 flex justify-between items-center border-b border-gray-800 bg-black/50">
+            <div>
+              <h2 className="text-white text-xl md:text-2xl font-bold font-serif">{selectedAlbum.title}</h2>
+              <p className="text-[#7CD326] text-xs uppercase tracking-wider">{selectedAlbum.category} • {selectedAlbum.photos?.length || 1} Photos</p>
+            </div>
+            <button onClick={() => setSelectedAlbum(null)} className="text-white hover:text-[#7CD326] bg-white/10 w-10 h-10 rounded-full flex items-center justify-center transition-colors">✕</button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-[1400px] mx-auto">
+              <div className="w-full h-64 md:h-80 relative group overflow-hidden rounded-xl border border-gray-800">
+                <img src={selectedAlbum.img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Cover" />
+              </div>
+              {selectedAlbum.photos && selectedAlbum.photos.map((photo, i) => (
+                <div key={i} className="w-full h-64 md:h-80 relative group overflow-hidden rounded-xl border border-gray-800">
+                  <img src={photo.imageUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={`Album image ${i+1}`} />
+                </div>
+              ))}
+            </div>
+            {(!selectedAlbum.photos || selectedAlbum.photos.length === 0) && (
+              <div className="text-center text-gray-500 py-20">This album only has a cover image.</div>
+            )}
+          </div>
+        </div>
+      )}
+      {/* 👆👆 ALBUM MODAL SHESH 👆👆 */}
+
+
       
       
       {/* 🌟 ALBUM MODAL (Popup) 🌟 */}
@@ -270,7 +378,23 @@ export default function Home() {
                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2D1B4E] via-[#7CD326] to-[#2D1B4E]"></div>
                <div className="relative z-10 text-white w-full max-w-4xl mx-auto">
                  <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-[#7CD326] text-xs font-bold tracking-widest mb-6 uppercase">Est. 1985 • Mokamia, Bangladesh</span>
-                 <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight font-serif">Built on <span className="text-[#7CD326] italic">Brotherhood</span> <br/> & Village Pride</h2>
+ <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight font-serif h-[100px] md:h-auto">
+  Built on <br className="block md:hidden"/>
+  <span className="text-[#7CD326] italic">
+    <TypeAnimation
+      sequence={[
+        'Brotherhood', 2000,
+        'Village Pride', 2000,
+        'Sports Excellence', 2000,
+        'Unity', 2000
+      ]}
+      wrapper="span"
+      speed={50}
+      repeat={Infinity}
+      className="inline-block drop-shadow-[0_0_10px_rgba(124,211,38,0.8)]"
+    />
+  </span>
+</h2>
                  <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto text-gray-200 font-light leading-relaxed">What started as a group of passionate sports lovers has evolved into a thriving community club of 200+ active members uniting brothers across generations.</p>
                  <button onClick={() => setActiveTab("reunion")} className="bg-[#7CD326] hover:bg-[#68B61D] text-[#2D1B4E] px-8 py-3 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(124,211,38,0.4)]">🎓 Register for Primary School Reunion</button>
                </div>
@@ -478,11 +602,35 @@ export default function Home() {
                         <th className="p-3">Pos</th><th className="p-3">Team Name</th><th className="p-3 text-center">P</th><th className="p-3 text-center">W</th><th className="p-3 text-center">D</th><th className="p-3 text-center">L</th><th className="p-3 text-center font-bold text-purple-900">PTS</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 text-gray-600">
-                      <tr className="hover:bg-green-50/50 bg-green-50/20 font-bold"><td className="p-3 text-[#7CD326]">1</td><td className="p-3 text-[#2D1B4E]">Mokamia Lusitans🥇</td><td className="p-3 text-center">5</td><td className="p-3 text-center">4</td><td className="p-3 text-center">1</td><td className="p-3 text-center">0</td><td className="p-3 text-center font-bold text-[#2D1B4E]">9</td></tr>
-                      <tr><td className="p-3">2</td><td className="p-3 text-[#2D1B4E]">Mokamia Allianz🥈</td><td className="p-3 text-center">5</td><td className="p-3 text-center">3</td><td className="p-3 text-center">1</td><td className="p-3 text-center">1</td><td className="p-3 text-center font-bold text-[#2D1B4E]">7</td></tr>
-                      <tr><td className="p-3">3</td><td className="p-3 text-[#2D1B4E]">Galacticos of Mokamia</td><td className="p-3 text-center">5</td><td className="p-3 text-center">2</td><td className="p-3 text-center">0</td><td className="p-3 text-center">3</td><td className="p-3 text-center font-bold text-[#2D1B4E]">3</td></tr>
-                      <tr><td className="p-3">4</td><td className="p-3 text-[#2D1B4E]">Majestic Mokamia</td><td className="p-3 text-center">5</td><td className="p-3 text-center">0</td><td className="p-3 text-center">0</td><td className="p-3 text-center">5</td><td className="p-3 text-center font-bold text-[#2D1B4E]">1</td></tr>
+                   <tbody className="divide-y divide-gray-100 text-gray-600">
+                      <tr className="hover:bg-green-50/50 bg-green-50/20 font-bold">
+                        <td className="p-3 text-[#7CD326]">1</td>
+                        <td className="p-3 text-[#2D1B4E]">
+                          <span onClick={() => openPlayerProfile("Mokamia Lusitans")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Mokamia Lusitans🥇</span>
+                        </td>
+                        <td className="p-3 text-center">5</td><td className="p-3 text-center">4</td><td className="p-3 text-center">1</td><td className="p-3 text-center">0</td><td className="p-3 text-center font-bold text-[#2D1B4E]">9</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3">2</td>
+                        <td className="p-3 text-[#2D1B4E]">
+                          <span onClick={() => openPlayerProfile("Mokamia Allianz")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Mokamia Allianz🥈</span>
+                        </td>
+                        <td className="p-3 text-center">5</td><td className="p-3 text-center">3</td><td className="p-3 text-center">1</td><td className="p-3 text-center">1</td><td className="p-3 text-center font-bold text-[#2D1B4E]">7</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3">3</td>
+                        <td className="p-3 text-[#2D1B4E]">
+                          <span onClick={() => openPlayerProfile("Galacticos of Mokamia")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Galacticos of Mokamia</span>
+                        </td>
+                        <td className="p-3 text-center">5</td><td className="p-3 text-center">2</td><td className="p-3 text-center">0</td><td className="p-3 text-center">3</td><td className="p-3 text-center font-bold text-[#2D1B4E]">3</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3">4</td>
+                        <td className="p-3 text-[#2D1B4E]">
+                          <span onClick={() => openPlayerProfile("Majestic Mokamia")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Majestic Mokamia</span>
+                        </td>
+                        <td className="p-3 text-center">5</td><td className="p-3 text-center">0</td><td className="p-3 text-center">0</td><td className="p-3 text-center">5</td><td className="p-3 text-center font-bold text-[#2D1B4E]">1</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -492,11 +640,39 @@ export default function Home() {
                 <div className="bg-[#1A0F2E] p-4 border-b border-gray-700">
                   <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ MPL Top Scorers</h3>
                 </div>
-                <div className="p-4 divide-y divide-gray-100 text-xs md:text-sm">
-                  <div className="flex justify-between py-2.5 items-center"><div><p className="font-bold text-[#2D1B4E]">Abdullah Supto</p><p className="text-gray-400 text-[10px]">Mokamia Lusitans</p></div><span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">3 Goals</span></div>
-                  <div className="flex justify-between py-2.5 items-center"><div><p className="font-bold text-[#2D1B4E]">Tourjoy</p><p className="text-gray-400 text-[10px]">Mokamia Allianz</p></div><span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">2 Goals</span></div>
-                  <div className="flex justify-between py-2.5 items-center"><div><p className="font-bold text-[#2D1B4E]">Munna</p><p className="text-gray-400 text-[10px]">Galacticos of Mokamia</p></div><span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">1 Goal</span></div>
+                  
+                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="bg-[#1A0F2E] p-4 border-b border-gray-700">
+                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ MPL Top Scorers</h3>
                 </div>
+                <div className="p-4 divide-y divide-gray-100 text-xs md:text-sm">
+                  
+                  <div className="flex justify-between py-2.5 items-center">
+                    <div>
+                      <p onClick={() => openPlayerProfile("Abdullah Supto")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Abdullah Supto</p>
+                      <p className="text-gray-400 text-[10px]">Mokamia Lusitans</p>
+                    </div>
+                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">3 Goals</span>
+                  </div>
+                  
+                  <div className="flex justify-between py-2.5 items-center">
+                    <div>
+                      <p onClick={() => openPlayerProfile("Tourjoy")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Tourjoy</p>
+                      <p className="text-gray-400 text-[10px]">Mokamia Allianz</p>
+                    </div>
+                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">2 Goals</span>
+                  </div>
+                  
+                  <div className="flex justify-between py-2.5 items-center">
+                    <div>
+                      <p onClick={() => openPlayerProfile("Munna")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Munna</p>
+                      <p className="text-gray-400 text-[10px]">Galacticos of Mokamia</p>
+                    </div>
+                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">1 Goal</span>
+                  </div>
+
+                </div>
+              </div>
               </div>
             </div>
 
@@ -504,26 +680,27 @@ export default function Home() {
               <div className="bg-[#2D1B4E] p-4 border-b border-purple-900">
                 <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏏 MOC Cricket Association Top Stats</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
+               
+               <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
                 <div className="p-5">
                   <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🔥 Leading Bowlers</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>1. Noman</span><span className="font-bold text-[#7CD326]">12 Wkts (Econ 5.2)</span></div>
-                    <div className="flex justify-between items-center"><span>2. Istiak Shadin</span><span className="font-bold text-[#7CD326]">11 Wkts (Econ 5.3)</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Noman")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Noman</span><span className="font-bold text-[#7CD326]">12 Wkts (Econ 5.2)</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Istiak Shadin")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Istiak Shadin</span><span className="font-bold text-[#7CD326]">11 Wkts (Econ 5.3)</span></div>
                   </div>
                 </div>
                 <div className="p-5">
                   <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🏏 Top Batsmen</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>1. Abdullah Fahad</span><span className="font-bold text-[#7CD326]">212 Runs (SR 145)</span></div>
-                    <div className="flex justify-between items-center"><span>2. Mobarak Hossain</span><span className="font-bold text-[#7CD326]">196 Runs (SR 140)</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Abdullah Fahad")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Abdullah Fahad</span><span className="font-bold text-[#7CD326]">212 Runs (SR 145)</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Mobarak Hossain")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Mobarak Hossain</span><span className="font-bold text-[#7CD326]">196 Runs (SR 140)</span></div>
                   </div>
                 </div>
                 <div className="p-5">
                   <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🌟 Valuable Players</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>1. Iftekhar Ahmed</span><span className="font-bold text-[#7CD326]">143 Runs + 8 Wkts</span></div>
-                    <div className="flex justify-between items-center"><span>2. Mohammad Sayed Hossain</span><span className="font-bold text-[#7CD326]">131 Runs + 7 Wkts</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Iftekhar Ahmed")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Iftekhar Ahmed</span><span className="font-bold text-[#7CD326]">143 Runs + 8 Wkts</span></div>
+                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Mohammad Sayed Hossain")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Mohammad Sayed Hossain</span><span className="font-bold text-[#7CD326]">131 Runs + 7 Wkts</span></div>
                   </div>
                 </div>
               </div>
@@ -534,19 +711,19 @@ export default function Home() {
                 <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏸 Winter Badminton Championship</h3>
                 <span className="text-[10px] bg-[#7CD326] text-[#2D1B4E] px-2 py-0.5 rounded font-bold">LATEST</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
+               <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
                 <div className="p-5">
                   <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase tracking-wider text-xs">🥇 Men's Singles</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>Champion</span><span className="font-bold text-[#7CD326]">Imtiaz Hossain Ontor</span></div>
-                    <div className="flex justify-between items-center"><span>Runner-up</span><span className="font-bold text-gray-600">Shaiful Islam Tamim</span></div>
+                    <div className="flex justify-between items-center"><span>Champion</span><span onClick={() => openPlayerProfile("Imtiaz Hossain Ontor")} className="font-bold text-[#7CD326] cursor-pointer hover:underline decoration-dashed transition-all">Imtiaz Hossain Ontor</span></div>
+                    <div className="flex justify-between items-center"><span>Runner-up</span><span onClick={() => openPlayerProfile("Shaiful Islam Tamim")} className="font-bold text-gray-600 cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Shaiful Islam Tamim</span></div>
                   </div>
                 </div>
                 <div className="p-5">
                   <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase tracking-wider text-xs">🏆 Men's Doubles</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>Champions</span><span className="font-bold text-[#7CD326]">Istiak Shadin</span></div>
-                    <div className="flex justify-between items-center"><span>Runners-up</span><span className="font-bold text-gray-600">Sojib Bhuiyan</span></div>
+                    <div className="flex justify-between items-center"><span>Champions</span><span onClick={() => openPlayerProfile("Istiak Shadin")} className="font-bold text-[#7CD326] cursor-pointer hover:underline decoration-dashed transition-all">Istiak Shadin</span></div>
+                    <div className="flex justify-between items-center"><span>Runners-up</span><span onClick={() => openPlayerProfile("Sojib Bhuiyan")} className="font-bold text-gray-600 cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Sojib Bhuiyan</span></div>
                   </div>
                 </div>
               </div>
@@ -654,6 +831,8 @@ export default function Home() {
              </div>
           </div>
         )}
+        {/* 🎉 CONFETTI MAGIC */}
+      {showConfetti && <Confetti width={width} height={height} numberOfPieces={300} gravity={0.3} />}
       </main>
 
       {/* --- PREMIUM FOOTER --- */}
