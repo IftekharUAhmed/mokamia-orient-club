@@ -177,12 +177,19 @@ export default function Home() {
           </p>
           
           {/* Cool Bouncing Dots Loader */}
-          <div className="flex gap-3 mt-10">
-            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0s' }}></div>
-            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          {/* Cool Progress Bar */}
+          <div className="w-48 md:w-64 h-1.5 bg-white/10 rounded-full mt-10 overflow-hidden relative shadow-inner">
+            <style>{`
+              @keyframes fillBar {
+                0% { width: 0%; }
+                100% { width: 100%; }
+              }
+              .animate-fill-bar {
+                animation: fillBar 1.7s ease-in-out forwards;
+              }
+            `}</style>
+            <div className="h-full bg-gradient-to-r from-[#7CD326] to-emerald-400 rounded-full animate-fill-bar shadow-[0_0_15px_#7CD326]"></div>
           </div>
-
         </div>
       </div>
       
