@@ -81,3 +81,23 @@ model Photo {
   album       Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 }
+// --- MOC Notice Board Model ---
+model Notice {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  isUrgent    Boolean  @default(false)
+  authorName  String
+  authorRole  String?
+  createdAt   DateTime @default(now())
+}
+
+// --- MOC Super Chat Model ---
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  imageUrl    String?  // Attachment (Chobi/File) er jonno
+  senderName  String
+  senderRole  String?
+  createdAt   DateTime @default(now())
+}

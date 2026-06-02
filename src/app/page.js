@@ -41,15 +41,29 @@ export default function Home() {
   };
   // 🌟 ALBUM GALLERY STATES 🌟
   const [dynamicGallery, setDynamicGallery] = useState([]);
-  const [selectedAlbum, setSelectedAlbum] = useState(null); // Modal open korar jonno
+  const [selectedAlbum, setSelectedAlbum] = useState(null); 
+// 🌟 NEW: Public Notice State
+  const [publicNotices, setPublicNotices] = useState([]);
+   
 
-  useEffect(() => {
-    const fetchGallery = async () => {
+    useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/gallery", { cache: "no-store" });
-        const result = await res.json();
-        if (result.success) {
-          const formattedData = result.data.map(item => ({
+        const [galleryRes, noticeRes] = await Promise.all([
+          fetch("/api/gallery", { cache: "no-store" }),
+          fetch("/api/notice", { cache: "no-store" })
+        ]);
+        
+        const galleryResult = await galleryRes.json();
+        const noticeResult = await noticeRes.json();
+
+        if (noticeResult.success) {
+          setPublicNotices(noticeResult.data);
+        }
+
+        if (galleryResult.success) {
+          // 🌟 Ekhane result er jaygay galleryResult deya hoyeche ekhon
+          const formattedData = galleryResult.data.map(item => ({
             id: item.id,
             category: item.category,
             title: item.title,
@@ -59,10 +73,10 @@ export default function Home() {
           setDynamicGallery(formattedData);
         }
       } catch (err) {
-        console.error("Gallery fetch error:", err);
+        console.error("Fetch error:", err);
       }
     };
-    fetchGallery();
+    fetchData(); 
   }, []);
 
   // --- REUNION FORM STATE ---
@@ -211,7 +225,39 @@ export default function Home() {
                  <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Active Community</p>
                </div>
             </div>
-
+{/* 🌟 NEW: PUBLIC NOTICE BOARD 🌟 */}
+            {publicNotices.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="bg-[#FF3B30] text-white p-2 rounded-full animate-pulse">📢</span>
+                  <h3 className="text-2xl font-bold text-[#2D1B4E] font-serif tracking-wide">Official Club Notices</h3>
+                  <div className="flex-1 h-px bg-gray-200 ml-4 hidden sm:block"></div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {publicNotices.map((notice) => (
+                    <div key={notice.id} className={`bg-white p-6 rounded-xl shadow-md border-l-4 transition-all hover:-translate-y-1 ${notice.isUrgent ? 'border-[#FF3B30] bg-red-50/10' : 'border-[#7CD326]'}`}>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className={`font-bold text-lg leading-snug ${notice.isUrgent ? 'text-[#FF3B30]' : 'text-[#2D1B4E]'}`}>
+                          {notice.isUrgent && "🚨 "} {notice.title}
+                        </h4>
+                        <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                          {new Date(notice.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{notice.content}</p>
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#2D1B4E] text-white flex items-center justify-center text-[10px] font-bold">
+                          {notice.authorName?.charAt(0) || 'A'}
+                        </div>
+                        <p className="text-xs font-bold text-gray-500">Posted by {notice.authorName}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* 🌟 END PUBLIC NOTICE BOARD 🌟 */}
             <div className="bg-white rounded-xl p-8 mb-12 shadow-lg border border-gray-100 flex flex-col md:flex-row items-center gap-10">
                <div className="md:w-1/3 flex justify-center">
                  <img src="/moc-logo.jpeg" alt="MOC Legacy" className="w-48 h-48 object-cover rounded-full border-4 border-[#2D1B4E] shadow-xl" onError={(e) => { e.target.style.display='none'; }} />
