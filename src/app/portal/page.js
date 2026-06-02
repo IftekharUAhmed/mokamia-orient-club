@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
+import Pusher from "pusher-js";
 
 export default function PortalDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -21,6 +22,9 @@ export default function PortalDashboard() {
   const [editMsgInput, setEditMsgInput] = useState("");
   const [isNoticeSubmitting, setIsNoticeSubmitting] = useState(false);
   const chatEndRef = useRef(null);
+  // 🌟 NEW: Sound Effect Ref
+  const audioRef = useRef(typeof Audio !== "undefined" ? new Audio("/ting.mp3") : null);
+  const prevMessageCount = useRef(0);
 
   // Form States
   const [newCommittee, setNewCommittee] = useState({ fullName: "", designation: "", mobileNumber: "", email: "", bloodGroup: "A+", password: "" });
@@ -88,19 +92,56 @@ export default function PortalDashboard() {
   };
 
   // 🌟 Auto Refresh for Chat Room & Scrolling (Fixed Quick Refresh Issue)
+   // ⚡ NEW: Real-time Pusher WebSocket Listener (No more 20s lag!)
   useEffect(() => {
-    let interval;
-    if (activeMenu === "chat") {
-      // Call silently so screen doesn't jump or show loader
-      interval = setInterval(() => { fetchDashboardData(true); }, 20000); 
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-    return () => clearInterval(interval);
-  }, [activeMenu]);
+    if (activeMenu !== "chat") return;
 
+    // Chat open hole automatic smooth scroll hobe aage
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    // Pusher Client initialize korlam
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    });
+
+    // Channel-e subscribe korlam
+    const channel = pusher.subscribe("moc-channel");
+
+    // Jokhon-e backend theke 'new-message' event ashbe, sathe sathe array-te push hobe
+    channel.bind("new-message", (newMsg) => {
+      setMessages((prev) => {
+        // Double message prevent korar choto check (jodi aage thekei optimistic update-e na thake)
+        if (prev.some((m) => m.id === newMsg.id)) return prev;
+        return [...prev, newMsg];
+      });
+    });
+
+    // Cleanup function: tab change korle line kete dibe jate speed fast thake
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [activeMenu]);
+     
+
+   // 🌟 Auto Scroll & Notification Sound Logic
   useEffect(() => {
     if (activeMenu === "chat") chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+
+    // Sound bajabe jodi notun message ashe ar sheta onno karo hoy
+    if (messages.length > prevMessageCount.current) {
+      const lastMessage = messages[messages.length - 1];
+      const isMe = lastMessage?.senderName === adminUser?.name;
+      
+      // Jodi message ta amar na hoy ar app ta load howar por prothom bar na hoy
+      if (!isMe && prevMessageCount.current !== 0 && audioRef.current) {
+        audioRef.current.play().catch((err) => console.log("Audio play blocked by browser", err));
+      }
+    }
+    
+    // Count update kore rakhlam next check er jonno
+    prevMessageCount.current = messages.length;
+  }, [messages, activeMenu, adminUser]);
 
   // 🌟 NEW: SUPER CHAT LOGIC (Fixed ID Issue)
   const handleSendMessage = async (e) => {
@@ -696,15 +737,15 @@ export default function PortalDashboard() {
                     {messages.length === 0 ? (<div className="h-full flex items-center justify-center text-slate-400 font-bold">Start the conversation!</div>) : (
                       messages.map((msg, idx) => {
                         const isMe = msg.senderName === adminUser?.name;
-                        return (
+                       return (
                           <div key={idx} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} group`}>
                              {!isMe && <span className="text-[10px] font-bold text-slate-400 ml-2 mb-1">{msg.senderName}</span>}
                              
                              <div className={`relative max-w-[75%] p-3 shadow-sm ${isMe ? 'bg-[#7CD326] text-[#0B1437] rounded-2xl rounded-tr-sm' : 'bg-white text-slate-700 rounded-2xl rounded-tl-sm border border-slate-100'}`}>
                                
-                               {/* 🌟 Edit/Delete Action Menu (Only for your messages) */}
+                               {/* 🌟 Laptop/Desktop Action Menu (Hidden on mobile, shows on hover) */}
                                {isMe && (
-                                 <div className="absolute top-1/2 -translate-y-1/2 -left-16 hidden group-hover:flex gap-1 bg-white shadow-sm border border-slate-200 rounded-lg p-1 animate-fade-in z-10">
+                                 <div className="md:absolute md:top-1/2 md:-translate-y-1/2 md:-left-16 md:flex hidden group-hover:flex gap-1 bg-white shadow-sm border border-slate-200 rounded-lg p-1 animate-fade-in z-10">
                                    <button onClick={() => { setEditingMsgId(msg.id); setEditMsgInput(msg.content); }} className="text-xs hover:bg-amber-100 text-amber-600 p-1.5 rounded-md transition-colors" title="Edit">✏️</button>
                                    <button onClick={() => handleDeleteChat(msg.id)} className="text-xs hover:bg-red-100 text-red-600 p-1.5 rounded-md transition-colors" title="Delete">🗑️</button>
                                  </div>
@@ -726,11 +767,23 @@ export default function PortalDashboard() {
                                )}
                              </div>
                              
-                             <span className="text-[9px] font-bold text-slate-400 mt-1 mx-1">
-                               {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                             </span>
+                             {/* 🌟 Time Stamp & Mobile Specific Action Links */}
+                             <div className="flex items-center gap-3 mt-1 mx-1 text-[10px] font-bold text-slate-400">
+                               <span>
+                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                               </span>
+                               
+                               {/* Only shows on mobile devices (md:hidden) and when not currently editing */}
+                               {isMe && editingMsgId !== msg.id && (
+                                 <div className="flex gap-2 md:hidden border-l border-slate-200 pl-2 text-[11px]">
+                                   <button onClick={() => { setEditingMsgId(msg.id); setEditMsgInput(msg.content); }} className="text-amber-600 active:scale-95 transition-transform">Edit</button>
+                                   <button onClick={() => handleDeleteChat(msg.id)} className="text-red-500 active:scale-95 transition-transform">Delete</button>
+                                 </div>
+                               )}
+                             </div>
+
                           </div>
-                        )
+                        ) 
                       })
                     )}
                     <div ref={chatEndRef} />
