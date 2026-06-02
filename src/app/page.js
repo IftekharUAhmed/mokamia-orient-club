@@ -1,6 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+ 
+import AdvisorsSlider from "@/components/AdvisorsSlider"; // 🌟 Eita notun add koro
 
 // --- 🌟 ADVANCED COUNT-UP ANIMATION (SCROLL SENSOR) 🌟 ---
 const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
@@ -33,6 +37,9 @@ const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
 export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
   const [galleryFilter, setGalleryFilter] = useState("all");
+    
+  // 🚀 NEW: Splash Screen State
+  const [isLoading, setIsLoading] = useState(true);
 
 // 🌟 NEW: Tab change er sathe sathe smooth kore upore niye jabar helper
   const handleNavigation = (tabName) => {
@@ -78,6 +85,27 @@ export default function Home() {
     };
     fetchData(); 
   }, []);
+  // 🌟 INIT SCROLL ANIMATION MAGIC
+  // 🌟 INIT SCROLL ANIMATION & PRELOADER MAGIC
+  useEffect(() => {
+    // Prothome AOS chalu korlam
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic',
+    });
+
+    // 1.8 second por loading porda shoriye dibo
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      // Porda shorar por AOS ke ekbar refresh korbo jate animation perfect hoy
+      if (typeof window !== 'undefined' && AOS) {
+        AOS.refresh();
+      }
+    }, 1800); 
+
+    return () => clearTimeout(timer);
+  }, []); 
 
   // --- REUNION FORM STATE ---
   const [reunionData, setReunionData] = useState({ fullName: "", mobileNumber: "", batchPassingYear: "", tShirtSize: "M", currentLocation: "", transactionId: "" });
@@ -124,7 +152,40 @@ export default function Home() {
   const filteredGallery = galleryFilter === "all" ? allGalleryItems : allGalleryItems.filter(item => item.category === galleryFilter);
 
   return (
+
+
+
+    
+    
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col relative">
+
+
+<div className={`fixed inset-0 z-[9999] bg-[#1A0F2E] flex flex-col items-center justify-center transition-all duration-1000 ease-in-out ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="relative flex flex-col items-center transform transition-transform duration-1000 scale-100">
+          
+          {/* Glowing Logo */}
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-[#7CD326] p-1.5 mb-8 shadow-[0_0_40px_rgba(124,211,38,0.3)] animate-pulse bg-white">
+            <img src="/moc-logo.jpeg" alt="MOC Loading" className="w-full h-full object-cover rounded-full" onError={(e) => { e.target.style.display='none'; }} />
+          </div>
+          
+          {/* Club Name */}
+          <h2 className="text-white text-2xl md:text-3xl font-serif font-extrabold tracking-widest uppercase mb-2 drop-shadow-md">
+            Mokamia Orient Club
+          </h2>
+          <p className="text-[#7CD326] text-xs uppercase tracking-[0.3em] font-bold">
+            Est. 1985
+          </p>
+          
+          {/* Cool Bouncing Dots Loader */}
+          <div className="flex gap-3 mt-10">
+            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-3 h-3 rounded-full bg-[#7CD326] animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+
+        </div>
+      </div>
+      
       
       {/* 🌟 ALBUM MODAL (Popup) 🌟 */}
       {selectedAlbum && (
@@ -197,7 +258,7 @@ export default function Home() {
         {/* --- HOME TAB --- */}
         {activeTab === "home" && (
           <div className="animate-fade-in">
-            <div className="relative rounded-2xl overflow-hidden mb-10 shadow-2xl flex flex-col items-center justify-center text-center px-6 py-20 md:py-32 bg-[#2D1B4E]">
+             <div data-aos="zoom-in" data-aos-duration="1000" className="relative rounded-2xl overflow-hidden mb-10 shadow-2xl flex flex-col items-center justify-center text-center px-6 py-20 md:py-32 bg-[#2D1B4E]">
                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2D1B4E] via-[#7CD326] to-[#2D1B4E]"></div>
                <div className="relative z-10 text-white w-full max-w-4xl mx-auto">
@@ -207,8 +268,10 @@ export default function Home() {
                  <button onClick={() => setActiveTab("reunion")} className="bg-[#7CD326] hover:bg-[#68B61D] text-[#2D1B4E] px-8 py-3 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(124,211,38,0.4)]">🎓 Register for Primary School Reunion</button>
                </div>
             </div>
-
-            <div className="bg-[#2D1B4E] border-b-4 border-[#7CD326] rounded-xl p-8 mb-12 shadow-2xl flex flex-wrap justify-around items-center text-center relative overflow-hidden">
+ <div data-aos="fade-up" data-aos-delay="100" className="mb-12">
+    <AdvisorsSlider />
+</div>
+             <div data-aos="fade-up" data-aos-delay="300" className="bg-[#2D1B4E] border-b-4 border-[#7CD326] rounded-xl p-8 mb-12 shadow-2xl flex flex-wrap justify-around items-center text-center relative overflow-hidden">
                <div className="absolute inset-0 bg-white opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #7CD326 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                <div className="p-4 relative z-10 group">
                  <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 transition-transform"><CountUpAnimation target={200} suffix="+" duration={2000} /></h4>
@@ -235,8 +298,13 @@ export default function Home() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {publicNotices.map((notice) => (
-                    <div key={notice.id} className={`bg-white p-6 rounded-xl shadow-md border-l-4 transition-all hover:-translate-y-1 ${notice.isUrgent ? 'border-[#FF3B30] bg-red-50/10' : 'border-[#7CD326]'}`}>
+                  {publicNotices.map((notice, index) => (
+  <div 
+    key={notice.id} 
+    data-aos="fade-right" 
+    data-aos-delay={index * 150} // protita notice ektu por por ashbe
+    className={`bg-white p-6 rounded-xl shadow-md border-l-4 transition-all hover:-translate-y-1 ${notice.isUrgent ? 'border-[#FF3B30] bg-red-50/10' : 'border-[#7CD326]'}`}
+  >
                       <div className="flex justify-between items-start mb-3">
                         <h4 className={`font-bold text-lg leading-snug ${notice.isUrgent ? 'text-[#FF3B30]' : 'text-[#2D1B4E]'}`}>
                           {notice.isUrgent && "🚨 "} {notice.title}
@@ -258,7 +326,7 @@ export default function Home() {
               </div>
             )}
             {/* 🌟 END PUBLIC NOTICE BOARD 🌟 */}
-            <div className="bg-white rounded-xl p-8 mb-12 shadow-lg border border-gray-100 flex flex-col md:flex-row items-center gap-10">
+            <div data-aos="fade-up" data-aos-duration="1000" className="bg-white rounded-xl p-8 mb-12 shadow-lg border border-gray-100 flex flex-col md:flex-row items-center gap-10">
                <div className="md:w-1/3 flex justify-center">
                  <img src="/moc-logo.jpeg" alt="MOC Legacy" className="w-48 h-48 object-cover rounded-full border-4 border-[#2D1B4E] shadow-xl" onError={(e) => { e.target.style.display='none'; }} />
                </div>

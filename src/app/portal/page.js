@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import Pusher from "pusher-js";
+ 
+
 
 export default function PortalDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -703,6 +705,7 @@ export default function PortalDashboard() {
               {/* --- 🌟 NEW: NOTICES TAB 🌟 --- */}
               {activeMenu === "notices" && (
                 <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+                   
                   <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-[#2B3674] text-white px-8 py-5"><h2 className="text-lg font-bold">📢 Post a Notice</h2></div>
                     <form onSubmit={handleNoticeSubmit} className="p-8 space-y-5">
