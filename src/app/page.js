@@ -5,7 +5,8 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
- import { TypeAnimation } from 'react-type-animation';// Window size bujhar jonno
+ import { TypeAnimation } from 'react-type-animation';
+  import { toPng } from 'html-to-image';
  
 import AdvisorsSlider from "@/components/AdvisorsSlider"; // 🌟 Eita notun add koro
 
@@ -54,6 +55,8 @@ export default function Home() {
   const [selectedAlbum, setSelectedAlbum] = useState(null); 
 // 🌟 NEW: Public Notice State
   const [publicNotices, setPublicNotices] = useState([]);
+  // 🎟️ NEW: Auto-Generated VIP Ticket State
+  const [generatedTicket, setGeneratedTicket] = useState(null);
    
 
     useEffect(() => {
@@ -88,7 +91,7 @@ export default function Home() {
     };
     fetchData(); 
   }, []);
-  // 🌟 INIT SCROLL ANIMATION MAGIC
+   
   // 🌟 INIT SCROLL ANIMATION & PRELOADER MAGIC
   useEffect(() => {
     // Prothome AOS chalu korlam
@@ -123,39 +126,87 @@ export default function Home() {
   const [showConfetti, setShowConfetti] = useState(false);
   const { width, height } = useWindowSize(); // Window er map ney
 
+  
+ 
+   // 📥 CARD DOWNLOAD MAGIC FUNCTION (Modern html-to-image)
+  // 📥 CARD DOWNLOAD MAGIC FUNCTION (Fixed with html-to-image)
+  const downloadCardImage = () => {
+    const cardElement = document.getElementById('moc-welcome-card');
+    if (cardElement) {
+      setTimeout(() => {
+        toPng(cardElement, { cacheBust: true, backgroundColor: '#ffffff', pixelRatio: 2 })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = `MOC_Pass_${generatedTicket.token}.png`;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((err) => {
+            console.error("Download Error:", err);
+            alert("⚠️ Download fail korse. Tumi ekta Screenshot niye rakhte paro!");
+          });
+      }, 300); // 300ms delay jate font/image theekmoto load hoy
+    }
+  }; 
+
+  // --- REUNION SUBMIT ---
+ 
+  // --- REUNION SUBMIT ---
   const handleReunionSubmit = async (e) => {
     e.preventDefault();
     if (!/^01\d{9}$/.test(reunionData.mobileNumber)) return alert("❌ Valid mobile number required.");
     setIsReunionSubmitting(true);
     try {
       const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reunionData) });
-      if ((await res.json()).success) { 
-        alert("🎉 Registration Successful!"); 
-        setShowConfetti(true); // 🌟 Brishti shuru!
-        setTimeout(() => setShowConfetti(false), 5000); // 5 second por bondho
+      const data = await res.json(); // Aage json parse korbo, tahole ashol error message pabo
+      
+      if (data.success) { 
+        const token = "MOC-" + Math.floor(1000 + Math.random() * 9000); 
+        setGeneratedTicket({ type: "reunion", name: reunionData.fullName, token: token, date: new Date().toLocaleDateString('bn-BD') });
+        
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
         setReunionData({ fullName: "", mobileNumber: "", batchPassingYear: "", tShirtSize: "M", currentLocation: "", transactionId: "" }); 
+      } else {
+        // Database theke asha ashol error message dekhabe (e.g., Mobile number already exists)
+        alert("❌ Oooops: " + (data.message || data.error || "Server error hoise!"));
       }
-    } catch (err) { alert("Server Error!"); } finally { setIsReunionSubmitting(false); }
+    } catch (err) { 
+      alert("⚠️ API Response e jhamela ase. Terminal check koro!"); 
+      console.error(err);
+    } finally { 
+      setIsReunionSubmitting(false); 
+    }
   };
 
+  // --- JOIN SUBMIT ---
   const handleJoinSubmit = async (e) => {
     e.preventDefault();
     if (!/^01\d{9}$/.test(joinData.mobileNumber)) return alert("❌ Valid mobile number required.");
     setIsJoinSubmitting(true);
     try {
       const res = await fetch('/api/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(joinData) });
-      if ((await res.json()).success) { 
-        alert("✅ Application Submitted!"); 
-        
-        // 🌟 Confetti Brishti Shuru!
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 5000); // 5 second por bondho hobe
+      const data = await res.json();
 
-        // 🧹 Form khali kora hocche
+      if (data.success) { 
+        const token = "MEM-" + Math.floor(10000 + Math.random() * 90000);
+        setGeneratedTicket({ type: "join", name: joinData.fullName, token: token, date: new Date().toLocaleDateString('en-GB') });
+        
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
         setJoinData({ fullName: "", mobileNumber: "", bloodGroup: "A+", presentAddress: "", occupation: "" }); 
+      } else {
+        // Database theke asha ashol error message dekhabe
+        alert("❌ Oooops: " + (data.message || data.error || "Server error hoise!"));
       }
-    } catch (err) { alert("Server Error!"); } finally { setIsJoinSubmitting(false); }
-  }; 
+    } catch (err) { 
+      alert("⚠️ API Response e jhamela ase. Terminal check koro!"); 
+      console.error(err);
+    } finally { 
+      setIsJoinSubmitting(false); 
+    }
+  };
+  
 
 // 🚀 NEW: Player Profile Magic State
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -175,8 +226,7 @@ export default function Home() {
     "Imtiaz Hossain Ontor": { role: "Badminton Champ", team: "MOC Badminton", stats: "Men's Singles Gold", bio: "The undisputed king of the winter badminton championship.", img: "/ontor.jpeg" },
     "Shaiful Islam Tamim": { role: "Badminton Pro", team: "MOC Badminton", stats: "Singles Runner-up", bio: "Fierce competitor with excellent court coverage.", img: "/tamim.jpg" },
     "Sojib Bhuiyan": { role: "Doubles Specialist", team: "MOC Badminton", stats: "Doubles Runner-up", bio: "Master of quick reflexes and net play.", img: "/sojib.jpg" },
-    // Teams
-     // Teams
+    // Teams    
     "Mokamia Lusitans": { role: "MPL Champion", team: "MPL 5th Edition", stats: "9 Points", bio: "The undisputed champions of the tournament, dominating every match with tactical brilliance.", img: " " },
     "Mokamia Allianz": { role: "Runners-Up", team: "MPL 5th Edition", stats: "7 Points", bio: "A fiercely competitive team that fought till the very last minute.", img: "/mpl-champ.jpeg " },
     "Galacticos of Mokamia": { role: "3rd Place", team: "MPL 5th Edition", stats: "3 Points", bio: "Fought hard but fell short, promising a strong comeback next season.", img: " " },
@@ -203,6 +253,7 @@ export default function Home() {
   const filteredGallery = galleryFilter === "all" ? allGalleryItems : allGalleryItems.filter(item => item.category === galleryFilter);
 
   return (
+
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col relative">
 
 
@@ -234,6 +285,9 @@ export default function Home() {
                 animation: fillBar 1.7s ease-in-out forwards;
               }
             `}</style>
+
+ 
+
             <div className="h-full bg-gradient-to-r from-[#7CD326] to-emerald-400 rounded-full animate-fill-bar shadow-[0_0_15px_#7CD326]"></div>
           </div>
         </div>
@@ -330,6 +384,76 @@ export default function Home() {
           </div>
         </div>
       )}
+
+
+{/* 🎟️ AUTO-GENERATED VIP TICKET MODAL 🎟️ */}
+      {/* 🎟️ WELCOME CARD / TOKEN MODAL (Clean & Downloadable) 🎟️ */}
+      {generatedTicket && (
+        <div className="fixed inset-0 z-[99999] bg-[#1A0F2E]/90 backdrop-blur-md flex flex-col justify-center items-center p-4 animate-fade-in">
+          
+          {/* 📸 The DOM Element to be Downloaded */}
+          <div id="moc-welcome-card" className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col text-[#2D1B4E] border-2 border-gray-100">
+            
+            {/* Header */}
+            <div className="bg-[#2D1B4E] p-6 text-center border-b-4 border-[#7CD326] relative">
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
+              <img src="/moc-logo.jpeg" alt="MOC" className="w-16 h-16 rounded-full mx-auto border-2 border-white mb-2 relative z-10 shadow-lg object-cover" />
+              <h2 className="text-white font-bold text-lg uppercase tracking-widest relative z-10 font-serif">Mokamia Orient Club</h2>
+            </div>
+            
+            {/* Dynamic Body: Reunion (Bangla) vs Join (English) */}
+            <div className="p-8 text-center bg-white relative z-10">
+              {generatedTicket.type === "reunion" ? (
+                <>
+                  <h3 className="text-xl font-bold text-[#7CD326] mb-1">রেজিস্ট্রেশন সফল!</h3>
+                  <p className="text-lg font-black text-[#2D1B4E] mb-5">{generatedTicket.name}</p>
+                  
+                  <div className="bg-gray-50 p-4 rounded-xl mb-5 border border-dashed border-gray-300">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 font-bold">আপনার টোকেন নম্বর</p>
+                    <p className="text-3xl font-black font-mono text-[#2D1B4E] tracking-widest bg-white py-2 rounded shadow-sm border border-gray-100">{generatedTicket.token}</p>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm font-medium leading-relaxed">
+                    মোকা্মিয়া সরকারি প্রাথমিক বিদ্যালয়ের পুনর্মিলনীতে আপনাকে সাদর আমন্ত্রণ। অনুগ্রহ করে এই কার্ডটি অথবা টোকেন নম্বরটি আপনার ফোনে সেভ করে রাখুন।
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-[#7CD326] mb-1">Welcome to MOC!</h3>
+                  <p className="text-lg font-black text-[#2D1B4E] mb-5">{generatedTicket.name}</p>
+                  
+                  <div className="bg-gray-50 p-4 rounded-xl mb-5 border border-dashed border-gray-300">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 font-bold">Membership ID</p>
+                    <p className="text-3xl font-black font-mono text-[#2D1B4E] tracking-widest bg-white py-2 rounded shadow-sm border border-gray-100">{generatedTicket.token}</p>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm font-medium leading-relaxed">
+                    Your membership application has been successfully received. Welcome to the proud brotherhood of Mokamia!
+                  </p>
+                </>
+              )}
+            </div>
+            
+            {/* Footer */}
+            <div className="bg-gray-50 p-3 text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest border-t border-gray-100 flex justify-between px-6">
+              <span>Date: {generatedTicket.date}</span>
+              <span>EST. 1985</span>
+            </div>
+          </div>
+
+          {/* 🖱️ Action Buttons (These won't show in the downloaded image) */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-8 w-full max-w-sm px-4">
+            <button onClick={downloadCardImage} className="flex-1 bg-[#7CD326] text-[#2D1B4E] px-4 py-3 rounded-xl font-bold hover:bg-white transition-colors shadow-lg flex justify-center items-center gap-2">
+              <span className="text-lg">⬇️</span> Download Card
+            </button>
+            <button onClick={() => setGeneratedTicket(null)} className="sm:w-1/3 bg-white/10 text-white px-4 py-3 rounded-xl font-bold hover:bg-[#FF3B30] transition-colors border border-white/20">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+
 
       {/* HEADER & NAVBAR */}
       <header className="bg-[#2D1B4E] text-white">
@@ -457,15 +581,57 @@ export default function Home() {
               </div>
             )}
             {/* 🌟 END PUBLIC NOTICE BOARD 🌟 */}
-            <div data-aos="fade-up" data-aos-duration="1000" className="bg-white rounded-xl p-8 mb-12 shadow-lg border border-gray-100 flex flex-col md:flex-row items-center gap-10">
-               <div className="md:w-1/3 flex justify-center">
-                 <img src="/moc-logo.jpeg" alt="MOC Legacy" className="w-48 h-48 object-cover rounded-full border-4 border-[#2D1B4E] shadow-xl" onError={(e) => { e.target.style.display='none'; }} />
-               </div>
-               <div className="md:w-2/3 text-center md:text-left">
-                 <span className="text-[#7CD326] font-bold tracking-wider text-sm uppercase">Our Legacy</span>
-                 <h3 className="text-[#2D1B4E] font-bold text-2xl md:text-4xl font-serif mb-4 mt-2">The Pride of Mokamia</h3>
-                 <p className="text-gray-600 mb-4 leading-relaxed">For nearly four decades, Mokamia Orient Club has been the heartbeat of our village. We believe that sports build character, and true brotherhood builds a strong, united community.</p>
-               </div>
+            {/* 🎟️ 3D VIP TICKET CTA */}
+            <div data-aos="fade-up" className="relative w-full max-w-3xl mx-auto mb-20 group cursor-pointer" onClick={() => setActiveTab("reunion")}>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#7CD326] to-emerald-500 rounded-2xl blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
+              <div className="relative bg-[#2D1B4E] border border-[#7CD326]/30 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] overflow-hidden">
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
+                <div className="md:w-2/3 text-center md:text-left z-10">
+                  <span className="inline-block px-3 py-1 bg-[#7CD326]/20 text-[#7CD326] text-[10px] font-black tracking-widest uppercase rounded-full mb-3 border border-[#7CD326]/50">Limited Slots</span>
+                  <h3 className="text-3xl font-black text-white font-serif mb-2">Claim Your Reunion VIP Pass</h3>
+                  <p className="text-gray-400 text-sm">Join the grandest gathering of Mokamia Govt. Primary School alumni. Experience the nostalgia, brotherhood, and a day to remember.</p>
+                </div>
+                <div className="mt-6 md:mt-0 z-10">
+                  <button className="bg-[#7CD326] text-[#2D1B4E] px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_#7CD326] hover:bg-white transition-colors">Register Now 🎟️</button>
+                </div>
+              </div>
+            </div>
+
+            {/* 🍏 APPLE-STYLE NEON TIMELINE (THE LEGACY) */}
+            <div data-aos="fade-up" className="bg-white rounded-2xl p-8 md:p-12 mb-12 shadow-xl border border-gray-100 max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <span className="text-[#7CD326] font-black tracking-widest text-xs uppercase">Heritage & History</span>
+                <h3 className="text-[#2D1B4E] font-black text-3xl md:text-5xl font-serif mt-2">Our Legacy</h3>
+              </div>
+
+              {/* The Glowing Vertical Line */}
+              <div className="relative border-l-4 border-gray-200 ml-4 md:ml-10 py-6 space-y-16">
+                
+                {/* Timeline Item 1 */}
+                <div className="relative pl-8 md:pl-12 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-150 group-hover:shadow-[0_0_20px_#7CD326] transition-all duration-300"></div>
+                  <span className="text-gray-400 font-black text-xl md:text-2xl tracking-widest block mb-1 group-hover:text-[#7CD326] transition-colors">1985</span>
+                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">The Genesis of Brotherhood</h4>
+                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">Founded by a group of passionate village youths, Mokamia Orient Club started its journey not just as a sports team, but as a movement to unite the community and foster lifelong bonds.</p>
+                </div>
+
+                {/* Timeline Item 2 */}
+                <div className="relative pl-8 md:pl-12 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-150 group-hover:shadow-[0_0_20px_#7CD326] transition-all duration-300"></div>
+                  <span className="text-gray-400 font-black text-xl md:text-2xl tracking-widest block mb-1 group-hover:text-[#7CD326] transition-colors">2010s</span>
+                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">Era of Social Empowerment</h4>
+                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">Beyond sports, the club established itself as the social backbone of Mokamia, initiating yearly scholarships (Shikkhabritti), emergency medical funds, and blood donation drives.</p>
+                </div>
+
+                {/* Timeline Item 3 */}
+                <div className="relative pl-8 md:pl-12 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#7CD326] rounded-full scale-125 shadow-[0_0_15px_rgba(124,211,38,0.5)]"></div>
+                  <span className="text-[#7CD326] font-black text-xl md:text-2xl tracking-widest block mb-1">Present</span>
+                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">A Modern Legacy</h4>
+                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">With 200+ active members, blockbuster tournaments like the MPL, and the upcoming grand Primary School Reunion, MOC stands stronger and more united than ever before.</p>
+                </div>
+
+              </div>
             </div>
           </div>
         )}
@@ -580,7 +746,6 @@ export default function Home() {
             </div>
           </div>
         )}
-
         {/* --- 📊 RESTORED STATS BOARD TAB 📊 --- */}
         {activeTab === "stats" && (
           <div className="animate-fade-in max-w-5xl mx-auto">
@@ -635,99 +800,216 @@ export default function Home() {
                   </table>
                 </div>
               </div>
+{/* 🚀 MATHA-NOSTO UI: INTERACTIVE TACTICAL PITCH 🚀 */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden group">
+                <div className="bg-[#1A0F2E] p-4 border-b border-[#7CD326] flex justify-between items-center">
+                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ Tactical View: Top Scorers</h3>
+                  <span className="animate-pulse bg-[#7CD326] text-[#1A0F2E] text-[10px] font-black px-2 py-0.5 rounded">LIVE PITCH</span>
+                </div>
+                
+                {/* Asol Football Math (Pitch) */}
+                <div className="relative w-full h-80 bg-gradient-to-b from-green-500 to-green-700 overflow-hidden border-4 border-green-800/30">
+                  
+                  {/* Pitch-er Daag (Field Lines) */}
+                  <div className="absolute inset-0 opacity-40">
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white -translate-y-1/2"></div>
+                    <div className="absolute top-1/2 left-1/2 w-24 h-24 border-4 border-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute top-0 left-1/2 w-40 h-16 border-4 border-white border-t-0 -translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-1/2 w-40 h-16 border-4 border-white border-b-0 -translate-x-1/2"></div>
+                  </div>
 
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="bg-[#1A0F2E] p-4 border-b border-gray-700">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ MPL Top Scorers</h3>
-                </div>
-                  
-                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="bg-[#1A0F2E] p-4 border-b border-gray-700">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ MPL Top Scorers</h3>
-                </div>
-                <div className="p-4 divide-y divide-gray-100 text-xs md:text-sm">
-                  
-                  <div className="flex justify-between py-2.5 items-center">
-                    <div>
-                      <p onClick={() => openPlayerProfile("Abdullah Supto")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Abdullah Supto</p>
-                      <p className="text-gray-400 text-[10px]">Mokamia Lusitans</p>
+                  {/* 1. Supto (Striker - Ekdom samne) */}
+                  <div 
+                    onClick={() => openPlayerProfile("Abdullah Supto")}
+                    className="absolute top-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300"
+                  >
+                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
+                      <img src="/supto.png" alt="Supto" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
                     </div>
-                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">3 Goals</span>
-                  </div>
-                  
-                  <div className="flex justify-between py-2.5 items-center">
-                    <div>
-                      <p onClick={() => openPlayerProfile("Tourjoy")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Tourjoy</p>
-                      <p className="text-gray-400 text-[10px]">Mokamia Allianz</p>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
+                      Supto (3 ⚽)
                     </div>
-                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">2 Goals</span>
                   </div>
-                  
-                  <div className="flex justify-between py-2.5 items-center">
-                    <div>
-                      <p onClick={() => openPlayerProfile("Munna")} className="font-bold text-[#2D1B4E] cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Munna</p>
-                      <p className="text-gray-400 text-[10px]">Galacticos of Mokamia</p>
+
+                  {/* 2. Tourjoy (Right Forward/Winger - Dan Pashe) */}
+                  <div 
+                    onClick={() => openPlayerProfile("Tourjoy")}
+                    className="absolute top-1/4 right-8 md:right-12 transform flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300 hover:-translate-y-2"
+                  >
+                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
+                      <img src="/tourjoy.png" alt="Tourjoy" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=T'}} />
                     </div>
-                    <span className="bg-purple-100 text-[#2D1B4E] font-bold px-2.5 py-1 rounded-full">1 Goal</span>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
+                      Tourjoy (2 ⚽)
+                    </div>
+                  </div>
+
+                  {/* 3. Munna (Attacking Midfielder - Majhkhaner ektu nichi) */}
+                  <div 
+                    onClick={() => openPlayerProfile("Munna")}
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-8 flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300 hover:-translate-y-2"
+                  >
+                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
+                      <img src="/munna.png" alt="Munna" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=M'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
+                      Munna (1 ⚽)
+                    </div>
                   </div>
 
                 </div>
               </div>
-              </div>
+              
             </div>
+{/* 🚀 CRICKET STADIUM INTERACTIVE UI 🚀 */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8">
+                <div className="bg-[#2D1B4E] p-4 border-b border-[#7CD326] flex justify-between items-center">
+                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏏 MOC Cricket Association: Ground View</h3>
+                  <span className="animate-pulse bg-[#7CD326] text-[#2D1B4E] text-[10px] font-black px-2 py-0.5 rounded">STADIUM VIEW</span>
+                </div>
+                
+                {/* Cricket Stadium Turf */}
+                <div className="relative w-full h-[380px] bg-gradient-to-b from-emerald-600 to-green-700 overflow-hidden flex items-center justify-center">
+                  
+                  {/* Outer Boundary & Pitch */}
+                  <div className="absolute w-[92%] h-[90%] border-2 border-dashed border-white/30 rounded-full flex items-center justify-center">
+                    {/* The Pitch */}
+                    <div className="w-10 h-28 bg-amber-100/90 border border-amber-300 rounded shadow-md transform rotate-45 flex flex-col justify-between p-1">
+                      <div className="w-full h-0.5 bg-amber-400"></div>
+                      <div className="w-full h-0.5 bg-amber-400"></div>
+                    </div>
+                  </div>
 
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8">
-              <div className="bg-[#2D1B4E] p-4 border-b border-purple-900">
-                <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏏 MOC Cricket Association Top Stats</h3>
-              </div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
-                <div className="p-5">
-                  <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🔥 Leading Bowlers</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Noman")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Noman</span><span className="font-bold text-[#7CD326]">12 Wkts (Econ 5.2)</span></div>
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Istiak Shadin")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Istiak Shadin</span><span className="font-bold text-[#7CD326]">11 Wkts (Econ 5.3)</span></div>
+                  {/* 1. Abdullah Fahad (Batsman - Near Pitch) */}
+                  <div onClick={() => openPlayerProfile("Abdullah Fahad")} className="absolute top-1/3 left-1/3 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-amber-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/fahad.png" alt="Fahad" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=F'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-amber-400/50 whitespace-nowrap">
+                      FAHAD (212 Runs 🏏)
+                    </div>
                   </div>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🏏 Top Batsmen</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Abdullah Fahad")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Abdullah Fahad</span><span className="font-bold text-[#7CD326]">212 Runs (SR 145)</span></div>
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Mobarak Hossain")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Mobarak Hossain</span><span className="font-bold text-[#7CD326]">196 Runs (SR 140)</span></div>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase text-xs tracking-wider">🌟 Valuable Players</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Iftekhar Ahmed")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">1. Iftekhar Ahmed</span><span className="font-bold text-[#7CD326]">143 Runs + 8 Wkts</span></div>
-                    <div className="flex justify-between items-center"><span onClick={() => openPlayerProfile("Mohammad Sayed Hossain")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">2. Mohammad Sayed Hossain</span><span className="font-bold text-[#7CD326]">131 Runs + 7 Wkts</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-12">
-              <div className="bg-[#2D1B4E] p-4 border-b border-purple-900 flex justify-between items-center">
-                <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏸 Winter Badminton Championship</h3>
-                <span className="text-[10px] bg-[#7CD326] text-[#2D1B4E] px-2 py-0.5 rounded font-bold">LATEST</span>
-              </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-xs md:text-sm">
-                <div className="p-5">
-                  <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase tracking-wider text-xs">🥇 Men's Singles</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>Champion</span><span onClick={() => openPlayerProfile("Imtiaz Hossain Ontor")} className="font-bold text-[#7CD326] cursor-pointer hover:underline decoration-dashed transition-all">Imtiaz Hossain Ontor</span></div>
-                    <div className="flex justify-between items-center"><span>Runner-up</span><span onClick={() => openPlayerProfile("Shaiful Islam Tamim")} className="font-bold text-gray-600 cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Shaiful Islam Tamim</span></div>
+                  {/* 2. Mobarak Hossain (Batsman - Other side of Pitch) */}
+                  <div onClick={() => openPlayerProfile("Mobarak Hossain")} className="absolute top-1/2 left-1/2 transform translate-x-4 -translate-y-12 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-amber-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/mobarak.png" alt="Mobarak" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=M'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-amber-400/50 whitespace-nowrap">
+                      MOBARAK (196 Runs 🏏)
+                    </div>
                   </div>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-bold text-[#2D1B4E] border-b pb-2 mb-3 text-center uppercase tracking-wider text-xs">🏆 Men's Doubles</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span>Champions</span><span onClick={() => openPlayerProfile("Istiak Shadin")} className="font-bold text-[#7CD326] cursor-pointer hover:underline decoration-dashed transition-all">Istiak Shadin</span></div>
-                    <div className="flex justify-between items-center"><span>Runners-up</span><span onClick={() => openPlayerProfile("Sojib Bhuiyan")} className="font-bold text-gray-600 cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Sojib Bhuiyan</span></div>
+
+                  {/* 3. Noman (Bowler - Bowling End) */}
+                  <div onClick={() => openPlayerProfile("Noman")} className="absolute bottom-16 left-1/4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-blue-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/noman.png" alt="Noman" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=N'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-blue-400/50 whitespace-nowrap">
+                      NOMAN (12 Wkts 🔴)
+                    </div>
                   </div>
+
+                  {/* 4. Istiak Shadin (Bowler/All-Rounder) */}
+                  <div onClick={() => openPlayerProfile("Istiak Shadin")} className="absolute top-16 right-1/4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-blue-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/shadin.png" alt="Shadin" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-blue-400/50 whitespace-nowrap">
+                      SHADIN (11 Wkts 🔴)
+                    </div>
+                  </div>
+
+                  {/* 5. Iftekhar Ahmed (Star All-Rounder - Deep Outfield) */}
+                  <div onClick={() => openPlayerProfile("Iftekhar Ahmed")} className="absolute bottom-12 right-1/3 transform translate-x-12 flex flex-col items-center cursor-pointer z-12 hover:scale-125 transition-all">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#7CD326] overflow-hidden bg-[#1A0F2E] shadow-[0_0_20px_#7CD326]">
+                      <img src="/ifti.png" alt="Ifti" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=Ifti'}} />
+                    </div>
+                    <div className="bg-[#1A0F2E] text-[#7CD326] text-[10px] font-black px-2 py-0.5 rounded-full mt-1 border border-[#7CD326] shadow-2xl whitespace-nowrap animate-pulse">
+                      🌟 IFTI (143R + 8W)
+                    </div>
+                  </div>
+
+                  {/* 6. Mohammad Sayed Hossain (Valuable All-Rounder) */}
+                  <div onClick={() => openPlayerProfile("Mohammad Sayed Hossain")} className="absolute top-12 left-1/3 transform -translate-x-12 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-purple-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/sayed.png" alt="Sayed" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-purple-400/50 whitespace-nowrap">
+                      SAYED (131R + 7W)
+                    </div>
+                  </div>
+
                 </div>
               </div>
-            </div>
+             {/* 🚀 BADMINTON COURT INTERACTIVE UI 🚀 */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-12">
+                <div className="bg-[#2D1B4E] p-4 border-b border-[#7CD326] flex justify-between items-center">
+                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏸 Winter Badminton Championship: Court View</h3>
+                  <span className="animate-pulse bg-[#7CD326] text-[#2D1B4E] text-[10px] font-black px-2 py-0.5 rounded">COURT VIEW</span>
+                </div>
+
+                {/* Badminton Court */}
+                <div className="relative w-full h-80 bg-gradient-to-b from-teal-600 to-teal-800 p-4 overflow-hidden flex flex-col justify-between border-4 border-teal-900/30">
+                  
+                  {/* Court Markings & Net */}
+                  <div className="absolute inset-x-8 inset-y-4 border-2 border-white/40 pointer-events-none">
+                    {/* Center Net Line */}
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/70 border-t-2 border-dashed border-gray-400 -translate-y-1/2"></div>
+                    {/* Short Service Lines */}
+                    <div className="absolute top-1/3 left-0 w-full h-0.5 bg-white/30"></div>
+                    <div className="absolute bottom-1/3 left-0 w-full h-0.5 bg-white/30"></div>
+                    {/* Center Line Split */}
+                    <div className="absolute top-0 left-1/2 w-0.5 h-1/3 bg-white/30"></div>
+                    <div className="absolute bottom-0 left-1/2 w-0.5 h-1/3 bg-white/30"></div>
+                  </div>
+
+                  {/* ============ TOP HALF (SINGLES PLAYERS) ============ */}
+                  {/* 1. Imtiaz Hossain Ontor (Singles Champion) */}
+                  <div onClick={() => openPlayerProfile("Imtiaz Hossain Ontor")} className="absolute top-10 left-1/4 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-yellow-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/ontor.png" alt="Ontor" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=O'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-yellow-400/50 whitespace-nowrap">
+                      🥇 ONTOR (Singles Champ)
+                    </div>
+                  </div>
+
+                  {/* 2. Shaiful Islam Tamim (Singles Runner-up) */}
+                  <div onClick={() => openPlayerProfile("Shaiful Islam Tamim")} className="absolute top-10 right-1/4 transform translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-gray-400 overflow-hidden bg-[#1A0F2E]">
+                      <img src="/tamim.png" alt="Tamim" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=T'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-gray-400/50 whitespace-nowrap">
+                      🥈 TAMIM (Runner-up)
+                    </div>
+                  </div>
+
+
+                  {/* ============ BOTTOM HALF (DOUBLES PLAYERS) ============ */}
+                  {/* 3. Istiak Shadin (Doubles Champ) */}
+                  <div onClick={() => openPlayerProfile("Istiak Shadin")} className="absolute bottom-10 left-1/3 transform -translate-x-4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-yellow-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
+                      <img src="/shadin.png" alt="Shadin" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-yellow-400/50 whitespace-nowrap">
+                      🏆 SHADIN (Doubles Champ)
+                    </div>
+                  </div>
+
+                  {/* 4. Sojib Bhuiyan (Doubles Runner-up) */}
+                  <div onClick={() => openPlayerProfile("Sojib Bhuiyan")} className="absolute bottom-10 right-1/3 transform translate-x-4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
+                    <div className="w-11 h-11 rounded-full border-2 border-gray-400 overflow-hidden bg-[#1A0F2E]">
+                      <img src="/sojib.png" alt="Sojib" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
+                    </div>
+                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-gray-400/50 whitespace-nowrap">
+                      🥈 SOJIB (Runner-up)
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+             
           </div>
         )}
 
