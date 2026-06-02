@@ -93,36 +93,48 @@ export default function PortalDashboard() {
 
   // 🌟 Auto Refresh for Chat Room & Scrolling (Fixed Quick Refresh Issue)
    // ⚡ NEW: Real-time Pusher WebSocket Listener (No more 20s lag!)
+   // ⚡ NEW: Real-time Pusher WebSocket Listener (Crash-Proof Version)
   useEffect(() => {
     if (activeMenu !== "chat") return;
 
-    // Chat open hole automatic smooth scroll hobe aage
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Chat open hole automatic smooth scroll hobe aage (Timeout deya holo render pawar jonno)
+    setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
 
-    // Pusher Client initialize korlam
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-    });
+    // 🛡️ Safety Check: Pusher Key properly load hoyeche kina
+    if (!process.env.NEXT_PUBLIC_PUSHER_KEY) {
+      console.error("❌ Pusher Key Missing! Vercel ba .env theke key load hoyni.");
+      return; // Key na thakle app crash korbe na, just live connection hobe na
+    }
 
-    // Channel-e subscribe korlam
-    const channel = pusher.subscribe("moc-channel");
-
-    // Jokhon-e backend theke 'new-message' event ashbe, sathe sathe array-te push hobe
-    channel.bind("new-message", (newMsg) => {
-      setMessages((prev) => {
-        // Double message prevent korar choto check (jodi aage thekei optimistic update-e na thake)
-        if (prev.some((m) => m.id === newMsg.id)) return prev;
-        return [...prev, newMsg];
+    try {
+      // Pusher Client initialize korlam
+      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
       });
-    });
 
-    // Cleanup function: tab change korle line kete dibe jate speed fast thake
-    return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-    };
+      // Channel-e subscribe korlam
+      const channel = pusher.subscribe("moc-channel");
+
+      // Jokhon-e backend theke 'new-message' event ashbe, array-te push hobe
+      channel.bind("new-message", (newMsg) => {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+      });
+
+      // Cleanup function
+      return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+        pusher.disconnect(); // Memory leak thekabo eita diye
+      };
+    } catch (error) {
+      console.error("🔥 Pusher connection error:", error);
+    }
   }, [activeMenu]);
-     
 
    // 🌟 Auto Scroll & Notification Sound Logic
   useEffect(() => {
