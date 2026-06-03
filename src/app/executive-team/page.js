@@ -168,7 +168,7 @@ return (
                 <img 
                   src={member.image || "https://placehold.co/400x500/1A0F2E/7CD326?text=MOC"} 
                   alt={member.name} 
-                  className="w-full h-full object-cover opacity-70 group-hover/card:opacity-100 transition-all duration-700 grayscale group-hover/card:grayscale-0" 
+                   className="w-full h-full object-cover opacity-100 grayscale-0 md:opacity-70 md:grayscale group-hover/card:!opacity-100 group-hover/card:!grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#110822] via-[#110822]/50 to-transparent"></div>
               </div>
