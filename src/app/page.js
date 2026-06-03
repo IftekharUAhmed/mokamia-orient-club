@@ -522,7 +522,72 @@ export default function Home() {
         </div>
       )}
 
+{/* 🔥 DYNAMIC EVENT DETAILS MODAL (TOP LEVEL FIX) 🔥 */}
+      {selectedEvent && (
+        <div className="fixed inset-0 w-full h-full bg-black/90 backdrop-blur-md flex justify-center items-start p-4 md:p-10 overflow-y-auto animate-fade-in" style={{ zIndex: 9999999 }} onClick={() => setSelectedEvent(null)}>
+          <button onClick={() => setSelectedEvent(null)} className="fixed top-4 right-4 md:top-8 md:right-8 bg-[#FF3B30] text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-all border-2 border-white shadow-[0_0_20px_rgba(255,59,48,0.8)] text-2xl font-black z-[10000000]">✕</button>
+          <div className="bg-[#1A0F2E] w-full max-w-lg rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative my-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="h-56 w-full relative bg-gray-900 border-b border-white/10">
+              <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" onError={(e) => { e.target.src='https://placehold.co/600x400/2D1B4E/7CD326?text=MOC+Event' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-transparent to-transparent"></div>
+              <span className="absolute top-4 left-4 bg-black/80 text-[#7CD326] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[#7CD326]/50 shadow-lg z-10">{selectedEvent.tag}</span>
+            </div>
+            <div className="p-6 md:p-8">
+              <h3 className="text-2xl font-black text-white font-serif mb-2 uppercase tracking-wide">{selectedEvent.title}</h3>
+              <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2">
+                <span>⏰ Time/Status:</span> <span className="text-[#7CD326]">{selectedEvent.time}</span>
+              </p>
+              <div className="bg-black/40 rounded-2xl p-5 border border-white/10 space-y-4">
+                <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">{selectedEvent.description}</p>
+                {selectedEvent.extraNote && (
+                  <div className="bg-[#7CD326]/10 border-l-4 border-[#7CD326] p-3 rounded-r-xl mt-4">
+                    <p className="text-xs text-gray-300 font-medium"><strong className="text-[#7CD326] uppercase tracking-wider text-[10px] block mb-1">MOC Executive Notice:</strong> {selectedEvent.extraNote}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* 🔥 DYNAMIC PROFILE MODAL (TOP LEVEL FIX) 🔥 */}
+      {selectedProfile && (
+        <div className="fixed inset-0 w-full h-full bg-black/90 backdrop-blur-md flex justify-center items-start p-4 md:p-10 overflow-y-auto animate-fade-in" style={{ zIndex: 9999999 }} onClick={() => setSelectedProfile(null)}>
+          <button onClick={() => setSelectedProfile(null)} className="fixed top-4 right-4 md:top-8 md:right-8 bg-[#FF3B30] text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-all border-2 border-white shadow-[0_0_20px_rgba(255,59,48,0.8)] text-2xl font-black z-[10000000]">✕</button>
+          <div className="bg-[#1A0F2E] w-full max-w-sm rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative my-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-8 text-center mt-4">
+              {selectedProfile.image ? (
+                <img src={selectedProfile.image} alt={selectedProfile.name} className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] mb-4 bg-white" onError={(e)=>{e.target.src='https://placehold.co/100x100/2B3674/FFFFFF?text=MOC'}} />
+              ) : (
+                <div className="w-24 h-24 mx-auto rounded-full border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] flex items-center justify-center bg-gradient-to-br from-[#2B3674] to-[#111C44] text-white text-4xl font-black mb-4">
+                  {selectedProfile.type === 'team' ? '🛡️' : selectedProfile.name.substring(0, 1)}
+                </div>
+              )}
+              <h3 className="text-2xl font-black text-white uppercase tracking-wide mb-1">{selectedProfile.name}</h3>
+              <p className="text-[#7CD326] text-[11px] font-bold tracking-widest mb-6 uppercase">{selectedProfile.subtitle}</p>
+              <div className="bg-black/40 rounded-2xl p-5 border border-white/10 text-left space-y-3">
+                <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                  <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Primary Stat</span>
+                  <span className="text-white font-black text-lg">{selectedProfile.mainStat}</span>
+                </div>
+                {selectedProfile.tag && (
+                  <div className="flex justify-between items-center pb-2">
+                    <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Badge / Tag</span>
+                    <span className="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] font-black px-2.5 py-1 rounded shadow uppercase">{selectedProfile.tag}</span>
+                  </div>
+                )}
+                {selectedProfile.type === 'team' && (
+                  <div className="pt-2 text-xs font-medium text-gray-300 flex justify-between bg-white/5 p-3 rounded-xl">
+                    <span><strong className="text-white">P:</strong> {selectedProfile.extra.played}</span>
+                    <span><strong className="text-[#7CD326]">W:</strong> {selectedProfile.extra.won}</span>
+                    <span><strong className="text-red-400">L:</strong> {selectedProfile.extra.lost}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* HEADER & NAVBAR */}
       <header className="bg-[#2D1B4E] text-white">
@@ -732,40 +797,11 @@ export default function Home() {
             <div className="max-w-6xl mx-auto px-4 relative z-10 pt-10">
               
               {/* 🎬 DYNAMIC EVENT DETAILS MODAL */}
-              {selectedEvent && (
-                <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedEvent(null)}>
-                  <div className="bg-[#1A0F2E] w-full max-w-lg rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
-                    
-                    {/* Banner inside modal */}
-                    <div className="h-56 w-full relative bg-gray-900 border-b border-white/10">
-                      <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" onError={(e) => { e.target.src='https://placehold.co/600x400/2D1B4E/7CD326?text=MOC+Event' }} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-transparent to-transparent"></div>
-                      <span className="absolute top-4 left-4 bg-black/80 text-[#7CD326] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[#7CD326]/50 shadow-lg">{selectedEvent.tag}</span>
-                      <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg">✕</button>
-                    </div>
-
-                    {/* Modal Body Content */}
-                    <div className="p-6 md:p-8">
-                      <h3 className="text-2xl font-black text-white font-serif mb-2 uppercase tracking-wide">{selectedEvent.title}</h3>
-                      <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2">
-                        <span>⏰ Time/Status:</span> <span className="text-[#7CD326]">{selectedEvent.time}</span>
-                      </p>
-
-                      <div className="bg-black/40 rounded-2xl p-5 border border-white/10 space-y-4">
-                        <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
-                          {selectedEvent.description}
-                        </p>
-                        {selectedEvent.extraNote && (
-                          <div className="bg-[#7CD326]/10 border-l-4 border-[#7CD326] p-3 rounded-r-xl mt-4">
-                            <p className="text-xs text-gray-300 font-medium"><strong className="text-[#7CD326] uppercase tracking-wider text-[10px] block mb-1">MOC Executive Notice:</strong> {selectedEvent.extraNote}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+              {/* 🎬 DYNAMIC EVENT DETAILS MODAL (FIXED) */}
+           {/* 🎬 DYNAMIC EVENT DETAILS MODAL (ULTIMATE FIX) */}
+           {/* 🎬 DYNAMIC EVENT DETAILS MODAL (ULTIMATE FIX) */}
+            
+             
               {/* Premium Header */}
               <div className="text-center mb-16 relative">
                 <span className="inline-block px-5 py-1.5 bg-[#2D1B4E] text-[#7CD326] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 shadow-lg">Official Calendar</span>
@@ -1165,15 +1201,21 @@ export default function Home() {
           <div className="animate-fade-in max-w-6xl mx-auto mb-24 px-4 mt-8">
             
             {/* 👤 DYNAMIC PROFILE MODAL (Click korle ashbe) */}
+            {/* 👤 DYNAMIC PROFILE MODAL (FIXED) */}
+          {/* 👤 DYNAMIC PROFILE MODAL (ULTIMATE FIX) */}
+            {/* 👤 DYNAMIC PROFILE MODAL (ULTIMATE FIX) */}
             {selectedProfile && (
-              <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedProfile(null)}>
-                <div className="bg-[#1A0F2E] w-full max-w-sm rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
-                  <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg z-10">✕</button>
+              <div className="fixed inset-0 w-full h-full bg-black/90 backdrop-blur-md flex justify-center items-start p-4 md:p-10 overflow-y-auto animate-fade-in" style={{ zIndex: 9999999 }} onClick={() => setSelectedProfile(null)}>
+                
+                {/* 🔥 SCREEN-LEVEL BIG RED CLOSE BUTTON */}
+                <button onClick={() => setSelectedProfile(null)} className="fixed top-4 right-4 md:top-8 md:right-8 bg-[#FF3B30] text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-all border-2 border-white shadow-[0_0_20px_rgba(255,59,48,0.8)] text-2xl font-black z-[10000000]">✕</button>
+
+                <div className="bg-[#1A0F2E] w-full max-w-sm rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative my-auto mt-20" onClick={(e) => e.stopPropagation()}>
                   
                   <div className="p-8 text-center mt-4">
                     {/* 📸 Avatar / Image */}
                     {selectedProfile.image ? (
-                      <img src={selectedProfile.image} alt={selectedProfile.name} className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] mb-4" onError={(e)=>{e.target.src='https://placehold.co/100x100/2B3674/FFFFFF?text=MOC'}} />
+                      <img src={selectedProfile.image} alt={selectedProfile.name} className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] mb-4 bg-white" onError={(e)=>{e.target.src='https://placehold.co/100x100/2B3674/FFFFFF?text=MOC'}} />
                     ) : (
                       <div className="w-24 h-24 mx-auto rounded-full border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] flex items-center justify-center bg-gradient-to-br from-[#2B3674] to-[#111C44] text-white text-4xl font-black mb-4">
                         {selectedProfile.type === 'team' ? '🛡️' : selectedProfile.name.substring(0, 1)}
@@ -1209,8 +1251,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            )}
-
+            )} 
             {/* Banner */}
             <div className="bg-[#21174A] rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden mb-12">
               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #7CD326 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
