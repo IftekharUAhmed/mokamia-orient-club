@@ -39,7 +39,7 @@ const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
 };
 
 // 🏆 Event Detail Modal State
-   
+ 
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
@@ -54,7 +54,17 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   // 🏆 Event Detail Modal State
+  // 🏆 Events State (Database theke anar jonno)
+  const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // 🏆 Sports Analytics States
+  const [pointsTable, setPointsTable] = useState([]);
+  const [tacticalPlayers, setTacticalPlayers] = useState([]);
+  // 👤 Player/Team Profile Modal State
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  // 📈 Stats State
+  const [statsData, setStatsData] = useState([]);
   // 🌟 ALBUM GALLERY STATES 🌟
   const [dynamicGallery, setDynamicGallery] = useState([]);
   const [selectedAlbum, setSelectedAlbum] = useState(null); 
@@ -62,7 +72,61 @@ export default function Home() {
   const [publicNotices, setPublicNotices] = useState([]);
   // 🎟️ NEW: Auto-Generated VIP Ticket State
   const [generatedTicket, setGeneratedTicket] = useState(null);
+
+
+  // 🟢 Fetch Events for Main Website
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("/api/events");
+        const data = await res.json();
+        if (data.success) {
+          setEvents(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+
+  useEffect(() => {
+    // ... tor aager event fetch kora thakle thakbe ...
+
+    // 🟢 Eita notun add korbi Stats anar jonno
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        if (data.success) {
+          setStatsData(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
    
+
+// 🟢 Fetch All Dynamic Data
+  useEffect(() => {
+    // Tor aager fetchEvents() thakle thakbe...
+
+    // Notun Sports Data anar jonno:
+    const fetchSportsData = async () => {
+      try {
+        const [ptRes, tacRes] = await Promise.all([fetch("/api/points"), fetch("/api/tactical")]);
+        const ptData = await ptRes.json();
+        const tacData = await tacRes.json();
+        if (ptData.success) setPointsTable(ptData.data);
+        if (tacData.success) setTacticalPlayers(tacData.data);
+      } catch (error) { console.error("Error fetching sports data:", error); }
+    };
+    fetchSportsData();
+  }, []);
+
 
     useEffect(() => {
     const fetchData = async () => {
@@ -514,7 +578,7 @@ export default function Home() {
       sequence={[
         'Brotherhood', 2000,
         'Village Pride', 2000,
-        'Sports Excellence', 2000,
+        'Sports Majesty', 2000,
         'Unity', 2000
       ]}
       wrapper="span"
@@ -646,273 +710,354 @@ export default function Home() {
        {/* --- 🏆 PREMIUM EVENTS & INTERACTIVE TOURNAMENTS DASHBOARD 🏆 --- */}
        
 {/* --- 🏆 SOLID & CLEAR EVENTS DASHBOARD 🏆 --- */}
+      {/* --- 🏆 EVENTS MANAGEMENT TAB --- */}
         {activeTab === "events" && (
-          <div className="animate-fade-in max-w-6xl mx-auto mb-20 px-4 relative">
+          <div className="animate-fade-in relative w-full pb-24 overflow-hidden">
             
-            {/* 🎬 DYNAMIC EVENT DETAILS MODAL */}
-            {selectedEvent && (
-              <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedEvent(null)}>
-                <div className="bg-[#1A0F2E] w-full max-w-lg rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
-                  
-                  {/* Banner inside modal */}
-                  <div className="h-56 w-full relative bg-gray-900 border-b border-white/10">
-                    <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-transparent to-transparent"></div>
-                    <span className="absolute top-4 left-4 bg-black/80 text-[#7CD326] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[#7CD326]/50 shadow-lg">{selectedEvent.tag}</span>
-                    <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg">✕</button>
-                  </div>
-
-                  {/* Modal Body Content */}
-                  <div className="p-6 md:p-8">
-                    <h3 className="text-2xl font-black text-white font-serif mb-2 uppercase tracking-wide">{selectedEvent.title}</h3>
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2">
-                      <span>⏰ Time/Status:</span> <span className="text-[#7CD326]">{selectedEvent.time}</span>
-                    </p>
-
-                    <div className="bg-black/40 rounded-2xl p-5 border border-white/10 space-y-4">
-                      <p className="text-sm text-gray-200 leading-relaxed">
-                        {selectedEvent.description}
-                      </p>
-                      {selectedEvent.extraNote && (
-                        <div className="bg-[#7CD326]/10 border-l-4 border-[#7CD326] p-3 rounded-r-xl mt-4">
-                          <p className="text-xs text-gray-300 font-medium"><strong className="text-[#7CD326] uppercase tracking-wider text-[10px] block mb-1">MOC Executive Notice:</strong> {selectedEvent.extraNote}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Premium Header */}
-            <div className="text-center mb-16 mt-8 relative">
-              <span className="inline-block px-5 py-1.5 bg-[#2D1B4E] text-[#7CD326] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 shadow-lg">Official Calendar</span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#2D1B4E] font-serif tracking-wide drop-shadow-sm">
-                Tournaments & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-500 italic">Events</span>
-              </h2>
-              <p className="max-w-xl mx-auto mt-4 text-gray-500 text-sm md:text-base font-medium leading-relaxed">
-                The sporting and social heartbeat of our club. Click on any card to view detailed announcements and tournament breakdowns.
-              </p>
+            {/* ✨ AESTHETIC AMBIENT BACKGROUND ✨ */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              {/* Soft Gradient Base */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#F8FAFC] via-[#F4F9F1] to-white opacity-90"></div>
+              
+              {/* Subtle Dotted Grid */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, #2D1B4E 1.5px, transparent 1.5px)', backgroundSize: '28px 28px' }}></div>
+              
+              {/* Glowing Blur Blobs */}
+              <div className="absolute top-0 left-[-10%] w-[500px] h-[500px] bg-[#7CD326] rounded-full mix-blend-multiply filter blur-[130px] opacity-20"></div>
+              <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-[#2D1B4E] rounded-full mix-blend-multiply filter blur-[150px] opacity-10"></div>
+              <div className="absolute bottom-10 left-[20%] w-[700px] h-[400px] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[140px] opacity-20"></div>
             </div>
 
-            <div className="space-y-12">
+            {/* 🚀 MAIN CONTENT (Z-10 to stay above background) 🚀 */}
+            <div className="max-w-6xl mx-auto px-4 relative z-10 pt-10">
               
-              {/* 🔴 SECTION 1: RECENTLY CONCLUDED (MPL FOOTBALL HERO HIGHLIGHT) */}
-              <div 
-                onClick={() => setSelectedEvent({
-                  title: "MOC Premier League (MPL) Football",
-                  tag: "Just Concluded",
-                  time: "Tournament Completed (June 2026)",
-                  image: "/mpl-champ.jpeg",
-                  description: "Another historic season of MPL Football has officially concluded! Intense rivalry, phenomenal crowds from across the village, and sportsmanship at its peak. Final matches were held on our home turf.",
-                  extraNote: "Prize distribution and celebration highlights are now live inside the Media Gallery section. Check them out!"
-                })}
-                className="relative rounded-3xl overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.2)] bg-[#1A0F2E] cursor-pointer group flex flex-col md:flex-row border border-gray-800"
-              >
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full mb-6 w-max">
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                    <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">Just Concluded</span>
-                  </div>
-                  <h3 className="text-3xl md:text-4xl font-black text-white font-serif mb-4 uppercase tracking-wide group-hover:text-[#7CD326] transition-colors">MPL Football <span className="text-[#7CD326]">Champ Season</span></h3>
-                  <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-                    The grand finale concluded beautifully 2-3 days ago! Incredible crowds and an elite showcase of football talent. Tap card to view tournament notes.
-                  </p>
-                  <span className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[#7CD326]/20 text-[#7CD326] py-2 px-4 rounded-full w-max border border-[#7CD326]/30 group-hover:bg-[#7CD326] group-hover:text-[#1A0F2E] transition-all">
-                    Tap Details ➔
-                  </span>
-                </div>
-                {/* Solid Prominent Image */}
-                <div className="w-full md:w-1/2 h-[300px] md:h-auto relative bg-gray-200">
-                  <img src="/mpl-football.jpeg" alt="MPL Football Champ" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { e.target.src='https://placehold.co/800x600/2D1B4E/7CD326?text=MPL+Football' }} />
-                </div>
-              </div>
+              {/* 🎬 DYNAMIC EVENT DETAILS MODAL */}
+              {selectedEvent && (
+                <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedEvent(null)}>
+                  <div className="bg-[#1A0F2E] w-full max-w-lg rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
+                    
+                    {/* Banner inside modal */}
+                    <div className="h-56 w-full relative bg-gray-900 border-b border-white/10">
+                      <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" onError={(e) => { e.target.src='https://placehold.co/600x400/2D1B4E/7CD326?text=MOC+Event' }} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-transparent to-transparent"></div>
+                      <span className="absolute top-4 left-4 bg-black/80 text-[#7CD326] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[#7CD326]/50 shadow-lg">{selectedEvent.tag}</span>
+                      <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg">✕</button>
+                    </div>
 
-              {/* 🔥 SECTION 2: MEGA UPCOMING EVENTS (SOLID GRID) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                
-                {/* School Reunion - Solid Layout */}
-                <div 
-                  onClick={() => setSelectedEvent({
-                    title: "Mokamia Govt. Primary School Reunion",
-                    tag: "Dec / Jan • Mega Event",
-                    time: "Proposed Time Slot: 09:00 AM - 08:00 PM",
-                    image: "/reunion.jpg",
-                    description: "For the very first time in our village history, MOC is spearheading the grand reunion of Mokamia Government Primary School. A full day layout filled with nostalgia, honoring senior retired teachers, cultural segments, and dinner distributions.",
-                    extraNote: "Registration forms and batch volunteer allocations will be announced through the portal soon."
-                  })}
-                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
-                >
-                  <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
-                    <img src="/reunion.jpg" alt="School Reunion" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=School+Reunion' }} />
-                    <div className="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Dec / Jan Edition</div>
-                  </div>
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-amber-600 transition-colors">Mokamia Govt. Primary School Reunion</h3>
-                    <p className="text-gray-600 text-sm mb-4 flex-1">
-                      A monumental milestone event. Reconnecting generations of students. Click to view schedule mapping.
-                    </p>
-                    <div className="text-amber-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                      Read Core Program ➔
+                    {/* Modal Body Content */}
+                    <div className="p-6 md:p-8">
+                      <h3 className="text-2xl font-black text-white font-serif mb-2 uppercase tracking-wide">{selectedEvent.title}</h3>
+                      <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2">
+                        <span>⏰ Time/Status:</span> <span className="text-[#7CD326]">{selectedEvent.time}</span>
+                      </p>
+
+                      <div className="bg-black/40 rounded-2xl p-5 border border-white/10 space-y-4">
+                        <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
+                          {selectedEvent.description}
+                        </p>
+                        {selectedEvent.extraNote && (
+                          <div className="bg-[#7CD326]/10 border-l-4 border-[#7CD326] p-3 rounded-r-xl mt-4">
+                            <p className="text-xs text-gray-300 font-medium"><strong className="text-[#7CD326] uppercase tracking-wider text-[10px] block mb-1">MOC Executive Notice:</strong> {selectedEvent.extraNote}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Yearly Shikkhabritti - Solid Layout */}
-                <div 
-                  onClick={() => setSelectedEvent({
-                    title: "Yearly Shikkhabritti Distribution Ceremony",
-                    tag: "Oct / Nov • Mega Scale",
-                    time: "Distribution Time: 10:30 AM onwards",
-                    image: "/britti.jpeg",
-                    description: "Education is our pillar of focus. This year in October/November, MOC is launching its biggest ever scholarship distribution grid. Deserving, high-achieving local students will receive financial stipends and education kits directly from the central executive board.",
-                    extraNote: "We are expanding funding parameters this year. Reach out to the Education Secretary for student screening details."
-                  })}
-                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
-                >
-                  <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
-                    <img src="/britti.jpeg" alt="Shikkhabritti" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=Shikkhabritti' }} />
-                    <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Oct / Nov • Mega Scale</div>
-                  </div>
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-purple-600 transition-colors">Yearly Shikkhabritti Ceremony</h3>
-                    <p className="text-gray-600 text-sm mb-4 flex-1">
-                      Expanding our parameters to cover more student support sectors. Tap to view structural objectives.
-                    </p>
-                    <div className="text-purple-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                      Read Stipend Blueprint ➔
-                    </div>
-                  </div>
-                </div>
+              {/* Premium Header */}
+              <div className="text-center mb-16 relative">
+                <span className="inline-block px-5 py-1.5 bg-[#2D1B4E] text-[#7CD326] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 shadow-lg">Official Calendar</span>
+                <h2 className="text-4xl md:text-5xl font-black text-[#2D1B4E] font-serif tracking-wide drop-shadow-sm relative inline-block">
+                  Tournaments & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-500 italic">Events</span>
+                </h2>
+                <p className="max-w-xl mx-auto mt-4 text-gray-500 text-sm md:text-base font-medium leading-relaxed">
+                  The sporting and social heartbeat of our club. Click on any card to view detailed announcements and tournament breakdowns.
+                </p>
               </div>
 
-              {/* ❄️ SECTION 3: WINTER TOURNAMENTS (SOLID CARDS) */}
-              <div className="bg-[#F8F9FA] rounded-[2rem] p-6 md:p-10 border border-gray-200 shadow-inner">
-                <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
-                  <span>❄️</span> Winter Tournaments Calendar
-                </h3>
+              <div className="space-y-12">
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* 🔴 SECTION 1: RECENTLY CONCLUDED */}
+                {/* Hardcoded MPL Football */}
+                <div 
+                  onClick={() => setSelectedEvent({
+                    title: "MOC Premier League (MPL) Football",
+                    tag: "Just Concluded",
+                    time: "Tournament Completed (June 2026)",
+                    image: "/mpl-champ.jpeg",
+                    description: "Another historic season of MPL Football has officially concluded! Intense rivalry, phenomenal crowds from across the village, and sportsmanship at its peak. Final matches were held on our home turf.",
+                    extraNote: "Prize distribution and celebration highlights are now live inside the Media Gallery section. Check them out!"
+                  })}
+                  className="relative rounded-3xl overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.15)] bg-[#1A0F2E] cursor-pointer group flex flex-col md:flex-row border border-gray-800 transition-all hover:shadow-[0_20px_40px_rgba(124,211,38,0.2)]"
+                >
+                  <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full mb-6 w-max">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                      <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">Just Concluded</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-black text-white font-serif mb-4 uppercase tracking-wide group-hover:text-[#7CD326] transition-colors">MPL Football <span className="text-[#7CD326]">Champ Season</span></h3>
+                    <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                      The grand finale concluded beautifully 2-3 days ago! Incredible crowds and an elite showcase of football talent. Tap card to view tournament notes.
+                    </p>
+                    <span className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[#7CD326]/20 text-[#7CD326] py-2 px-4 rounded-full w-max border border-[#7CD326]/30 group-hover:bg-[#7CD326] group-hover:text-[#1A0F2E] transition-all">
+                      Tap Details ➔
+                    </span>
+                  </div>
+                  <div className="w-full md:w-1/2 h-[300px] md:h-auto relative bg-gray-200">
+                    <img src="/mpl-football.jpeg" alt="MPL Football Champ" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.src='https://placehold.co/800x600/2D1B4E/7CD326?text=MPL+Football' }} />
+                  </div>
+                </div>
+
+                {/* Dynamic Concluded Events from Portal */}
+                {events.filter(e => e.category === "concluded").map((event, idx) => (
+                  <div key={`concluded-${idx}`} onClick={() => setSelectedEvent(event)} className="relative rounded-3xl overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.15)] bg-[#1A0F2E] cursor-pointer group flex flex-col md:flex-row border border-gray-800 mt-6 transition-all hover:shadow-[0_20px_40px_rgba(124,211,38,0.2)]">
+                    <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full mb-6 w-max">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">{event.tag}</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-black text-white font-serif mb-4 uppercase tracking-wide group-hover:text-[#7CD326] transition-colors">{event.title}</h3>
+                      <p className="text-gray-300 text-sm mb-6 leading-relaxed line-clamp-3">{event.description}</p>
+                      <span className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[#7CD326]/20 text-[#7CD326] py-2 px-4 rounded-full w-max border border-[#7CD326]/30 group-hover:bg-[#7CD326] group-hover:text-[#1A0F2E] transition-all">Tap Details ➔</span>
+                    </div>
+                    <div className="w-full md:w-1/2 h-[300px] md:h-auto relative bg-gray-200">
+                      <img src={event.image} alt={event.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.src='https://placehold.co/800x600/2D1B4E/7CD326?text=Event' }} />
+                    </div>
+                  </div>
+                ))}
+
+
+                {/* 🔥 SECTION 2: MEGA UPCOMING EVENTS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   
-                  {/* MPL Cricket */}
+                  {/* Hardcoded School Reunion */}
                   <div 
                     onClick={() => setSelectedEvent({
-                      title: "MPL Cricket Tournament",
-                      tag: "Winter High Attraction",
-                      time: "Day Matches: Starting from 01:30 PM",
-                      image: "/cricket.jpeg",
-                      description: "This season of MPL Cricket brings heavy corporate-style village team drafting. Elite hard-ball matches, digital score mapping, and unmatched adrenaline.",
-                      extraNote: "Draft parameters and registration guidelines are currently being reviewed by the Sports Secretary."
+                      title: "Mokamia Govt. Primary School Reunion",
+                      tag: "Dec / Jan • Mega Event",
+                      time: "Proposed Time Slot: 09:00 AM - 08:00 PM",
+                      image: "/reunion.jpg",
+                      description: "For the very first time in our village history, MOC is spearheading the grand reunion of Mokamia Government Primary School. A full day layout filled with nostalgia, honoring senior retired teachers, cultural segments, and dinner distributions.",
+                      extraNote: "Registration forms and batch volunteer allocations will be announced through the portal soon."
                     })}
-                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                    className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
                   >
-                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
-                      <img src="/cricket3.jpeg" alt="MPL Cricket" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Cricket'}} />
+                    <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
+                      <img src="/reunion.jpg" alt="School Reunion" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=School+Reunion' }} />
+                      <div className="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Dec / Jan Edition</div>
                     </div>
-                    <div className="p-5 flex-1">
-                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">MPL Cricket</h4>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Winter Grand League</p>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-amber-600 transition-colors">Mokamia Govt. Primary School Reunion</h3>
+                      <p className="text-gray-600 text-sm mb-4 flex-1">
+                        A monumental milestone event. Reconnecting generations of students. Click to view schedule mapping.
+                      </p>
+                      <div className="text-amber-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        Read Core Program ➔
+                      </div>
                     </div>
                   </div>
 
-                  {/* Winter Short Pitch */}
+                  {/* Hardcoded Yearly Shikkhabritti */}
                   <div 
                     onClick={() => setSelectedEvent({
-                      title: "Winter Short Pitch Tournament",
-                      tag: "Night Carnival",
-                      time: "Night Slots: 06:30 PM - 11:30 PM",
-                      image: "/short-pitch.jpeg",
-                      description: "The seasonal signature event under the floodlights. Fast-paced action, customized boundary rule matrix, and full community gathering during chilled winter nights.",
-                      extraNote: "Ball specifications and match structures will remain standard like last year's regulations."
+                      title: "Yearly Shikkhabritti Distribution Ceremony",
+                      tag: "Oct / Nov • Mega Scale",
+                      time: "Distribution Time: 10:30 AM onwards",
+                      image: "/britti.jpeg",
+                      description: "Education is our pillar of focus. This year in October/November, MOC is launching its biggest ever scholarship distribution grid. Deserving, high-achieving local students will receive financial stipends and education kits directly from the central executive board.",
+                      extraNote: "We are expanding funding parameters this year. Reach out to the Education Secretary for student screening details."
                     })}
-                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                    className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
                   >
-                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
-                      <img src="/short-pitch.jpeg" alt="Short Pitch" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Short+Pitch'}} />
+                    <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
+                      <img src="/britti.jpeg" alt="Shikkhabritti" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=Shikkhabritti' }} />
+                      <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Oct / Nov • Mega Scale</div>
                     </div>
-                    <div className="p-5 flex-1">
-                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Winter Short Pitch</h4>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Floodlight Showcase</p>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-purple-600 transition-colors">Yearly Shikkhabritti Ceremony</h3>
+                      <p className="text-gray-600 text-sm mb-4 flex-1">
+                        Expanding our parameters to cover more student support sectors. Tap to view structural objectives.
+                      </p>
+                      <div className="text-purple-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        Read Stipend Blueprint ➔
+                      </div>
                     </div>
                   </div>
 
-                  {/* Badminton Fiesta */}
+                  {/* Dynamic Upcoming Events from Portal */}
+                  {events.filter(e => e.category === "upcoming").map((event, idx) => (
+                    <div key={`upcoming-${idx}`} onClick={() => setSelectedEvent(event)} className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col">
+                      <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
+                        <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=Upcoming+Event' }} />
+                        <div className="absolute top-4 left-4 bg-[#2D1B4E] text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">{event.tag}</div>
+                      </div>
+                      <div className="p-6 flex-1 flex flex-col">
+                        <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-[#7CD326] transition-colors">{event.title}</h3>
+                        <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-2">{event.description}</p>
+                        <div className="text-[#2D1B4E] font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">Read Blueprint ➔</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+
+                {/* ❄️ SECTION 3: WINTER TOURNAMENTS */}
+                <div className="bg-white/60 backdrop-blur-md rounded-[2rem] p-6 md:p-10 border border-white shadow-lg">
+                  <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-8 border-b border-[#2D1B4E]/10 pb-4 flex items-center gap-2">
+                    <span>❄️</span> Winter Tournaments Calendar
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    {/* Hardcoded MPL Cricket */}
+                    <div 
+                      onClick={() => setSelectedEvent({
+                        title: "MPL Cricket Tournament",
+                        tag: "Winter High Attraction",
+                        time: "Day Matches: Starting from 01:30 PM",
+                        image: "/cricket.jpeg",
+                        description: "This season of MPL Cricket brings heavy corporate-style village team drafting. Elite hard-ball matches, digital score mapping, and unmatched adrenaline.",
+                        extraNote: "Draft parameters and registration guidelines are currently being reviewed by the Sports Secretary."
+                      })}
+                      className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_10px_20px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer group flex flex-col"
+                    >
+                      <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                        <img src="/cricket3.jpeg" alt="MPL Cricket" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Cricket'}} />
+                      </div>
+                      <div className="p-5 flex-1">
+                        <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">MPL Cricket</h4>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Winter Grand League</p>
+                      </div>
+                    </div>
+
+                    {/* Hardcoded Winter Short Pitch */}
+                    <div 
+                      onClick={() => setSelectedEvent({
+                        title: "Winter Short Pitch Tournament",
+                        tag: "Night Carnival",
+                        time: "Night Slots: 06:30 PM - 11:30 PM",
+                        image: "/short-pitch.jpeg",
+                        description: "The seasonal signature event under the floodlights. Fast-paced action, customized boundary rule matrix, and full community gathering during chilled winter nights.",
+                        extraNote: "Ball specifications and match structures will remain standard like last year's regulations."
+                      })}
+                      className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_10px_20px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer group flex flex-col"
+                    >
+                      <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                        <img src="/short-pitch.jpeg" alt="Short Pitch" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Short+Pitch'}} />
+                      </div>
+                      <div className="p-5 flex-1">
+                        <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Winter Short Pitch</h4>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Floodlight Showcase</p>
+                      </div>
+                    </div>
+
+                    {/* Hardcoded Badminton Fiesta */}
+                    <div 
+                      onClick={() => setSelectedEvent({
+                        title: "Annual Badminton Fiesta",
+                        tag: "Double Bracket Match",
+                        time: "Evening Bracket: 07:00 PM onwards",
+                        image: "/badminton2.jpeg",
+                        description: "Indoor court style outside setups with high intensity double-bracket elimination grids. Perfect alignment for veteran members and open talent pairings.",
+                        extraNote: "Shuttlecock standardizations and court allocation charts will lock down next month."
+                      })}
+                      className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_10px_20px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer group flex flex-col"
+                    >
+                      <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                        <img src="/badminton.jpeg" alt="Badminton Fiesta" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Badminton'}} />
+                      </div>
+                      <div className="p-5 flex-1">
+                        <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Badminton Fiesta</h4>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Doubles Tournament</p>
+                      </div>
+                    </div>
+
+                    {/* Dynamic Winter Events from Portal */}
+                    {events.filter(e => e.category === "winter").map((event, idx) => (
+                      <div key={`winter-${idx}`} onClick={() => setSelectedEvent(event)} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_10px_20px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer group flex flex-col">
+                        <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                          <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Winter+Event'}} />
+                        </div>
+                        <div className="p-5 flex-1">
+                          <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors leading-tight">{event.title}</h4>
+                          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">{event.tag}</p>
+                        </div>
+                      </div>
+                    ))}
+
+                  </div>
+                </div>
+
+                {/* 🤝 SECTION 4: SIGNATURE TRADITIONS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* Hardcoded Post Eid Mini Football */}
                   <div 
                     onClick={() => setSelectedEvent({
-                      title: "Annual Badminton Fiesta",
-                      tag: "Double Bracket Match",
-                      time: "Evening Bracket: 07:00 PM onwards",
-                      image: "/badminton2.jpeg",
-                      description: "Indoor court style outside setups with high intensity double-bracket elimination grids. Perfect alignment for veteran members and open talent pairings.",
-                      extraNote: "Shuttlecock standardizations and court allocation charts will lock down next month."
+                      title: "Post-Eid Mini Football Tourney & Annual Meeting",
+                      tag: "Signature Core Legacy",
+                      time: "Next Day of Eid • Kickoff: 04:00 PM",
+                      image: "/eid-football.jpeg",
+                      description: "Our ultimate brotherhood ritual. Every year, exactly the day right after Eid, all registered members gather for an intimate high-tempo mini football layout. Once completed, we host the Annual General Meeting (AGM) to declare internal alignments.",
+                      extraNote: "Attendance is highly mandatory for all executive panel members."
                     })}
-                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                    className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
                   >
-                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
-                      <img src="/badminton.jpeg" alt="Badminton Fiesta" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Badminton'}} />
+                    <div className="w-full h-48 relative bg-gray-100 overflow-hidden">
+                      <img src="/eid-post.jpeg" alt="Post Eid Tourney" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/600x300/F3F4F6/2D1B4E?text=Eid+Football'}} />
+                      <div className="absolute top-4 left-4 bg-[#2D1B4E] text-[#7CD326] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Signature Tradition</div>
                     </div>
-                    <div className="p-5 flex-1">
-                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Badminton Fiesta</h4>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Doubles Tournament</p>
+                    <div className="p-6">
+                      <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-[#7CD326] transition-colors">Post-Eid Football & Annual AGM</h4>
+                      <p className="text-gray-600 text-sm mb-4">Reconnecting the entire community right after Eid celebration. Tap for schedule mapping.</p>
+                      <div className="text-[#2D1B4E] font-bold uppercase tracking-wider text-[11px]">View Details ➔</div>
                     </div>
                   </div>
+
+                  {/* Hardcoded Blood Donation */}
+                  <div 
+                    onClick={() => setSelectedEvent({
+                      title: "Emergency Blood Donor Database Line",
+                      tag: "Active Lifeline",
+                      time: "Available 24 Hours • 7 Days",
+                      image: "/blood.jpeg",
+                      description: "MOC holds a live emergency response donor grid mapped directly within the locality. Our youth stand on full high-alert protocols to handle immediate crisis demands instantly.",
+                      extraNote: "Contact the Medical Logistics team through the portal panel to fetch dynamic type availability listings instantly."
+                    })}
+                    className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
+                  >
+                    <div className="w-full h-48 relative bg-red-50 overflow-hidden">
+                      <img src="/zainb.jpeg" alt="Blood Donation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x300/FEE2E2/B91C1C?text=Blood+Donation'; }} />
+                      <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Active Lifeline
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-red-600 transition-colors">24/7 Emergency Blood Drive</h4>
+                      <p className="text-gray-600 text-sm mb-4">Dynamic screening and allocation parameters managed entirely by the youth.</p>
+                      <div className="text-red-600 font-bold uppercase tracking-wider text-[11px]">View System ➔</div>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Tradition Events from Portal */}
+                  {events.filter(e => e.category === "tradition").map((event, idx) => (
+                    <div key={`tradition-${idx}`} onClick={() => setSelectedEvent(event)} className="bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col">
+                      <div className="w-full h-48 relative bg-gray-100 overflow-hidden">
+                        <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/600x300/F3F4F6/2D1B4E?text=Tradition'}} />
+                        <div className="absolute top-4 left-4 bg-[#2D1B4E] text-[#7CD326] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">{event.tag}</div>
+                      </div>
+                      <div className="p-6">
+                        <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-[#7CD326] transition-colors">{event.title}</h4>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{event.description}</p>
+                        <div className="text-[#2D1B4E] font-bold uppercase tracking-wider text-[11px]">View Details ➔</div>
+                      </div>
+                    </div>
+                  ))}
 
                 </div>
               </div>
-
-              {/* 🤝 SECTION 4: SIGNATURE TRADITIONS (SOLID CARDS) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Post Eid Mini Football & AGM */}
-                <div 
-                  onClick={() => setSelectedEvent({
-                    title: "Post-Eid Mini Football Tourney & Annual Meeting",
-                    tag: "Signature Core Legacy",
-                    time: "Next Day of Eid • Kickoff: 04:00 PM",
-                    image: "/eid-football.jpeg",
-                    description: "Our ultimate brotherhood ritual. Every year, exactly the day right after Eid, all registered members gather for an intimate high-tempo mini football layout. Once completed, we host the Annual General Meeting (AGM) to declare internal alignments.",
-                    extraNote: "Attendance is highly mandatory for all executive panel members."
-                  })}
-                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
-                >
-                  <div className="w-full h-48 relative bg-gray-100 overflow-hidden">
-                    <img src="/eid-post.jpeg" alt="Post Eid Tourney" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/600x300/F3F4F6/2D1B4E?text=Eid+Football'}} />
-                    <div className="absolute top-4 left-4 bg-[#2D1B4E] text-[#7CD326] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Signature Tradition</div>
-                  </div>
-                  <div className="p-6">
-                    <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-[#7CD326] transition-colors">Post-Eid Football & Annual AGM</h4>
-                    <p className="text-gray-600 text-sm mb-4">Reconnecting the entire community right after Eid celebration. Tap for schedule mapping.</p>
-                    <div className="text-[#2D1B4E] font-bold uppercase tracking-wider text-[11px]">View Details ➔</div>
-                  </div>
-                </div>
-
-                {/* Blood Donation */}
-                <div 
-                  onClick={() => setSelectedEvent({
-                    title: "Emergency Blood Donor Database Line",
-                    tag: "Active Lifeline",
-                    time: "Available 24 Hours • 7 Days",
-                    image: "/blood.jpeg",
-                    description: "MOC holds a live emergency response donor grid mapped directly within the locality. Our youth stand on full high-alert protocols to handle immediate crisis demands instantly.",
-                    extraNote: "Contact the Medical Logistics team through the portal panel to fetch dynamic type availability listings instantly."
-                  })}
-                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
-                >
-                  <div className="w-full h-48 relative bg-red-50 overflow-hidden">
-                    <img src="/zainb.jpeg" alt="Blood Donation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x300/FEE2E2/B91C1C?text=Blood+Donation'; }} />
-                    <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Active Lifeline
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-red-600 transition-colors">24/7 Emergency Blood Drive</h4>
-                    <p className="text-gray-600 text-sm mb-4">Dynamic screening and allocation parameters managed entirely by the youth.</p>
-                    <div className="text-red-600 font-bold uppercase tracking-wider text-[11px]">View System ➔</div>
-                  </div>
-                </div>
-                
-              </div>
-
             </div>
           </div>
         )}
@@ -1013,272 +1158,231 @@ export default function Home() {
           </div>
         )}
         {/* --- 📊 RESTORED STATS BOARD TAB 📊 --- */}
+        {/* --- 📈 DYNAMIC SPORTS ANALYTICS & STATS BOARD --- */}
+       {/* --- 📈 DYNAMIC SPORTS ANALYTICS & STATS BOARD --- */}
+        {/* --- 📈 DYNAMIC SPORTS ANALYTICS & STATS BOARD --- */}
         {activeTab === "stats" && (
-          <div className="animate-fade-in max-w-5xl mx-auto">
-            <div className="bg-[#2D1B4E] text-white py-10 px-6 text-center rounded-2xl mb-10 shadow-xl relative overflow-hidden">
-               <h2 className="text-3xl md:text-4xl font-extrabold font-serif mb-2">Sports Analytics & <span className="text-[#7CD326] italic">Stats Board</span></h2>
-               <p className="text-gray-300 text-xs max-w-xl mx-auto">Live updates, tables, and top leaderboard ranks for Mokamia Orient Club sports leagues.</p>
+          <div className="animate-fade-in max-w-6xl mx-auto mb-24 px-4 mt-8">
+            
+            {/* 👤 DYNAMIC PROFILE MODAL (Click korle ashbe) */}
+            {selectedProfile && (
+              <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedProfile(null)}>
+                <div className="bg-[#1A0F2E] w-full max-w-sm rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
+                  <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg z-10">✕</button>
+                  
+                  <div className="p-8 text-center mt-4">
+                    {/* 📸 Avatar / Image */}
+                    {selectedProfile.image ? (
+                      <img src={selectedProfile.image} alt={selectedProfile.name} className="w-24 h-24 mx-auto rounded-full object-cover border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] mb-4" onError={(e)=>{e.target.src='https://placehold.co/100x100/2B3674/FFFFFF?text=MOC'}} />
+                    ) : (
+                      <div className="w-24 h-24 mx-auto rounded-full border-4 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.4)] flex items-center justify-center bg-gradient-to-br from-[#2B3674] to-[#111C44] text-white text-4xl font-black mb-4">
+                        {selectedProfile.type === 'team' ? '🛡️' : selectedProfile.name.substring(0, 1)}
+                      </div>
+                    )}
+                    
+                    {/* Info */}
+                    <h3 className="text-2xl font-black text-white uppercase tracking-wide mb-1">{selectedProfile.name}</h3>
+                    <p className="text-[#7CD326] text-[11px] font-bold tracking-widest mb-6 uppercase">{selectedProfile.subtitle}</p>
+                    
+                    {/* Stats Box */}
+                    <div className="bg-black/40 rounded-2xl p-5 border border-white/10 text-left space-y-3">
+                      <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                        <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Primary Stat</span>
+                        <span className="text-white font-black text-lg">{selectedProfile.mainStat}</span>
+                      </div>
+                      
+                      {selectedProfile.tag && (
+                        <div className="flex justify-between items-center pb-2">
+                          <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Badge / Tag</span>
+                          <span className="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] font-black px-2.5 py-1 rounded shadow uppercase">{selectedProfile.tag}</span>
+                        </div>
+                      )}
+                      
+                      {selectedProfile.type === 'team' && (
+                        <div className="pt-2 text-xs font-medium text-gray-300 flex justify-between bg-white/5 p-3 rounded-xl">
+                          <span><strong className="text-white">P:</strong> {selectedProfile.extra.played}</span>
+                          <span><strong className="text-[#7CD326]">W:</strong> {selectedProfile.extra.won}</span>
+                          <span><strong className="text-red-400">L:</strong> {selectedProfile.extra.lost}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Banner */}
+            <div className="bg-[#21174A] rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden mb-12">
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #7CD326 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
+              <h2 className="text-4xl md:text-5xl font-black text-white font-serif tracking-wide relative z-10">
+                Sports Analytics & <span className="text-[#7CD326] italic drop-shadow-[0_0_15px_rgba(124,211,38,0.5)]">Stats Board</span>
+              </h2>
+              <p className="text-gray-300 mt-4 font-medium relative z-10 text-sm md:text-base">
+                Live updates, tables, and top leaderboard ranks for Mokamia Orient Club sports leagues.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="bg-[#1A0F2E] p-4 border-b border-gray-700 flex justify-between items-center">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏆 MPL 5th Edition Point Table</h3>
-                  <span className="text-[10px] bg-[#FF3B30] text-white px-2 py-0.5 rounded font-bold">FINAL</span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              
+              {/* 🏆 POINT TABLE (DYNAMIC & CLICKABLE) */}
+              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col">
+                <div className="bg-[#1A0F2E] p-5 flex justify-between items-center">
+                  <h3 className="text-white font-bold text-lg flex items-center gap-2">🏆 MPL 5TH EDITION POINT TABLE</h3>
+                  <span className="bg-[#FF3B30] text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest">FINAL</span>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs md:text-sm">
-                    <thead>
-                      <tr className="bg-gray-100 border-b border-gray-200 text-[#2D1B4E] font-bold">
-                        <th className="p-3">Pos</th><th className="p-3">Team Name</th><th className="p-3 text-center">P</th><th className="p-3 text-center">W</th><th className="p-3 text-center">D</th><th className="p-3 text-center">L</th><th className="p-3 text-center font-bold text-purple-900">PTS</th>
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-gray-50 border-b border-gray-100">
+                      <tr className="text-[#2B3674] font-bold text-xs uppercase tracking-wider">
+                        <th className="p-4">Pos</th><th className="p-4">Team Name</th><th className="p-4">P</th><th className="p-4">W</th><th className="p-4">D</th><th className="p-4">L</th><th className="p-4 text-purple-700 font-black">PTS</th>
                       </tr>
                     </thead>
-                   <tbody className="divide-y divide-gray-100 text-gray-600">
-                      <tr className="hover:bg-green-50/50 bg-green-50/20 font-bold">
-                        <td className="p-3 text-[#7CD326]">1</td>
-                        <td className="p-3 text-[#2D1B4E]">
-                          <span onClick={() => openPlayerProfile("Mokamia Lusitans")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Mokamia Lusitans🥇</span>
-                        </td>
-                        <td className="p-3 text-center">5</td><td className="p-3 text-center">4</td><td className="p-3 text-center">1</td><td className="p-3 text-center">0</td><td className="p-3 text-center font-bold text-[#2D1B4E]">9</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3">2</td>
-                        <td className="p-3 text-[#2D1B4E]">
-                          <span onClick={() => openPlayerProfile("Mokamia Allianz")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Mokamia Allianz🥈</span>
-                        </td>
-                        <td className="p-3 text-center">5</td><td className="p-3 text-center">3</td><td className="p-3 text-center">1</td><td className="p-3 text-center">1</td><td className="p-3 text-center font-bold text-[#2D1B4E]">7</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3">3</td>
-                        <td className="p-3 text-[#2D1B4E]">
-                          <span onClick={() => openPlayerProfile("Galacticos of Mokamia")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Galacticos of Mokamia</span>
-                        </td>
-                        <td className="p-3 text-center">5</td><td className="p-3 text-center">2</td><td className="p-3 text-center">0</td><td className="p-3 text-center">3</td><td className="p-3 text-center font-bold text-[#2D1B4E]">3</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3">4</td>
-                        <td className="p-3 text-[#2D1B4E]">
-                          <span onClick={() => openPlayerProfile("Majestic Mokamia")} className="cursor-pointer hover:text-[#7CD326] hover:underline decoration-dashed transition-all">Majestic Mokamia</span>
-                        </td>
-                        <td className="p-3 text-center">5</td><td className="p-3 text-center">0</td><td className="p-3 text-center">0</td><td className="p-3 text-center">5</td><td className="p-3 text-center font-bold text-[#2D1B4E]">1</td>
-                      </tr>
+                    <tbody>
+                      {pointsTable.length === 0 ? (
+                        <tr><td colSpan="7" className="p-6 text-center text-gray-500 font-bold">Points table updating...</td></tr>
+                      ) : (
+                        pointsTable.map((team, idx) => (
+                          <tr 
+                            key={team.id} 
+                            onClick={() => setSelectedProfile({ type: 'team', name: team.teamName, subtitle: 'MPL Franchise', mainStat: `${team.points} Points`, extra: team })}
+                            className="border-b border-gray-50 hover:bg-[#7CD326]/10 transition-colors cursor-pointer group"
+                          >
+                            <td className={`p-4 font-black ${idx === 0 ? 'text-[#7CD326]' : 'text-gray-400'}`}>{idx + 1}</td>
+                            <td className="p-4 font-bold text-[#2B3674] group-hover:text-emerald-700 transition-colors">{team.teamName} {idx === 0 && '🥇'}</td>
+                            <td className="p-4 text-gray-600 font-bold">{team.played}</td>
+                            <td className="p-4 text-gray-600 font-bold">{team.won}</td>
+                            <td className="p-4 text-gray-600 font-bold">{team.drawn}</td>
+                            <td className="p-4 text-gray-600 font-bold">{team.lost}</td>
+                            <td className="p-4 font-black text-purple-700 text-lg">{team.points}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
-{/* 🚀 MATHA-NOSTO UI: INTERACTIVE TACTICAL PITCH 🚀 */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden group">
-                <div className="bg-[#1A0F2E] p-4 border-b border-[#7CD326] flex justify-between items-center">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">⚽ Tactical View: Top Scorers</h3>
-                  <span className="animate-pulse bg-[#7CD326] text-[#1A0F2E] text-[10px] font-black px-2 py-0.5 rounded">LIVE PITCH</span>
+
+              {/* ⚽ TACTICAL VIEW: FOOTBALL (DYNAMIC) */}
+              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col relative">
+                <div className="bg-[#2D1B4E] p-5 flex justify-between items-center z-10">
+                  <h3 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">⚽ Tactical View: Top Scorers</h3>
+                  <span className="bg-[#7CD326]/20 text-[#7CD326] border border-[#7CD326]/50 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest">Live Pitch</span>
                 </div>
                 
-                {/* Asol Football Math (Pitch) */}
-                <div className="relative w-full h-80 bg-gradient-to-b from-green-500 to-green-700 overflow-hidden border-4 border-green-800/30">
+                <div className="flex-1 bg-[#15B04F] relative min-h-[400px] overflow-hidden p-6 flex justify-center items-center">
+                  <div className="absolute inset-4 border-2 border-white/40"></div>
+                  <div className="absolute top-1/2 left-4 w-[calc(100%-32px)] h-0 border-t-2 border-white/40"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 border-2 border-white/40 rounded-full"></div>
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-48 h-16 border-2 border-t-0 border-white/40"></div>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 border-2 border-b-0 border-white/40"></div>
                   
-                  {/* Pitch-er Daag (Field Lines) */}
-                  <div className="absolute inset-0 opacity-40">
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white -translate-y-1/2"></div>
-                    <div className="absolute top-1/2 left-1/2 w-24 h-24 border-4 border-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="absolute top-0 left-1/2 w-40 h-16 border-4 border-white border-t-0 -translate-x-1/2"></div>
-                    <div className="absolute bottom-0 left-1/2 w-40 h-16 border-4 border-white border-b-0 -translate-x-1/2"></div>
-                  </div>
+                  {tacticalPlayers.filter(p => p.sport === 'football').map((player) => {
+                    const positions = ["bottom-[30%] right-[30%]", "top-[30%] left-[30%]", "bottom-[15%] left-[20%]", "top-[15%] right-[20%]", "bottom-[45%] right-[45%]"];
+                    const posClass = positions[(player.slot - 1) % positions.length];
 
-                  {/* 1. Supto (Striker - Ekdom samne) */}
-                  <div 
-                    onClick={() => openPlayerProfile("Abdullah Supto")}
-                    className="absolute top-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300"
-                  >
-                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
-                      <img src="/supto.png" alt="Supto" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
-                      Supto (3 ⚽)
-                    </div>
-                  </div>
+                    return (
+                      <div 
+                        key={player.id} 
+                        onClick={() => setSelectedProfile({ type: 'player', name: player.name, subtitle: 'Football Top Scorer', mainStat: player.stats, tag: player.tag, image: player.image })}
+                        className={`absolute flex flex-col items-center ${posClass} z-10 transform transition-transform hover:scale-110 cursor-pointer group`}
+                      >
+                        {/* 📸 Player Image or Initial */}
+                        {player.image ? (
+                           <img src={player.image} alt={player.name} className="w-12 h-12 rounded-full border-2 border-[#7CD326] shadow-[0_0_15px_rgba(124,211,38,0.6)] object-cover mb-1 bg-white" />
+                        ) : (
+                           <div className="w-12 h-12 rounded-full bg-[#1A0F2E] border-2 border-[#7CD326] shadow-[0_0_15px_rgba(124,211,38,0.6)] flex items-center justify-center text-white font-black text-xl mb-1">{player.name.substring(0, 1)}</div>
+                        )}
 
-                  {/* 2. Tourjoy (Right Forward/Winger - Dan Pashe) */}
-                  <div 
-                    onClick={() => openPlayerProfile("Tourjoy")}
-                    className="absolute top-1/4 right-8 md:right-12 transform flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300 hover:-translate-y-2"
-                  >
-                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
-                      <img src="/tourjoy.png" alt="Tourjoy" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=T'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
-                      Tourjoy (2 ⚽)
-                    </div>
-                  </div>
-
-                  {/* 3. Munna (Attacking Midfielder - Majhkhaner ektu nichi) */}
-                  <div 
-                    onClick={() => openPlayerProfile("Munna")}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-8 flex flex-col items-center cursor-pointer z-10 hover:z-20 transition-all duration-300 hover:-translate-y-2"
-                  >
-                    <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-[0_0_15px_#7CD326] hover:scale-125 transition-transform bg-[#1A0F2E] relative">
-                      <img src="/munna.png" alt="Munna" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=M'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 border border-[#7CD326]/50 shadow-lg whitespace-nowrap">
-                      Munna (1 ⚽)
-                    </div>
-                  </div>
-
+                        <div className="bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded text-[9px] font-black uppercase tracking-wider text-white border border-white/10 shadow-lg text-center whitespace-nowrap">
+                          {player.name} <span className="text-[#7CD326]">({player.stats})</span>
+                        </div>
+                        {player.tag && <div className="absolute -top-3 -right-2 bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold shadow-md">{player.tag}</div>}
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+            </div>
+
+            {/* 🏏 TACTICAL VIEW: CRICKET GROUND (DYNAMIC) */}
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col relative mt-8">
+              <div className="bg-[#2D1B4E] p-5 flex justify-between items-center z-10">
+                <h3 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">🏏 MOC Cricket Association: Ground View</h3>
+                <span className="bg-[#7CD326]/20 text-[#7CD326] border border-[#7CD326]/50 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest">Stadium View</span>
               </div>
               
-            </div>
-{/* 🚀 CRICKET STADIUM INTERACTIVE UI 🚀 */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8">
-                <div className="bg-[#2D1B4E] p-4 border-b border-[#7CD326] flex justify-between items-center">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏏 MOC Cricket Association: Ground View</h3>
-                  <span className="animate-pulse bg-[#7CD326] text-[#2D1B4E] text-[10px] font-black px-2 py-0.5 rounded">STADIUM VIEW</span>
-                </div>
+              <div className="h-[450px] bg-[#108A44] relative overflow-hidden p-6 flex justify-center items-center">
+                <div className="absolute inset-4 border-2 border-dashed border-white/30 rounded-[100px]"></div>
+                <div className="w-16 h-56 bg-[#E6D48F] opacity-90 border-2 border-white/40 rounded-sm transform rotate-45 z-0 absolute"></div>
                 
-                {/* Cricket Stadium Turf */}
-                <div className="relative w-full h-[380px] bg-gradient-to-b from-emerald-600 to-green-700 overflow-hidden flex items-center justify-center">
-                  
-                  {/* Outer Boundary & Pitch */}
-                  <div className="absolute w-[92%] h-[90%] border-2 border-dashed border-white/30 rounded-full flex items-center justify-center">
-                    {/* The Pitch */}
-                    <div className="w-10 h-28 bg-amber-100/90 border border-amber-300 rounded shadow-md transform rotate-45 flex flex-col justify-between p-1">
-                      <div className="w-full h-0.5 bg-amber-400"></div>
-                      <div className="w-full h-0.5 bg-amber-400"></div>
-                    </div>
-                  </div>
+                {tacticalPlayers.filter(p => p.sport === 'cricket').map((player) => {
+                  const positions = ["top-[15%] left-[30%]", "bottom-[15%] right-[25%]", "top-[30%] right-[20%]", "bottom-[20%] left-[25%]", "top-[40%] left-[10%]", "bottom-[40%] right-[10%]"];
+                  const posClass = positions[(player.slot - 1) % positions.length];
 
-                  {/* 1. Abdullah Fahad (Batsman - Near Pitch) */}
-                  <div onClick={() => openPlayerProfile("Abdullah Fahad")} className="absolute top-1/3 left-1/3 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-amber-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/fahad.png" alt="Fahad" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=F'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-amber-400/50 whitespace-nowrap">
-                      FAHAD (212 Runs 🏏)
-                    </div>
-                  </div>
+                  return (
+                    <div 
+                      key={player.id} 
+                      onClick={() => setSelectedProfile({ type: 'player', name: player.name, subtitle: 'Cricket Player', mainStat: player.stats, tag: player.tag, image: player.image })}
+                      className={`absolute flex flex-col items-center ${posClass} z-10 transform transition-transform hover:scale-110 cursor-pointer group`}
+                    >
+                      {/* 📸 Player Image or Initial */}
+                      {player.image ? (
+                         <img src={player.image} alt={player.name} className="w-14 h-14 rounded-full border-2 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.7)] object-cover mb-1 bg-white" />
+                      ) : (
+                         <div className="w-14 h-14 rounded-full bg-[#1A0F2E] border-2 border-[#7CD326] shadow-[0_0_20px_rgba(124,211,38,0.7)] flex items-center justify-center text-white font-black text-2xl mb-1">{player.name.substring(0, 1)}</div>
+                      )}
 
-                  {/* 2. Mobarak Hossain (Batsman - Other side of Pitch) */}
-                  <div onClick={() => openPlayerProfile("Mobarak Hossain")} className="absolute top-1/2 left-1/2 transform translate-x-4 -translate-y-12 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-amber-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/mobarak.png" alt="Mobarak" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=M'}} />
+                      <div className="bg-black/90 backdrop-blur-sm px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider text-white border border-[#7CD326]/40 shadow-lg text-center whitespace-nowrap">
+                        {player.name} <span className="text-[#7CD326] ml-1">({player.stats})</span>
+                      </div>
+                      {player.tag && <div className="absolute -top-3 -right-2 bg-[#FF3B30] text-white text-[9px] px-2 py-0.5 rounded shadow-lg font-bold animate-pulse">{player.tag}</div>}
                     </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-amber-400/50 whitespace-nowrap">
-                      MOBARAK (196 Runs 🏏)
-                    </div>
-                  </div>
-
-                  {/* 3. Noman (Bowler - Bowling End) */}
-                  <div onClick={() => openPlayerProfile("Noman")} className="absolute bottom-16 left-1/4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-blue-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/noman.png" alt="Noman" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=N'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-blue-400/50 whitespace-nowrap">
-                      NOMAN (12 Wkts 🔴)
-                    </div>
-                  </div>
-
-                  {/* 4. Istiak Shadin (Bowler/All-Rounder) */}
-                  <div onClick={() => openPlayerProfile("Istiak Shadin")} className="absolute top-16 right-1/4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-blue-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/shadin.png" alt="Shadin" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-blue-400/50 whitespace-nowrap">
-                      SHADIN (11 Wkts 🔴)
-                    </div>
-                  </div>
-
-                  {/* 5. Iftekhar Ahmed (Star All-Rounder - Deep Outfield) */}
-                  <div onClick={() => openPlayerProfile("Iftekhar Ahmed")} className="absolute bottom-12 right-1/3 transform translate-x-12 flex flex-col items-center cursor-pointer z-12 hover:scale-125 transition-all">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#7CD326] overflow-hidden bg-[#1A0F2E] shadow-[0_0_20px_#7CD326]">
-                      <img src="/ifti.png" alt="Ifti" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=Ifti'}} />
-                    </div>
-                    <div className="bg-[#1A0F2E] text-[#7CD326] text-[10px] font-black px-2 py-0.5 rounded-full mt-1 border border-[#7CD326] shadow-2xl whitespace-nowrap animate-pulse">
-                      🌟 IFTI (143R + 8W)
-                    </div>
-                  </div>
-
-                  {/* 6. Mohammad Sayed Hossain (Valuable All-Rounder) */}
-                  <div onClick={() => openPlayerProfile("Mohammad Sayed Hossain")} className="absolute top-12 left-1/3 transform -translate-x-12 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-purple-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/sayed.png" alt="Sayed" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-purple-400/50 whitespace-nowrap">
-                      SAYED (131R + 7W)
-                    </div>
-                  </div>
-
-                </div>
+                  );
+                })}
               </div>
-             {/* 🚀 BADMINTON COURT INTERACTIVE UI 🚀 */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-12">
-                <div className="bg-[#2D1B4E] p-4 border-b border-[#7CD326] flex justify-between items-center">
-                  <h3 className="text-white font-bold font-serif text-sm uppercase tracking-wide">🏸 Winter Badminton Championship: Court View</h3>
-                  <span className="animate-pulse bg-[#7CD326] text-[#2D1B4E] text-[10px] font-black px-2 py-0.5 rounded">COURT VIEW</span>
-                </div>
+            </div>
 
-                {/* Badminton Court */}
-                <div className="relative w-full h-80 bg-gradient-to-b from-teal-600 to-teal-800 p-4 overflow-hidden flex flex-col justify-between border-4 border-teal-900/30">
-                  
-                  {/* Court Markings & Net */}
-                  <div className="absolute inset-x-8 inset-y-4 border-2 border-white/40 pointer-events-none">
-                    {/* Center Net Line */}
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/70 border-t-2 border-dashed border-gray-400 -translate-y-1/2"></div>
-                    {/* Short Service Lines */}
-                    <div className="absolute top-1/3 left-0 w-full h-0.5 bg-white/30"></div>
-                    <div className="absolute bottom-1/3 left-0 w-full h-0.5 bg-white/30"></div>
-                    {/* Center Line Split */}
-                    <div className="absolute top-0 left-1/2 w-0.5 h-1/3 bg-white/30"></div>
-                    <div className="absolute bottom-0 left-1/2 w-0.5 h-1/3 bg-white/30"></div>
-                  </div>
-
-                  {/* ============ TOP HALF (SINGLES PLAYERS) ============ */}
-                  {/* 1. Imtiaz Hossain Ontor (Singles Champion) */}
-                  <div onClick={() => openPlayerProfile("Imtiaz Hossain Ontor")} className="absolute top-10 left-1/4 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-yellow-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/ontor.png" alt="Ontor" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=O'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-yellow-400/50 whitespace-nowrap">
-                      🥇 ONTOR (Singles Champ)
-                    </div>
-                  </div>
-
-                  {/* 2. Shaiful Islam Tamim (Singles Runner-up) */}
-                  <div onClick={() => openPlayerProfile("Shaiful Islam Tamim")} className="absolute top-10 right-1/4 transform translate-x-1/2 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-gray-400 overflow-hidden bg-[#1A0F2E]">
-                      <img src="/tamim.png" alt="Tamim" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=T'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-gray-400/50 whitespace-nowrap">
-                      🥈 TAMIM (Runner-up)
-                    </div>
-                  </div>
-
-
-                  {/* ============ BOTTOM HALF (DOUBLES PLAYERS) ============ */}
-                  {/* 3. Istiak Shadin (Doubles Champ) */}
-                  <div onClick={() => openPlayerProfile("Istiak Shadin")} className="absolute bottom-10 left-1/3 transform -translate-x-4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-yellow-400 overflow-hidden bg-[#1A0F2E] shadow-[0_0_12px_#7CD326]">
-                      <img src="/shadin.png" alt="Shadin" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-yellow-400/50 whitespace-nowrap">
-                      🏆 SHADIN (Doubles Champ)
-                    </div>
-                  </div>
-
-                  {/* 4. Sojib Bhuiyan (Doubles Runner-up) */}
-                  <div onClick={() => openPlayerProfile("Sojib Bhuiyan")} className="absolute bottom-10 right-1/3 transform translate-x-4 flex flex-col items-center cursor-pointer z-10 hover:scale-110 transition-all">
-                    <div className="w-11 h-11 rounded-full border-2 border-gray-400 overflow-hidden bg-[#1A0F2E]">
-                      <img src="/sojib.png" alt="Sojib" className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/100x100/1A0F2E/7CD326?text=S'}} />
-                    </div>
-                    <div className="bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 border border-gray-400/50 whitespace-nowrap">
-                      🥈 SOJIB (Runner-up)
-                    </div>
-                  </div>
-
-                </div>
+            {/* 🏸 TACTICAL VIEW: BADMINTON COURT (DYNAMIC) */}
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col relative mt-8">
+              <div className="bg-[#2D1B4E] p-5 flex justify-between items-center z-10">
+                <h3 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">🏸 Winter Badminton Championship: Court View</h3>
+                <span className="bg-[#7CD326]/20 text-[#7CD326] border border-[#7CD326]/50 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest">Court View</span>
               </div>
-             
+              
+              <div className="h-[350px] bg-[#0A7373] relative p-8 flex justify-center items-center">
+                <div className="absolute inset-8 border-2 border-white/60">
+                  <div className="absolute w-full h-1/2 border-b-2 border-dashed border-white/60 top-0"></div>
+                  <div className="absolute h-full w-1/2 border-r-2 border-white/60 left-0"></div>
+                </div>
+
+                {tacticalPlayers.filter(p => p.sport === 'badminton').map((player) => {
+                  const positions = ["top-[20%] left-[25%]", "top-[20%] right-[25%]", "bottom-[20%] left-[25%]", "bottom-[20%] right-[25%]"];
+                  const posClass = positions[(player.slot - 1) % positions.length];
+
+                  return (
+                    <div 
+                      key={player.id} 
+                      onClick={() => setSelectedProfile({ type: 'player', name: player.name, subtitle: 'Badminton Player', mainStat: player.stats, tag: player.tag, image: player.image })}
+                      className={`absolute flex flex-col items-center ${posClass} z-10 transform transition-transform hover:scale-110 cursor-pointer group`}
+                    >
+                      {/* 📸 Player Image or Initial */}
+                      {player.image ? (
+                         <img src={player.image} alt={player.name} className="w-14 h-14 rounded-full border-2 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] object-cover mb-1 bg-white" />
+                      ) : (
+                         <div className="w-14 h-14 rounded-full bg-[#1A0F2E] border-2 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] flex items-center justify-center text-white font-black text-2xl mb-1">{player.name.substring(0, 1)}</div>
+                      )}
+
+                      <div className="bg-black/90 backdrop-blur-sm px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider text-white border border-amber-400/40 shadow-lg text-center whitespace-nowrap">
+                        {player.tag && <span className="text-amber-400 mr-1">🥇</span>} {player.name} <span className="text-gray-300 ml-1">({player.stats})</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
         )}
- 
         {/* --- 🤝 PREMIUM SOCIAL INITIATIVES TAB (CINEMATIC BENTO GRID) 🤝 --- */}
         {activeTab === "charity" && (
           <div className="animate-fade-in max-w-6xl mx-auto mb-20 px-4">

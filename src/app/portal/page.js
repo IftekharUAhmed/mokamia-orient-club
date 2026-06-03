@@ -51,6 +51,89 @@ export default function PortalDashboard() {
   const [editingAlbumId, setEditingAlbumId] = useState(null);
   const [editAlbumData, setEditAlbumData] = useState({ title: "", category: "football" });
 
+  // 🏆 Events Management State
+  const [events, setEvents] = useState([]);
+  const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    tag: "Upcoming",
+    time: "",
+    image: "", // Cloudinary URL ekhane boshabe
+    description: "",
+    extraNote: "",
+    category: "upcoming"
+  });
+
+
+
+  // 🏆 POINTS TABLE STATES
+  const [pointsTable, setPointsTable] = useState([]);
+  const [isSubmittingPoint, setIsSubmittingPoint] = useState(false);
+  const [editingPointId, setEditingPointId] = useState(null);
+  const [pointForm, setPointForm] = useState({ teamName: "", played: 0, won: 0, drawn: 0, lost: 0, points: 0 });
+
+  // 🏃‍♂️ TACTICAL PLAYERS STATES
+  const [tacticalPlayers, setTacticalPlayers] = useState([]);
+  const [isSubmittingTactical, setIsSubmittingTactical] = useState(false);
+  const [editingTacticalId, setEditingTacticalId] = useState(null);
+   const [tacticalForm, setTacticalForm] = useState({ sport: "cricket", name: "", stats: "", tag: "", image: "", slot: 1 });
+
+  // 🟢 Fetch Sports Analytics Data
+  const fetchSportsStats = async () => {
+    try {
+      const [ptRes, tacRes] = await Promise.all([fetch("/api/points"), fetch("/api/tactical")]);
+      const ptData = await ptRes.json();
+      const tacData = await tacRes.json();
+      if (ptData.success) setPointsTable(ptData.data);
+      if (tacData.success) setTacticalPlayers(tacData.data);
+    } catch (error) { console.error("Error fetching stats:", error); }
+  };
+
+  // Tor main useEffect/fetchDashboardData er sheshe ei fetchSportsStats(); call kore dis jate data page load holei ashe.
+
+  // 🏆 Submit / Update Point Table
+  const handlePointSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingPoint(true);
+    try {
+      const url = editingPointId ? `/api/points/${editingPointId}` : "/api/points";
+      const method = editingPointId ? "PATCH" : "POST";
+      const payload = { ...pointForm, played: Number(pointForm.played), won: Number(pointForm.won), drawn: Number(pointForm.drawn), lost: Number(pointForm.lost), points: Number(pointForm.points) };
+      
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if ((await res.json()).success) { 
+        alert("Team Point Data Saved!"); 
+        setEditingPointId(null); 
+        setPointForm({ teamName: "", played: 0, won: 0, drawn: 0, lost: 0, points: 0 }); 
+        fetchSportsStats(); 
+      }
+    } catch (error) { alert("Failed to save team data."); } finally { setIsSubmittingPoint(false); }
+  };
+
+  // 🏃‍♂️ Submit / Update Tactical Player
+  const handleTacticalSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingTactical(true);
+    try {
+      const url = editingTacticalId ? `/api/tactical/${editingTacticalId}` : "/api/tactical";
+      const method = editingTacticalId ? "PATCH" : "POST";
+      const payload = { ...tacticalForm, slot: Number(tacticalForm.slot) };
+      
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if ((await res.json()).success) { 
+        alert("Player Stats Saved!"); 
+        setEditingTacticalId(null); 
+        setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", slot: 1 }); 
+        fetchSportsStats(); 
+      }
+    } catch (error) { alert("Failed to save player stats."); } finally { setIsSubmittingTactical(false); }
+  };
+
+  const deletePoint = async (id) => { if (confirm("Delete Team from Point Table?")) { await fetch(`/api/points/${id}`, { method: "DELETE" }); fetchSportsStats(); } };
+  const deleteTactical = async (id) => { if (confirm("Delete Player from Field?")) { await fetch(`/api/tactical/${id}`, { method: "DELETE" }); fetchSportsStats(); } };
+
+
   const fetchDashboardData = async (silently = false) => {
     if (!silently) setIsLoading(true);
     try {
@@ -62,6 +145,10 @@ export default function PortalDashboard() {
         fetch('/api/notice', { cache: 'no-store' }),
         fetch('/api/chat', { cache: 'no-store' })
       ]);
+
+
+      // Ei function ta tor existing fetch function er vitore rakhbi
+
       
       const reunionJson = await reunionRes.json();
       const memberJson = await memberRes.json();
@@ -76,6 +163,10 @@ export default function PortalDashboard() {
       if (galleryJson.success) setAlbums(galleryJson.data);
       if (noticeJson.success) setNotices(noticeJson.data);
       if (chatJson.success) setMessages(chatJson.data);
+      if (chatJson.success) setMessages(chatJson.data);
+      
+      fetchEvents(); // Ei line ta add korbi
+      fetchStats();
     } catch (error) { console.error("Error:", error); } 
     finally { if (!silently) setIsLoading(false); }
   };
@@ -270,6 +361,145 @@ export default function PortalDashboard() {
     }
   };
 
+const fetchEvents = async () => {
+    try {
+      const res = await fetch("/api/events");
+      const data = await res.json();
+      if (data.success) setEvents(data.data);
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+    }
+  };
+ 
+   // 🟢 Create & Update Event
+  const handleEventSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingEvent(true);
+    try {
+      const url = editingEventId ? `/api/events/${editingEventId}` : "/api/events";
+      const method = editingEventId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventForm),
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        alert(editingEventId ? "Event Successfully Updated!" : "Event Successfully Posted!");
+        cancelEventEdit();
+        fetchEvents();
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      alert("Failed to save event.");
+    } finally {
+      setIsSubmittingEvent(false);
+    }
+  };
+  // 📊 STATS BOARD STATE
+  const [stats, setStats] = useState([]);
+  const [isSubmittingStat, setIsSubmittingStat] = useState(false);
+  const [editingStatId, setEditingStatId] = useState(null);
+  const [statForm, setStatForm] = useState({ title: "", value: "", icon: "👥" });
+
+  // 🟢 Fetch Stats
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+      if (data.success) setStats(data.data);
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
+
+  // 🟢 Submit / Update Stat
+  const handleStatSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingStat(true);
+    try {
+      const url = editingStatId ? `/api/stats/${editingStatId}` : "/api/stats";
+      const method = editingStatId ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(statForm),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(editingStatId ? "Stat Successfully Updated!" : "Stat Successfully Added!");
+        cancelStatEdit();
+        fetchStats();
+      } else alert("Error: " + data.message);
+    } catch (error) {
+      alert("Failed to save stat.");
+    } finally {
+      setIsSubmittingStat(false);
+    }
+  };
+
+  // 🟡 Edit & Cancel Actions
+  const handleEditStatClick = (stat) => {
+    setEditingStatId(stat.id);
+    setStatForm({ title: stat.title, value: stat.value, icon: stat.icon });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const cancelStatEdit = () => {
+    setEditingStatId(null);
+    setStatForm({ title: "", value: "", icon: "👥" });
+  };
+
+  // 🔴 Delete Stat
+  const handleDeleteStat = async (id) => {
+    if (!confirm("Are you sure you want to delete this stat?")) return;
+    try {
+      const res = await fetch(`/api/stats/${id}`, { method: "DELETE" });
+      if ((await res.json()).success) fetchStats();
+    } catch (error) {
+      alert("Failed to delete stat.");
+    }
+  };
+
+  // 🟡 Edit Button e click korle data form e ashbe
+  const handleEditEventClick = (event) => {
+    setEditingEventId(event.id);
+    setEventForm({
+      title: event.title,
+      tag: event.tag || "",
+      time: event.time || "",
+      image: event.image || "",
+      description: event.description || "",
+      extraNote: event.extraNote || "",
+      category: event.category || "upcoming"
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Form er kache scroll hobe
+  };
+
+  // 🔴 Edit Cancel Korle
+  const cancelEventEdit = () => {
+    setEditingEventId(null);
+    setEventForm({ title: "", tag: "Upcoming", time: "", image: "", description: "", extraNote: "", category: "upcoming" });
+  };
+
+  // 🔴 Delete Event
+  const handleEventDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+    try {
+      const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        fetchEvents(); // List update korbe
+      }
+    } catch (error) {
+      alert("Failed to delete event.");
+    }
+  };
+
+
+
   // --- COMMITTEE LOGIC ---
   const handleCommitteeChange = (e) => setNewCommittee({ ...newCommittee, [e.target.name]: e.target.value });
   const handleEditClick = (member) => { setEditingId(member.id); setNewCommittee({ fullName: member.fullName, designation: member.designation, mobileNumber: member.mobileNumber, email: member.email || "", bloodGroup: member.bloodGroup || "A+", password: "" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -359,7 +589,7 @@ export default function PortalDashboard() {
         <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest px-6 py-4 mt-2">Menu Structure</div>
         
         <nav className="flex-1 flex flex-col px-4 gap-2">
-           {['dashboard', 'reunion', 'membership', 'committee', 'gallery', 'notices', 'chat'].map((menu) => {
+   {['dashboard', 'events', 'stats', 'reunion', 'membership', 'committee', 'gallery', 'notices', 'chat'].map((menu) => {
             const isActive = activeMenu === menu;
             return (
               <button 
@@ -379,7 +609,7 @@ export default function PortalDashboard() {
                   isActive ? 'bg-[#7CD326] text-[#0B1437] shadow-[0_0_15px_rgba(124,211,38,0.4)] scale-110' : 'bg-white/5 group-hover:bg-white/10'
                 }`}>
                   <span className="text-sm">
-                    {menu === 'dashboard' ? '📊' : menu === 'reunion' ? '🌙' : menu === 'membership' ? '👥' : menu === 'committee' ? '⚙️' : menu === 'gallery' ? '📸' : menu === 'notices' ? '📢' : '💬'}
+                  {menu === 'dashboard' ? '📊' : menu === 'events' ? '🏆' : menu === 'stats' ? '📈' : menu === 'reunion' ? '🌙' : menu === 'membership' ? '👥' : menu === 'committee' ? '⚙️' : menu === 'gallery' ? '📸' : menu === 'notices' ? '📢' : '💬'}
                   </span>
                 </div>
                 <span className={`capitalize text-sm font-semibold tracking-wide transition-all ${isActive ? 'text-white' : ''}`}>
@@ -483,6 +713,9 @@ export default function PortalDashboard() {
                   </div>
                 </div>
               )}
+
+ 
+       
 
               {/* REUNION TAB (User's Exact Forms, wrapped in Premium CSS) */}
               {activeMenu === "reunion" && (
@@ -743,6 +976,203 @@ export default function PortalDashboard() {
                   ))}
                 </div>
               )}
+
+ 
+        {/* --- 🏆 EVENTS MANAGEMENT TAB --- */}
+        {activeMenu === "events" && (
+          <div className="space-y-8 animate-fade-in">
+            
+            {/* ADD NEW EVENT FORM */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+               <div className="flex justify-between items-center mb-6">
+  <h3 className="text-xl font-bold text-gray-800">
+    {editingEventId ? "✏️ Edit Event" : "➕ Create New Event"}
+  </h3>
+  {editingEventId && (
+    <button onClick={cancelEventEdit} className="text-red-600 font-bold text-sm hover:underline">Cancel Edit</button>
+  )}
+</div>
+              
+              <form onSubmit={handleEventSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Event Title *</label>
+                    <input type="text" required value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Winter Short Pitch" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Image URL (Cloudinary) *</label>
+                    <input type="text" required value={eventForm.image} onChange={(e) => setEventForm({...eventForm, image: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Paste image link here" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Status Tag</label>
+                    <input type="text" value={eventForm.tag} onChange={(e) => setEventForm({...eventForm, tag: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Just Concluded" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Time / Date</label>
+                    <input type="text" value={eventForm.time} onChange={(e) => setEventForm({...eventForm, time: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Dec / Jan" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Category</label>
+                    <select value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm">
+                      <option value="upcoming">Mega Upcoming</option>
+                      <option value="concluded">Just Concluded</option>
+                      <option value="winter">Winter Sports</option>
+                      <option value="tradition">Signature Tradition</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-500 mb-1 block">Description *</label>
+                  <textarea required value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm h-24" placeholder="Event details..."></textarea>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 mb-1 block">Executive Notice (Optional)</label>
+                  <input type="text" value={eventForm.extraNote} onChange={(e) => setEventForm({...eventForm, extraNote: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Any special instruction..." />
+                </div>
+
+                <button type="submit" disabled={isSubmittingEvent} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition-colors shadow-md disabled:opacity-50">
+                  {isSubmittingEvent ? "Posting..." : "Publish Event"}
+                </button>
+              </form>
+            </div>
+
+            {/* EVENT LIST (MANAGE) */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">📋 Manage Events</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                      <th className="p-3">Title</th>
+                      <th className="p-3">Category</th>
+                      <th className="p-3">Time</th>
+                      <th className="p-3">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.length === 0 ? (
+                      <tr><td colSpan="4" className="p-4 text-center text-gray-500 text-sm">No events found.</td></tr>
+                    ) : (
+                      events.map(event => (
+                        <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="p-3 text-sm font-bold text-gray-700">{event.title}</td>
+                          <td className="p-3 text-xs uppercase text-gray-500">{event.category}</td>
+                          <td className="p-3 text-sm text-gray-600">{event.time}</td>
+                          <td className="p-3">
+                            <button onClick={() => handleEventDelete(event.id)} className="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors">Delete</button>
+                            <button onClick={() => handleEditEventClick(event)} className="bg-amber-100 text-amber-700 hover:bg-amber-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors mr-2">
+  Edit
+</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+
+
+
+
+        {/* --- 📈 STATS MANAGEMENT TAB --- */}
+             {/* --- 📈 PREMIUM SPORTS ANALYTICS PANEL --- */}
+              {activeMenu === "stats" && (
+                <div className="space-y-10 animate-fade-in max-w-6xl mx-auto">
+                  
+                  {/* --- 🏆 POINT TABLE SECTION --- */}
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <div className="bg-[#2B3674] text-white p-4 rounded-xl mb-6 flex justify-between items-center">
+                      <h3 className="font-bold text-lg">🏆 MPL Point Table Manager</h3>
+                      {editingPointId && <button onClick={() => {setEditingPointId(null); setPointForm({ teamName: "", played: 0, won: 0, drawn: 0, lost: 0, points: 0 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}
+                    </div>
+
+                    {/* Point Table Form */}
+                    <form onSubmit={handlePointSubmit} className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div className="col-span-2 md:col-span-1"><label className="text-xs font-bold text-gray-500 mb-1 block">Team Name</label><input required value={pointForm.teamName} onChange={(e)=>setPointForm({...pointForm, teamName: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. Mokamia Lusitans" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Played (P)</label><input type="number" required value={pointForm.played} onChange={(e)=>setPointForm({...pointForm, played: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Won (W)</label><input type="number" required value={pointForm.won} onChange={(e)=>setPointForm({...pointForm, won: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Drawn (D)</label><input type="number" required value={pointForm.drawn} onChange={(e)=>setPointForm({...pointForm, drawn: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Lost (L)</label><input type="number" required value={pointForm.lost} onChange={(e)=>setPointForm({...pointForm, lost: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Total Points</label><input type="number" required value={pointForm.points} onChange={(e)=>setPointForm({...pointForm, points: e.target.value})} className="w-full p-2 border rounded outline-none text-sm border-[#7CD326]" /></div>
+                      
+                      <div className="col-span-2 md:col-span-6 flex justify-end mt-2">
+                        <button type="submit" disabled={isSubmittingPoint} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors">{isSubmittingPoint ? "Saving..." : (editingPointId ? "Update Team" : "Add Team to Table")}</button>
+                      </div>
+                    </form>
+
+                    {/* Point Table List */}
+                    <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-gray-100 text-gray-600 font-bold uppercase text-xs">
+                          <tr><th className="p-3">Team Name</th><th className="p-3">P</th><th className="p-3">W</th><th className="p-3">D</th><th className="p-3">L</th><th className="p-3 text-[#7CD326]">PTS</th><th className="p-3 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody>
+                          {pointsTable.map(pt => (
+                            <tr key={pt.id} className="border-b hover:bg-gray-50"><td className="p-3 font-bold text-[#2B3674]">{pt.teamName}</td><td className="p-3">{pt.played}</td><td className="p-3">{pt.won}</td><td className="p-3">{pt.drawn}</td><td className="p-3">{pt.lost}</td><td className="p-3 font-black text-lg">{pt.points}</td><td className="p-3 text-right"><button onClick={() => {setEditingPointId(pt.id); setPointForm(pt); window.scrollTo({top:0});}} className="text-amber-600 font-bold text-xs mr-3">Edit</button><button onClick={()=>deletePoint(pt.id)} className="text-red-600 font-bold text-xs">Del</button></td></tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* --- 🏃‍♂️ TACTICAL PLAYERS SECTION --- */}
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <div className="bg-emerald-700 text-white p-4 rounded-xl mb-6 flex justify-between items-center">
+                      <h3 className="font-bold text-lg">🏃‍♂️ Tactical Player Stats (Ground View)</h3>
+                      {editingTacticalId && <button onClick={() => {setEditingTacticalId(null); setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", slot: 1 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}
+                    </div>
+
+                    {/* Tactical Form */}
+                    <form onSubmit={handleTacticalSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 mb-1 block">Sport Type</label>
+                        <select value={tacticalForm.sport} onChange={(e)=>setTacticalForm({...tacticalForm, sport: e.target.value})} className="w-full p-2 border rounded outline-none text-sm">
+                          <option value="cricket">🏏 Cricket</option>
+                          <option value="football">⚽ Football</option>
+                          <option value="badminton">🏸 Badminton</option>
+                        </select>
+                      </div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Name (e.g. Ifti)</label><input required value={tacticalForm.name} onChange={(e)=>setTacticalForm({...tacticalForm, name: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Name" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Key Stats (e.g. 143R + 8W)</label><input required value={tacticalForm.stats} onChange={(e)=>setTacticalForm({...tacticalForm, stats: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Stats" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Field Slot Position (1 to 11)</label><input type="number" required value={tacticalForm.slot} onChange={(e)=>setTacticalForm({...tacticalForm, slot: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. 1" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Image URL</label><input value={tacticalForm.image} onChange={(e)=>setTacticalForm({...tacticalForm, image: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. /ifti.jpg" /></div>
+                      
+                      <div className="md:col-span-4 flex justify-between items-center mt-2">
+                        <div className="w-1/2 pr-4"><label className="text-xs font-bold text-gray-500 mb-1 block">Optional Tag (e.g. Singles Champ / C / VC)</label><input value={tacticalForm.tag} onChange={(e)=>setTacticalForm({...tacticalForm, tag: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Optional Badge" /></div>
+                        <button type="submit" disabled={isSubmittingTactical} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg text-sm mt-4">{isSubmittingTactical ? "Saving..." : (editingTacticalId ? "Update Player" : "Add Player to Field")}</button>
+                      </div>
+                    </form>
+
+                    {/* Tactical List */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {tacticalPlayers.map(tp => (
+                        <div key={tp.id} className="border border-gray-200 rounded-xl p-4 flex justify-between items-center bg-gray-50">
+                          <div className="flex gap-3 items-center">
+                            <div className="w-10 h-10 rounded-full bg-[#2B3674] text-white flex items-center justify-center font-bold">{tp.name.charAt(0)}</div>
+                            <div>
+                              <p className="font-bold text-sm text-[#2B3674] leading-tight">{tp.name} <span className="text-[10px] text-gray-400">({tp.sport})</span></p>
+                              <p className="text-xs font-black text-emerald-600">{tp.stats}</p>
+                              {tp.tag && <span className="text-[9px] bg-amber-100 text-amber-700 px-1 rounded uppercase font-bold">{tp.tag}</span>}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button onClick={() => {setEditingTacticalId(tp.id); setTacticalForm(tp);}} className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">Edit</button>
+                            <button onClick={() => deleteTactical(tp.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">Del</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              )} 
+
 
               {/* --- 🌟 NEW: SUPER CHAT TAB 🌟 --- */}
               {activeMenu === "chat" && (

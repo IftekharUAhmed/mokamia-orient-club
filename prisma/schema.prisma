@@ -101,3 +101,85 @@ model Message {
   senderRole  String?
   createdAt   DateTime @default(now())
 }
+// -----------------------------------------
+// NEW MODELS FOR DYNAMIC CMS (PORTAL CONTROL)
+// -----------------------------------------
+
+// 1. Events & Tournaments
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  tag         String   // e.g., "Just Concluded", "Upcoming", "Signature Tradition"
+  time        String   // e.g., "12:30 PM", "Dec / Jan"
+  image       String   // URL from Cloudinary
+  description String
+  extraNote   String?  // Optional executive notice
+  category    String   @default("upcoming") // e.g., "concluded", "upcoming", "winter", "tradition"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 2. Stats Board
+model Stat {
+  id          String   @id @default(cuid())
+  title       String   // e.g., "Active Members"
+  value       String   // e.g., "500+"
+  icon        String   // e.g., "👥" ba icon nam
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 3. Social Initiatives (Mission Briefing)
+model SocialInitiative {
+  id          String   @id @default(cuid())
+  title       String   // e.g., "Yearly Shikkhabritti"
+  tagline     String   // e.g., "Empowering the Next Generation"
+  description String
+  image       String   // URL from Cloudinary
+  icon        String   // e.g., "🎓"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+ // 4. Executive Committee (Renamed to avoid conflict)
+model ExecutiveMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  image       String?  // Optional (URL from Cloudinary)
+  bio         String?
+  phone       String?
+  email       String?
+  order       Int      @default(0) // Jate president ke shobar upore dekhano jay
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}// -----------------------------------------
+// 🏆 SPORTS ANALYTICS & STATS BOARD MODELS
+// -----------------------------------------
+
+// 5. League Point Table (Football/Cricket)
+model PointTable {
+  id        String   @id @default(cuid())
+  teamName  String
+  played    Int      @default(0)
+  won       Int      @default(0)
+  drawn     Int      @default(0)
+  lost      Int      @default(0)
+  points    Int      @default(0)
+  order     Int      @default(0) // Table e ke koto upore thakbe
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 6. Tactical Players (Ground/Court View)
+ model TacticalPlayer {
+  id        String   @id @default(cuid())
+  sport     String   
+  name      String   
+  stats     String   
+  tag       String?  
+  image     String?  // 📸 Ei line ta notun add korbi
+  slot      Int      @default(1) 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
