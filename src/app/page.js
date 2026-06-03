@@ -38,6 +38,9 @@ const CountUpAnimation = ({ target, suffix = "", duration = 2000 }) => {
   return <span ref={counterRef}>{count}{suffix}</span>;
 };
 
+// 🏆 Event Detail Modal State
+   
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
   const [galleryFilter, setGalleryFilter] = useState("all");
@@ -50,6 +53,8 @@ export default function Home() {
     setActiveTab(tabName);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  // 🏆 Event Detail Modal State
+  const [selectedEvent, setSelectedEvent] = useState(null);
   // 🌟 ALBUM GALLERY STATES 🌟
   const [dynamicGallery, setDynamicGallery] = useState([]);
   const [selectedAlbum, setSelectedAlbum] = useState(null); 
@@ -637,112 +642,373 @@ export default function Home() {
         )}
 
         {/* --- EVENTS TAB --- */}
+        {/* --- 🏆 PREMIUM EVENTS & TOURNAMENTS DASHBOARD 🏆 --- */}
+       {/* --- 🏆 PREMIUM EVENTS & INTERACTIVE TOURNAMENTS DASHBOARD 🏆 --- */}
+       
+{/* --- 🏆 SOLID & CLEAR EVENTS DASHBOARD 🏆 --- */}
         {activeTab === "events" && (
-          <div className="animate-fade-in max-w-5xl mx-auto">
-             <div className="bg-[#2D1B4E] text-white py-12 px-6 text-center rounded-2xl mb-12 shadow-xl relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2D1B4E] via-[#7CD326] to-[#2D1B4E]"></div>
-               <h2 className="text-3xl md:text-5xl font-extrabold font-serif mb-4 relative z-10">Tournaments & <span className="text-[#7CD326] italic">Events</span></h2>
-               <p className="text-gray-300 max-w-2xl mx-auto text-sm md:text-base relative z-10">The sporting heartbeat of our club. From high-stakes local leagues to brotherhood reunions, explore our year-round sporting action.</p>
-             </div>
+          <div className="animate-fade-in max-w-6xl mx-auto mb-20 px-4 relative">
+            
+            {/* 🎬 DYNAMIC EVENT DETAILS MODAL */}
+            {selectedEvent && (
+              <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex justify-center items-center p-4 animate-fade-in" onClick={() => setSelectedEvent(null)}>
+                <div className="bg-[#1A0F2E] w-full max-w-lg rounded-3xl border border-[#7CD326]/40 shadow-2xl overflow-hidden transform transition-all relative" onClick={(e) => e.stopPropagation()}>
+                  
+                  {/* Banner inside modal */}
+                  <div className="h-56 w-full relative bg-gray-900 border-b border-white/10">
+                    <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-transparent to-transparent"></div>
+                    <span className="absolute top-4 left-4 bg-black/80 text-[#7CD326] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[#7CD326]/50 shadow-lg">{selectedEvent.tag}</span>
+                    <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#FF3B30] transition border border-white/20 text-xs shadow-lg">✕</button>
+                  </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
-                  <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/mpl-champ.jpeg" alt="MPL Football Final" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=MPL+Football+Final' }} />
-                    <div className="absolute top-4 right-4 bg-[#FF3B30] text-white text-[10px] font-bold px-3 py-1 rounded shadow-md animate-pulse z-10">JUST CONCLUDED</div>
-                  </div>
-                  <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
-                    <h3 className="text-white font-bold text-xl md:text-2xl font-serif">MOC Premier League (MPL)</h3>
-                    <p className="text-[#7CD326] text-xs font-bold mt-1 tracking-wider uppercase">⚽ Football • Post Eid-ul-Adha</p>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <p className="text-gray-600 text-sm leading-relaxed">Our flagship and most anticipated football tournament of the year. We are thrilled to announce that the <strong className="text-[#2D1B4E] bg-green-50 px-1">5th Edition Final just concluded successfully today!</strong> A massive congratulations to the champions and a big thank you to all participating teams.</p>
-                  </div>
-                </div>
+                  {/* Modal Body Content */}
+                  <div className="p-6 md:p-8">
+                    <h3 className="text-2xl font-black text-white font-serif mb-2 uppercase tracking-wide">{selectedEvent.title}</h3>
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2">
+                      <span>⏰ Time/Status:</span> <span className="text-[#7CD326]">{selectedEvent.time}</span>
+                    </p>
 
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
-                  <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/eid-post.jpeg" alt="Eid Reunion Football" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Eid+Reunion+Football' }} />
-                  </div>
-                  <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
-                    <h3 className="text-white font-bold text-xl md:text-2xl font-serif">Post-Eid Football Tourney</h3>
-                    <p className="text-[#7CD326] text-xs font-bold mt-1 tracking-wider uppercase">⚽ Mini Football • Day after Eid-ul-Fitr</p>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <p className="text-gray-600 text-sm leading-relaxed">More than just a game, it's a tradition of brotherhood. Hosted exactly one day after Eid-ul-Fitr, this mini football tournament serves as a grand, joyful reunion for all MOC members and local sports enthusiasts.</p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
-                  <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/short-pitch.jpeg" alt="Away Cricket Tournament" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Cricket' }} />
-                  </div>
-                  <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
-                    <h3 className="text-white font-bold text-xl md:text-2xl font-serif">Away Cricket Tournament</h3>
-                    <p className="text-[#7CD326] text-xs font-bold mt-1 tracking-wider uppercase">🏏 Cricket • Various Locations</p>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <p className="text-gray-600 text-sm leading-relaxed">Taking the cricket fever beyond Mokamia! Our talented cricket squad regularly participates in away tournaments, competing fiercely against top teams across the region and bringing glory to our club.</p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:border-[#7CD326] transition-all group flex flex-col">
-                  <div className="h-56 relative overflow-hidden bg-gray-100">
-                    <img src="/away-tournaments.jpeg" alt="Away Tournaments" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/1A0F2E/7CD326?text=Away+Tournaments' }} />
-                  </div>
-                  <div className="bg-[#1A0F2E] p-4 border-b-4 border-[#7CD326]">
-                    <h3 className="text-white font-bold text-xl md:text-2xl font-serif">Away Tournaments (Football)</h3>
-                    <p className="text-[#7CD326] text-xs font-bold mt-1 tracking-wider uppercase">🏆 Various Sports • Year-round</p>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <p className="text-gray-600 text-sm leading-relaxed">The pride of Mokamia Orient Club isn't limited to our home ground. Our talented squads actively participate and fiercely compete in multiple district and local tournaments throughout the year, bringing glory to our village.</p>
-                  </div>
-                </div>
-             </div>
-          </div>
-        )}
-
-        {/* --- 📸 DYNAMIC ALBUM GALLERY TAB 📸 --- */}
-        {activeTab === "gallery" && (
-          <div className="animate-fade-in max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#2D1B4E] font-serif">MOC Media <span className="text-[#7CD326] italic">Gallery</span></h2>
-              <div className="w-16 h-1 bg-[#7CD326] mx-auto mt-2 rounded"></div>
-              
-              <div className="flex flex-wrap justify-center gap-2 mt-6">
-                {["all", "football", "cricket", "badminton", "social"].map((category) => (
-                  <button key={category} onClick={() => setGalleryFilter(category)} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${galleryFilter === category ? 'bg-[#2D1B4E] text-white border-[#2D1B4E]' : 'bg-white text-gray-600 border-gray-300 hover:border-[#7CD326]'}`}>
-                    {category}
-                  </button>
-                ))}
-              </div> 
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {filteredGallery.map((item, index) => (
-                <div 
-                  key={item.id || index} 
-                  onClick={() => setSelectedAlbum(item)}
-                  className="bg-white rounded-xl overflow-hidden shadow-md group border border-gray-100 hover:border-[#7CD326] hover:shadow-xl transition-all cursor-pointer flex flex-col"
-                >
-                  <div className="h-52 overflow-hidden relative bg-gray-100">
-                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src=`https://placehold.co/600x400/2D1B4E/7CD326?text=MOC+Gallery` }} />
-                    <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm flex items-center gap-1 font-bold">
-                      📸 {item.photos?.length ? item.photos.length + 1 : 1}
+                    <div className="bg-black/40 rounded-2xl p-5 border border-white/10 space-y-4">
+                      <p className="text-sm text-gray-200 leading-relaxed">
+                        {selectedEvent.description}
+                      </p>
+                      {selectedEvent.extraNote && (
+                        <div className="bg-[#7CD326]/10 border-l-4 border-[#7CD326] p-3 rounded-r-xl mt-4">
+                          <p className="text-xs text-gray-300 font-medium"><strong className="text-[#7CD326] uppercase tracking-wider text-[10px] block mb-1">MOC Executive Notice:</strong> {selectedEvent.extraNote}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="p-4 bg-[#1A0F2E] flex-1 flex flex-col justify-center">
-                    <span className="text-[#7CD326] text-[10px] uppercase font-bold tracking-widest">{item.category}</span>
-                    <h4 className="text-white font-bold text-sm mt-1 font-serif line-clamp-2">{item.title}</h4>
-                    <span className="text-gray-400 text-[10px] mt-2 group-hover:text-white transition-colors">Click to view album →</span>
+                </div>
+              </div>
+            )}
+
+            {/* Premium Header */}
+            <div className="text-center mb-16 mt-8 relative">
+              <span className="inline-block px-5 py-1.5 bg-[#2D1B4E] text-[#7CD326] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 shadow-lg">Official Calendar</span>
+              <h2 className="text-4xl md:text-5xl font-black text-[#2D1B4E] font-serif tracking-wide drop-shadow-sm">
+                Tournaments & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-500 italic">Events</span>
+              </h2>
+              <p className="max-w-xl mx-auto mt-4 text-gray-500 text-sm md:text-base font-medium leading-relaxed">
+                The sporting and social heartbeat of our club. Click on any card to view detailed announcements and tournament breakdowns.
+              </p>
+            </div>
+
+            <div className="space-y-12">
+              
+              {/* 🔴 SECTION 1: RECENTLY CONCLUDED (MPL FOOTBALL HERO HIGHLIGHT) */}
+              <div 
+                onClick={() => setSelectedEvent({
+                  title: "MOC Premier League (MPL) Football",
+                  tag: "Just Concluded",
+                  time: "Tournament Completed (June 2026)",
+                  image: "/mpl-champ.jpeg",
+                  description: "Another historic season of MPL Football has officially concluded! Intense rivalry, phenomenal crowds from across the village, and sportsmanship at its peak. Final matches were held on our home turf.",
+                  extraNote: "Prize distribution and celebration highlights are now live inside the Media Gallery section. Check them out!"
+                })}
+                className="relative rounded-3xl overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.2)] bg-[#1A0F2E] cursor-pointer group flex flex-col md:flex-row border border-gray-800"
+              >
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full mb-6 w-max">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">Just Concluded</span>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white font-serif mb-4 uppercase tracking-wide group-hover:text-[#7CD326] transition-colors">MPL Football <span className="text-[#7CD326]">Champ Season</span></h3>
+                  <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                    The grand finale concluded beautifully 2-3 days ago! Incredible crowds and an elite showcase of football talent. Tap card to view tournament notes.
+                  </p>
+                  <span className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[#7CD326]/20 text-[#7CD326] py-2 px-4 rounded-full w-max border border-[#7CD326]/30 group-hover:bg-[#7CD326] group-hover:text-[#1A0F2E] transition-all">
+                    Tap Details ➔
+                  </span>
+                </div>
+                {/* Solid Prominent Image */}
+                <div className="w-full md:w-1/2 h-[300px] md:h-auto relative bg-gray-200">
+                  <img src="/mpl-football.jpeg" alt="MPL Football Champ" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { e.target.src='https://placehold.co/800x600/2D1B4E/7CD326?text=MPL+Football' }} />
+                </div>
+              </div>
+
+              {/* 🔥 SECTION 2: MEGA UPCOMING EVENTS (SOLID GRID) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                
+                {/* School Reunion - Solid Layout */}
+                <div 
+                  onClick={() => setSelectedEvent({
+                    title: "Mokamia Govt. Primary School Reunion",
+                    tag: "Dec / Jan • Mega Event",
+                    time: "Proposed Time Slot: 09:00 AM - 08:00 PM",
+                    image: "/reunion.jpg",
+                    description: "For the very first time in our village history, MOC is spearheading the grand reunion of Mokamia Government Primary School. A full day layout filled with nostalgia, honoring senior retired teachers, cultural segments, and dinner distributions.",
+                    extraNote: "Registration forms and batch volunteer allocations will be announced through the portal soon."
+                  })}
+                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
+                >
+                  <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
+                    <img src="/reunion.jpg" alt="School Reunion" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=School+Reunion' }} />
+                    <div className="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Dec / Jan Edition</div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-amber-600 transition-colors">Mokamia Govt. Primary School Reunion</h3>
+                    <p className="text-gray-600 text-sm mb-4 flex-1">
+                      A monumental milestone event. Reconnecting generations of students. Click to view schedule mapping.
+                    </p>
+                    <div className="text-amber-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                      Read Core Program ➔
+                    </div>
                   </div>
                 </div>
-              ))}
-              {filteredGallery.length === 0 && (
-                <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-                  <p className="font-bold">No albums found for this category yet.</p>
+
+                {/* Yearly Shikkhabritti - Solid Layout */}
+                <div 
+                  onClick={() => setSelectedEvent({
+                    title: "Yearly Shikkhabritti Distribution Ceremony",
+                    tag: "Oct / Nov • Mega Scale",
+                    time: "Distribution Time: 10:30 AM onwards",
+                    image: "/britti.jpeg",
+                    description: "Education is our pillar of focus. This year in October/November, MOC is launching its biggest ever scholarship distribution grid. Deserving, high-achieving local students will receive financial stipends and education kits directly from the central executive board.",
+                    extraNote: "We are expanding funding parameters this year. Reach out to the Education Secretary for student screening details."
+                  })}
+                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
+                >
+                  <div className="w-full h-56 relative bg-gray-100 overflow-hidden">
+                    <img src="/britti.jpeg" alt="Shikkhabritti" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/F3F4F6/2D1B4E?text=Shikkhabritti' }} />
+                    <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Oct / Nov • Mega Scale</div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-3 leading-tight group-hover:text-purple-600 transition-colors">Yearly Shikkhabritti Ceremony</h3>
+                    <p className="text-gray-600 text-sm mb-4 flex-1">
+                      Expanding our parameters to cover more student support sectors. Tap to view structural objectives.
+                    </p>
+                    <div className="text-purple-600 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                      Read Stipend Blueprint ➔
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* ❄️ SECTION 3: WINTER TOURNAMENTS (SOLID CARDS) */}
+              <div className="bg-[#F8F9FA] rounded-[2rem] p-6 md:p-10 border border-gray-200 shadow-inner">
+                <h3 className="text-2xl font-black text-[#2D1B4E] font-serif mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
+                  <span>❄️</span> Winter Tournaments Calendar
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* MPL Cricket */}
+                  <div 
+                    onClick={() => setSelectedEvent({
+                      title: "MPL Cricket Tournament",
+                      tag: "Winter High Attraction",
+                      time: "Day Matches: Starting from 01:30 PM",
+                      image: "/cricket.jpeg",
+                      description: "This season of MPL Cricket brings heavy corporate-style village team drafting. Elite hard-ball matches, digital score mapping, and unmatched adrenaline.",
+                      extraNote: "Draft parameters and registration guidelines are currently being reviewed by the Sports Secretary."
+                    })}
+                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                  >
+                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                      <img src="/cricket3.jpeg" alt="MPL Cricket" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Cricket'}} />
+                    </div>
+                    <div className="p-5 flex-1">
+                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">MPL Cricket</h4>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Winter Grand League</p>
+                    </div>
+                  </div>
+
+                  {/* Winter Short Pitch */}
+                  <div 
+                    onClick={() => setSelectedEvent({
+                      title: "Winter Short Pitch Tournament",
+                      tag: "Night Carnival",
+                      time: "Night Slots: 06:30 PM - 11:30 PM",
+                      image: "/short-pitch.jpeg",
+                      description: "The seasonal signature event under the floodlights. Fast-paced action, customized boundary rule matrix, and full community gathering during chilled winter nights.",
+                      extraNote: "Ball specifications and match structures will remain standard like last year's regulations."
+                    })}
+                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                  >
+                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                      <img src="/short-pitch.jpeg" alt="Short Pitch" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Short+Pitch'}} />
+                    </div>
+                    <div className="p-5 flex-1">
+                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Winter Short Pitch</h4>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Floodlight Showcase</p>
+                    </div>
+                  </div>
+
+                  {/* Badminton Fiesta */}
+                  <div 
+                    onClick={() => setSelectedEvent({
+                      title: "Annual Badminton Fiesta",
+                      tag: "Double Bracket Match",
+                      time: "Evening Bracket: 07:00 PM onwards",
+                      image: "/badminton2.jpeg",
+                      description: "Indoor court style outside setups with high intensity double-bracket elimination grids. Perfect alignment for veteran members and open talent pairings.",
+                      extraNote: "Shuttlecock standardizations and court allocation charts will lock down next month."
+                    })}
+                    className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col"
+                  >
+                    <div className="h-44 w-full relative overflow-hidden bg-gray-200">
+                      <img src="/badminton.jpeg" alt="Badminton Fiesta" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/400x300/F3F4F6/2D1B4E?text=Badminton'}} />
+                    </div>
+                    <div className="p-5 flex-1">
+                      <h4 className="font-black text-lg text-[#2D1B4E] group-hover:text-[#7CD326] transition-colors">Badminton Fiesta</h4>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Doubles Tournament</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* 🤝 SECTION 4: SIGNATURE TRADITIONS (SOLID CARDS) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Post Eid Mini Football & AGM */}
+                <div 
+                  onClick={() => setSelectedEvent({
+                    title: "Post-Eid Mini Football Tourney & Annual Meeting",
+                    tag: "Signature Core Legacy",
+                    time: "Next Day of Eid • Kickoff: 04:00 PM",
+                    image: "/eid-football.jpeg",
+                    description: "Our ultimate brotherhood ritual. Every year, exactly the day right after Eid, all registered members gather for an intimate high-tempo mini football layout. Once completed, we host the Annual General Meeting (AGM) to declare internal alignments.",
+                    extraNote: "Attendance is highly mandatory for all executive panel members."
+                  })}
+                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
+                >
+                  <div className="w-full h-48 relative bg-gray-100 overflow-hidden">
+                    <img src="/eid-post.jpeg" alt="Post Eid Tourney" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e)=>{e.target.src='https://placehold.co/600x300/F3F4F6/2D1B4E?text=Eid+Football'}} />
+                    <div className="absolute top-4 left-4 bg-[#2D1B4E] text-[#7CD326] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md">Signature Tradition</div>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-[#7CD326] transition-colors">Post-Eid Football & Annual AGM</h4>
+                    <p className="text-gray-600 text-sm mb-4">Reconnecting the entire community right after Eid celebration. Tap for schedule mapping.</p>
+                    <div className="text-[#2D1B4E] font-bold uppercase tracking-wider text-[11px]">View Details ➔</div>
+                  </div>
+                </div>
+
+                {/* Blood Donation */}
+                <div 
+                  onClick={() => setSelectedEvent({
+                    title: "Emergency Blood Donor Database Line",
+                    tag: "Active Lifeline",
+                    time: "Available 24 Hours • 7 Days",
+                    image: "/blood.jpeg",
+                    description: "MOC holds a live emergency response donor grid mapped directly within the locality. Our youth stand on full high-alert protocols to handle immediate crisis demands instantly.",
+                    extraNote: "Contact the Medical Logistics team through the portal panel to fetch dynamic type availability listings instantly."
+                  })}
+                  className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
+                >
+                  <div className="w-full h-48 relative bg-red-50 overflow-hidden">
+                    <img src="/zainb.jpeg" alt="Blood Donation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x300/FEE2E2/B91C1C?text=Blood+Donation'; }} />
+                    <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-md flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Active Lifeline
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="text-2xl font-black text-[#2D1B4E] font-serif mb-2 group-hover:text-red-600 transition-colors">24/7 Emergency Blood Drive</h4>
+                    <p className="text-gray-600 text-sm mb-4">Dynamic screening and allocation parameters managed entirely by the youth.</p>
+                    <div className="text-red-600 font-bold uppercase tracking-wider text-[11px]">View System ➔</div>
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+        )}
+         
+       {/* --- 📸 DYNAMIC 3D POLAROID GALLERY TAB (CONTRAST OPTIMIZED) 📸 --- */}
+        {/* --- 📸 DYNAMIC 3D POLAROID GALLERY TAB (AESTHETIC PASTEL THEME) 📸 --- */}
+        {activeTab === "gallery" && (
+          <div className="animate-fade-in w-full max-w-6xl mx-auto mb-20 relative">
+            
+            {/* ✨ Aesthetic Soft Mesh Background Container ✨ */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#F8F9FA] to-[#Eef2f3] rounded-[2.5rem] overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.02)] border border-gray-100">
+              {/* Pastel Ambient Glows */}
+              <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-purple-300/40 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"></div>
+              <div className="absolute -bottom-40 -right-20 w-[600px] h-[600px] bg-[#7CD326]/20 rounded-full blur-[120px] mix-blend-multiply pointer-events-none"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-100/30 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"></div>
+              {/* Subtle Aesthetic Noise/Dots */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#2D1B4E 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+            </div>
+            
+            <div className="relative z-10 p-6 md:p-12 lg:p-16">
+              {/* Gallery Header */}
+              <div className="text-center mb-16 relative">
+                <span className="inline-block px-5 py-1.5 bg-white/60 backdrop-blur-md text-[#2D1B4E] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 border border-gray-200 shadow-sm">Visual Memories</span>
+                <h2 className="text-4xl md:text-5xl font-black text-[#2D1B4E] font-serif tracking-wide drop-shadow-sm">
+                  MOC Media <span className="text-[#7CD326] italic">Gallery</span>
+                </h2>
+                
+                {/* Modern Soft Category Filters */}
+                <div className="flex flex-wrap justify-center gap-3 mt-8">
+                  {["all", "football", "cricket", "badminton", "social"].map((category) => (
+                    <button 
+                      key={category} 
+                      onClick={() => setGalleryFilter(category)} 
+                      className={`px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${galleryFilter === category ? 'bg-[#2D1B4E] text-white shadow-[0_10px_20px_rgba(45,27,78,0.2)] scale-105 transform' : 'bg-white/60 backdrop-blur-md text-gray-500 border border-gray-200 hover:border-[#7CD326] hover:text-[#2D1B4E] hover:bg-white shadow-sm'}`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div> 
+              </div>
+
+              {/* 📸 The 3D Polaroid Grid */}
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14 py-8">
+                {filteredGallery.map((item, index) => {
+                  // Organic scatter effect mapping
+                  const rotations = ["-rotate-6", "rotate-3", "-rotate-2", "rotate-5", "-rotate-4", "rotate-2"];
+                  const rotateClass = rotations[index % rotations.length];
+                  
+                  return (
+                    <div 
+                      key={item.id || index} 
+                      data-aos="zoom-in"
+                      data-aos-delay={(index % 3) * 100}
+                      onClick={() => setSelectedAlbum(item)}
+                      // Added a warm off-white bg and soft realistic shadow for the aesthetic polaroid look
+                      className={`relative bg-[#FFFCF9] p-3 md:p-4 pb-16 md:pb-20 shadow-[0_15px_35px_rgba(45,27,78,0.08)] cursor-pointer transition-all duration-500 transform ${rotateClass} hover:!rotate-0 hover:scale-[1.1] hover:z-30 hover:shadow-[0_30px_60px_rgba(124,211,38,0.25)] w-[90%] sm:w-[280px] md:w-[320px] group rounded-sm border border-gray-100`}
+                    >
+                      {/* Aesthetic Scotch Tape / Washi Tape */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-white/40 backdrop-blur-md shadow-[0_2px_5px_rgba(0,0,0,0.02)] border border-white/50 rotate-[-3deg] z-20 opacity-90 group-hover:opacity-0 transition-opacity"></div>
+                      
+                      {/* Image Container with Inner Frame */}
+                      <div className="w-full h-56 md:h-64 relative overflow-hidden bg-gray-100 border border-gray-200/50 rounded-sm">
+                        <img 
+                          src={item.img} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 opacity-95 group-hover:opacity-100 group-hover:scale-110" 
+                          onError={(e) => { e.target.src=`https://placehold.co/600x400/F5F7FA/2D1B4E?text=MOC+Gallery` }} 
+                        />
+                        
+                        {/* Photo count badge */}
+                        <div className="absolute top-3 right-3 bg-white/90 text-[#2D1B4E] text-[10px] px-3 py-1.5 rounded-full backdrop-blur-md font-black tracking-widest shadow-md group-hover:bg-[#7CD326] group-hover:text-white transition-colors z-10">
+                          📸 {item.photos?.length ? item.photos.length + 1 : 1}
+                        </div>
+                      </div>
+                      
+                      {/* Polaroid Text Area */}
+                      <div className="absolute bottom-0 left-0 w-full h-16 md:h-20 flex flex-col justify-center items-center px-5">
+                        <p className="text-[#2D1B4E] font-bold text-sm md:text-base font-serif text-center w-full group-hover:text-[#7CD326] transition-colors line-clamp-2 leading-tight">
+                          {item.title}
+                        </p>
+                        <span className="text-gray-400 text-[9px] uppercase tracking-[0.2em] font-black mt-1.5">
+                          {item.category}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {/* Empty State Layout */}
+                {filteredGallery.length === 0 && (
+                  <div className="w-full text-center py-24 bg-white/40 rounded-3xl border border-dashed border-gray-300 backdrop-blur-sm">
+                    <span className="text-5xl block mb-4 opacity-40">📸</span>
+                    <p className="font-bold tracking-[0.2em] text-gray-500 uppercase text-xs">No visual memories found here.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1012,52 +1278,100 @@ export default function Home() {
              
           </div>
         )}
-
-        {/* --- 🤝 RESTORED CHARITY TAB 🤝 --- */}
+ 
+        {/* --- 🤝 PREMIUM SOCIAL INITIATIVES TAB (CINEMATIC BENTO GRID) 🤝 --- */}
         {activeTab === "charity" && (
-          <div className="animate-fade-in max-w-5xl mx-auto">
-             <div className="bg-[#2D1B4E] text-white py-12 px-6 text-center rounded-2xl mb-12 shadow-xl relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7CD326] via-white to-[#7CD326]"></div>
-               <h2 className="text-3xl md:text-5xl font-extrabold font-serif mb-4 relative z-10">Social <span className="text-[#7CD326] italic">Initiatives</span></h2>
-               <p className="text-gray-300 max-w-2xl mx-auto text-sm md:text-base relative z-10">Giving back to the community is at the core of Mokamia Orient Club. Discover our year-round efforts to uplift, support, and empower our village.</p>
-             </div>
+          <div className="animate-fade-in max-w-6xl mx-auto mb-20 px-4">
+            
+            {/* ✨ Premium Header */}
+            {/* ✨ Premium Header */}
+            <div className="text-center mb-16 mt-8 relative">
+              <span className="inline-block px-5 py-1.5 bg-[#2D1B4E] text-[#7CD326] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4 shadow-lg">Our Mission</span>
+              <h2 className="text-4xl md:text-5xl font-black text-[#2D1B4E] font-serif tracking-wide drop-shadow-sm">
+                Social <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-500 italic">Impact</span>
+              </h2>
+              <div className="w-24 h-1.5 bg-gradient-to-r from-[#7CD326] to-transparent mx-auto mt-5 rounded-full"></div>
+              
+              {/* 💬 The Elegant Little Message */}
+              <p className="max-w-xl mx-auto mt-5 text-gray-500 text-sm md:text-base font-medium leading-relaxed">
+                Dedicated to uplifting our community through continuous support, education, and relief. Because true brotherhood means moving forward together.
+              </p>
+            </div>
 
-             <div className="space-y-8 mb-12">
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row group hover:border-[#7CD326] transition-all">
-                  <div className="md:w-2/5 relative min-h-[250px] overflow-hidden bg-gray-100">
-                    <img src="/britti.jpeg" alt="Shikkhabritti" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/2D1B4E/7CD326?text=Scholarship' }} />
+            {/* 🎬 The Cinematic Bento Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              
+              {/* 1. HERO INITIATIVE (Full Width) */}
+              <div 
+                data-aos="fade-up" 
+                className="md:col-span-2 relative rounded-3xl overflow-hidden group min-h-[400px] md:min-h-[450px] shadow-[0_20px_40px_rgba(45,27,78,0.15)] border border-gray-200"
+              >
+                {/* Background Image with Auto-Zoom */}
+                <img src="/britti.jpeg" alt="Shikkhabritti" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/1200x600/1A0F2E/7CD326?text=Scholarship' }} />
+                
+                {/* Cinematic Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1A0F2E]/95 via-[#1A0F2E]/80 to-transparent"></div>
+                
+                {/* Content Panel (Glassmorphic) */}
+                <div className="relative h-full flex flex-col justify-center p-8 md:p-16 max-w-2xl z-10">
+                  <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 mb-6 shadow-[0_0_20px_rgba(124,211,38,0.2)] group-hover:scale-110 transition-transform duration-500">
+                    <span className="text-2xl drop-shadow-md">🎓</span>
                   </div>
-                  <div className="md:w-3/5 p-8 flex flex-col justify-center">
-                    <h3 className="text-[#2D1B4E] font-bold text-2xl font-serif mb-2">Yearly Shikkhabritti (Scholarship)</h3>
-                    <p className="text-[#7CD326] text-xs font-bold uppercase tracking-wider mb-4">Empowering the Next Generation</p>
-                    <p className="text-gray-600 leading-relaxed text-sm">Education is the backbone of any society. Every year, Mokamia Orient Club proudly awards scholarships to brilliant and deserving students in our community. We aim to remove financial barriers so that the talented youth of Mokamia can focus on their studies and build a brighter future for themselves and our nation.</p>
-                  </div>
+                  <h3 className="text-[#7CD326] text-[10px] font-black uppercase tracking-[0.2em] mb-3">Empowering the Next Generation</h3>
+                  <h2 className="text-3xl md:text-5xl font-serif text-white font-bold mb-5 leading-tight">Yearly <br/>Shikkhabritti</h2>
+                  <p className="text-gray-300 leading-relaxed text-sm md:text-base border-l-2 border-[#7CD326] pl-4">
+                    Education is the backbone of every society. Every year, Mokamia Orient Club proudly awards scholarships to brilliant and deserving students in our community. We aim to remove financial barriers so that the talented youth of Mokamia can focus on their studies.
+                  </p>
                 </div>
+              </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row-reverse group hover:border-[#7CD326] transition-all">
-                  <div className="md:w-2/5 relative min-h-[250px] overflow-hidden bg-gray-100">
-                    <img src="/blood.jpeg" alt="Blood Donation" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/FF3B30/FFF?text=Blood+Support' }} />
+              {/* 2. BLOOD DONATION (Half Width) */}
+              <div 
+                data-aos="fade-up" data-aos-delay="150"
+                className="relative rounded-3xl overflow-hidden group min-h-[380px] shadow-[0_15px_30px_rgba(255,59,48,0.1)] border border-gray-200"
+              >
+                <img src="/blood.jpeg" alt="Blood Donation" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/600x600/1A0F2E/FF3B30?text=Blood+Support' }} />
+                
+                {/* Crimson Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/80 to-black/30"></div>
+                
+                <div className="relative h-full flex flex-col justify-end p-8 z-10">
+                  <div className="w-12 h-12 rounded-xl bg-red-500/20 backdrop-blur-md flex items-center justify-center border border-red-500/30 mb-5 group-hover:-translate-y-2 transition-transform duration-500">
+                    <span className="text-2xl animate-pulse drop-shadow-[0_0_10px_rgba(255,59,48,0.8)]">🩸</span>
                   </div>
-                  <div className="md:w-3/5 p-8 flex flex-col justify-center">
-                    <h3 className="text-[#2D1B4E] font-bold text-2xl font-serif mb-2">Emergency Blood & Medical Support</h3>
-                    <p className="text-[#FF3B30] text-xs font-bold uppercase tracking-wider mb-4">Saving Lives Together</p>
-                    <p className="text-gray-600 leading-relaxed text-sm">Our active member base serves as a rapid response team during medical emergencies. Through our organized blood donor database, MOC ensures that no one in Mokamia faces a crisis alone. Our brothers are always one call away when life-saving blood or medical assistance is urgently needed.</p>
-                  </div>
+                  <h3 className="text-red-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Saving Lives Together</h3>
+                  <h2 className="text-2xl md:text-3xl font-serif text-white font-bold mb-4">Emergency Blood & Medical</h2>
+                  <p className="text-gray-300 leading-relaxed text-sm">
+                    Our active member base serves as a rapid response team during medical emergencies. Through our organized blood donor database, MOC ensures no one in Mokamia faces a crisis alone.
+                  </p>
                 </div>
+              </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row group hover:border-[#7CD326] transition-all">
-                  <div className="md:w-2/5 relative min-h-[250px] overflow-hidden bg-gray-100">
-                    <img src="/support.jpeg" alt="Community Relief" className="w-full h-full object-cover absolute inset-0 group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src='https://placehold.co/600x400/FF9500/FFF?text=Community+Relief' }} />
+              {/* 3. RELIEF FUND (Half Width) */}
+              <div 
+                data-aos="fade-up" data-aos-delay="300"
+                className="relative rounded-3xl overflow-hidden group min-h-[380px] shadow-[0_15px_30px_rgba(255,149,0,0.1)] border border-gray-200"
+              >
+                <img src="/support.jpeg" alt="Community Relief" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/600x600/1A0F2E/FF9500?text=Relief' }} />
+                
+                {/* Amber Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/80 to-black/30"></div>
+                
+                <div className="relative h-full flex flex-col justify-end p-8 z-10">
+                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 backdrop-blur-md flex items-center justify-center border border-orange-500/30 mb-5 group-hover:-translate-y-2 transition-transform duration-500">
+                    <span className="text-2xl drop-shadow-[0_0_10px_rgba(255,149,0,0.8)]">🤝</span>
                   </div>
-                  <div className="md:w-3/5 p-8 flex flex-col justify-center">
-                    <h3 className="text-[#2D1B4E] font-bold text-2xl font-serif mb-2">Community Relief & Support</h3>
-                    <p className="text-[#FF9500] text-xs font-bold uppercase tracking-wider mb-4">Standing by the Vulnerable</p>
-                    <p className="text-gray-600 leading-relaxed text-sm">Whether it is distributing warm clothes during harsh winters or providing emergency relief during natural calamities, Mokamia Orient Club is committed to standing beside the less fortunate. We strongly believe that true brotherhood extends to taking care of the most vulnerable members of our society.</p>
-                  </div>
+                  <h3 className="text-orange-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Standing by the Vulnerable</h3>
+                  <h2 className="text-2xl md:text-3xl font-serif text-white font-bold mb-4">Community Relief Support</h2>
+                  <p className="text-gray-300 leading-relaxed text-sm">
+                    From distributing warm clothes during harsh winters to providing emergency relief during natural calamities, we strongly believe true brotherhood extends to taking care of the vulnerable.
+                  </p>
                 </div>
-             </div>
+              </div>
+
+            </div>
           </div>
-        )}
+        )} 
 
         {/* --- RESTORED REUNION FORM TAB --- */}
         {activeTab === "reunion" && (
