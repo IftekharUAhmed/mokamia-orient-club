@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import Pusher from "pusher-js";
- 
-
+import Link from "next/link";
 
 export default function PortalDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -14,17 +13,22 @@ export default function PortalDashboard() {
   const [albums, setAlbums] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🌟 NEW: Notice & Chat States
+  // 📱 Mobile Sidebar State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
+  
+  // 🌟 Notice & Chat States
   const [notices, setNotices] = useState([]);
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [newNotice, setNewNotice] = useState({ title: "", content: "", isUrgent: false });
-  // 🌟 NEW: Edit Chat States
+  
+  // 🌟 Edit Chat States
   const [editingMsgId, setEditingMsgId] = useState(null);
   const [editMsgInput, setEditMsgInput] = useState("");
   const [isNoticeSubmitting, setIsNoticeSubmitting] = useState(false);
   const chatEndRef = useRef(null);
-  // 🌟 NEW: Sound Effect Ref
+  
+  // 🌟 Sound Effect Ref
   const audioRef = useRef(typeof Audio !== "undefined" ? new Audio("/ting.mp3") : null);
   const prevMessageCount = useRef(0);
 
@@ -47,7 +51,7 @@ export default function PortalDashboard() {
   const [galleryImages, setGalleryImages] = useState([]); 
   const [isGallerySubmitting, setIsGallerySubmitting] = useState(false);
   
-  // 🌟 NEW: Album Edit States
+  // 🌟 Album Edit States
   const [editingAlbumId, setEditingAlbumId] = useState(null);
   const [editAlbumData, setEditAlbumData] = useState({ title: "", category: "football" });
 
@@ -59,13 +63,11 @@ export default function PortalDashboard() {
     title: "",
     tag: "Upcoming",
     time: "",
-    image: "", // Cloudinary URL ekhane boshabe
+    image: "", 
     description: "",
     extraNote: "",
     category: "upcoming"
   });
-
-
 
   // 🏆 POINTS TABLE STATES
   const [pointsTable, setPointsTable] = useState([]);
@@ -77,7 +79,7 @@ export default function PortalDashboard() {
   const [tacticalPlayers, setTacticalPlayers] = useState([]);
   const [isSubmittingTactical, setIsSubmittingTactical] = useState(false);
   const [editingTacticalId, setEditingTacticalId] = useState(null);
-   const [tacticalForm, setTacticalForm] = useState({ sport: "cricket", name: "", stats: "", tag: "", image: "", slot: 1 });
+  const [tacticalForm, setTacticalForm] = useState({ sport: "cricket", name: "", stats: "", tag: "", image: "", slot: 1 });
 
   // 🟢 Fetch Sports Analytics Data
   const fetchSportsStats = async () => {
@@ -90,9 +92,6 @@ export default function PortalDashboard() {
     } catch (error) { console.error("Error fetching stats:", error); }
   };
 
-  // Tor main useEffect/fetchDashboardData er sheshe ei fetchSportsStats(); call kore dis jate data page load holei ashe.
-
-  // 🏆 Submit / Update Point Table
   const handlePointSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingPoint(true);
@@ -111,7 +110,6 @@ export default function PortalDashboard() {
     } catch (error) { alert("Failed to save team data."); } finally { setIsSubmittingPoint(false); }
   };
 
-  // 🏃‍♂️ Submit / Update Tactical Player
   const handleTacticalSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingTactical(true);
@@ -124,7 +122,7 @@ export default function PortalDashboard() {
       if ((await res.json()).success) { 
         alert("Player Stats Saved!"); 
         setEditingTacticalId(null); 
-        setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", slot: 1 }); 
+        setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", image: "", slot: 1 }); 
         fetchSportsStats(); 
       }
     } catch (error) { alert("Failed to save player stats."); } finally { setIsSubmittingTactical(false); }
@@ -132,7 +130,6 @@ export default function PortalDashboard() {
 
   const deletePoint = async (id) => { if (confirm("Delete Team from Point Table?")) { await fetch(`/api/points/${id}`, { method: "DELETE" }); fetchSportsStats(); } };
   const deleteTactical = async (id) => { if (confirm("Delete Player from Field?")) { await fetch(`/api/tactical/${id}`, { method: "DELETE" }); fetchSportsStats(); } };
-
 
   const fetchDashboardData = async (silently = false) => {
     if (!silently) setIsLoading(true);
@@ -146,10 +143,6 @@ export default function PortalDashboard() {
         fetch('/api/chat', { cache: 'no-store' })
       ]);
 
-
-      // Ei function ta tor existing fetch function er vitore rakhbi
-
-      
       const reunionJson = await reunionRes.json();
       const memberJson = await memberRes.json();
       const commJson = await commRes.json();
@@ -163,10 +156,10 @@ export default function PortalDashboard() {
       if (galleryJson.success) setAlbums(galleryJson.data);
       if (noticeJson.success) setNotices(noticeJson.data);
       if (chatJson.success) setMessages(chatJson.data);
-      if (chatJson.success) setMessages(chatJson.data);
       
-      fetchEvents(); // Ei line ta add korbi
+      fetchEvents(); 
       fetchStats();
+      fetchSportsStats();
     } catch (error) { console.error("Error:", error); } 
     finally { if (!silently) setIsLoading(false); }
   };
@@ -184,33 +177,19 @@ export default function PortalDashboard() {
     }
   };
 
-  // 🌟 Auto Refresh for Chat Room & Scrolling (Fixed Quick Refresh Issue)
-   // ⚡ NEW: Real-time Pusher WebSocket Listener (No more 20s lag!)
-   // ⚡ NEW: Real-time Pusher WebSocket Listener (Crash-Proof Version)
   useEffect(() => {
     if (activeMenu !== "chat") return;
+    setTimeout(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, 100);
 
-    // Chat open hole automatic smooth scroll hobe aage (Timeout deya holo render pawar jonno)
-    setTimeout(() => {
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-
-    // 🛡️ Safety Check: Pusher Key properly load hoyeche kina
     if (!process.env.NEXT_PUBLIC_PUSHER_KEY) {
       console.error("❌ Pusher Key Missing! Vercel ba .env theke key load hoyni.");
-      return; // Key na thakle app crash korbe na, just live connection hobe na
+      return; 
     }
 
     try {
-      // Pusher Client initialize korlam
-      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-      });
-
-      // Channel-e subscribe korlam
+      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER });
       const channel = pusher.subscribe("moc-channel");
 
-      // Jokhon-e backend theke 'new-message' event ashbe, array-te push hobe
       channel.bind("new-message", (newMsg) => {
         setMessages((prev) => {
           if (prev.some((m) => m.id === newMsg.id)) return prev;
@@ -218,121 +197,74 @@ export default function PortalDashboard() {
         });
       });
 
-      // Cleanup function
       return () => {
         channel.unbind_all();
         channel.unsubscribe();
-        pusher.disconnect(); // Memory leak thekabo eita diye
+        pusher.disconnect(); 
       };
-    } catch (error) {
-      console.error("🔥 Pusher connection error:", error);
-    }
+    } catch (error) { console.error("🔥 Pusher connection error:", error); }
   }, [activeMenu]);
 
-   // 🌟 Auto Scroll & Notification Sound Logic
   useEffect(() => {
     if (activeMenu === "chat") chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-    // Sound bajabe jodi notun message ashe ar sheta onno karo hoy
     if (messages.length > prevMessageCount.current) {
       const lastMessage = messages[messages.length - 1];
       const isMe = lastMessage?.senderName === adminUser?.name;
-      
-      // Jodi message ta amar na hoy ar app ta load howar por prothom bar na hoy
       if (!isMe && prevMessageCount.current !== 0 && audioRef.current) {
         audioRef.current.play().catch((err) => console.log("Audio play blocked by browser", err));
       }
     }
-    
-    // Count update kore rakhlam next check er jonno
     prevMessageCount.current = messages.length;
   }, [messages, activeMenu, adminUser]);
 
-  // 🌟 NEW: SUPER CHAT LOGIC (Fixed ID Issue)
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
-
     const currentInput = chatInput;
-    setChatInput(""); // Clear instantly
-    
-    // Create payload
+    setChatInput(""); 
     const tempMsg = { content: currentInput, senderName: adminUser?.name || "Admin", senderRole: "Committee" };
-
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tempMsg) });
-      const data = await res.json();
-      if (data.success) {
-         fetchDashboardData(true); // Fetch true ID from DB
-      }
+      if ((await res.json()).success) fetchDashboardData(true); 
     } catch (error) { alert("Failed to send."); }
   };
 
-  // 🌟 NEW: Chat Image Upload Handler
   const handleChatImageUpload = async (result) => {
     const imgUrl = result.info.secure_url;
     const tempMsg = { content: "📷 Photo attached", imageUrl: imgUrl, senderName: adminUser?.name || "Admin", senderRole: "Committee" };
-
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tempMsg) });
       if ((await res.json()).success) fetchDashboardData(true);
     } catch (error) { alert("Failed to send image."); }
   };
 
-  // 🌟 NEW: Edit & Delete Chat Handlers
-   // 🌟 NEW: Edit & Delete Chat Handlers (With Strict Error Tracking)
   const handleDeleteChat = async (id) => {
     if (!id) return;
     if (!confirm("Are you sure you want to delete this message?")) return;
-    
-    setMessages((prev) => prev.filter((m) => m.id !== id)); // Optimistic UI hide
+    setMessages((prev) => prev.filter((m) => m.id !== id)); 
     try {
       const res = await fetch(`/api/chat/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        throw new Error("API Route Missing or Server Error");
-      }
+      if (!res.ok) throw new Error("API Route Missing or Server Error");
       const data = await res.json();
-      if (!data.success) {
-        alert("Database Error: " + data.message);
-        fetchDashboardData(true); // Revert error
-      } else {
-        fetchDashboardData(true); // Sync update
-      }
-    } catch (error) { 
-      alert("❌ Delete Failed: Check if [id] folder exists in api/chat/"); 
-      fetchDashboardData(true); // Revert visually
-    }
+      if (!data.success) { alert("Database Error: " + data.message); fetchDashboardData(true); } 
+      else fetchDashboardData(true); 
+    } catch (error) { alert("❌ Delete Failed: Check if [id] folder exists in api/chat/"); fetchDashboardData(true); }
   };
 
   const handleUpdateChat = async (e, id) => {
     e.preventDefault();
     if (!editMsgInput.trim() || !id) return;
-
-    setMessages((prev) => prev.map((m) => m.id === id ? { ...m, content: editMsgInput } : m)); // Optimistic update
+    setMessages((prev) => prev.map((m) => m.id === id ? { ...m, content: editMsgInput } : m)); 
     setEditingMsgId(null);
     try {
-      const res = await fetch(`/api/chat/${id}`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ content: editMsgInput }) 
-      });
-      if (!res.ok) {
-        throw new Error("API Route Missing or Server Error");
-      }
+      const res = await fetch(`/api/chat/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: editMsgInput }) });
+      if (!res.ok) throw new Error("API Route Missing or Server Error");
       const data = await res.json();
-      if (!data.success) {
-        alert("Database Error: " + data.message);
-        fetchDashboardData(true); // Revert error
-      } else {
-        fetchDashboardData(true); // Sync update
-      }
-    } catch (error) { 
-      alert("❌ Edit Failed: Check if [id] folder exists in api/chat/"); 
-      fetchDashboardData(true); // Revert visually
-    }
+      if (!data.success) { alert("Database Error: " + data.message); fetchDashboardData(true); } 
+      else fetchDashboardData(true); 
+    } catch (error) { alert("❌ Edit Failed: Check if [id] folder exists in api/chat/"); fetchDashboardData(true); }
   };
 
-  // 🌟 NEW: NOTICE BOARD LOGIC
   const handleNoticeSubmit = async (e) => {
     e.preventDefault();
     setIsNoticeSubmitting(true);
@@ -343,242 +275,123 @@ export default function PortalDashboard() {
     } catch (error) { alert("Failed to publish."); }
     finally { setIsNoticeSubmitting(false); }
   };
-  // 🌟 NEW: Notice Delete Handler
+
   const handleDeleteNotice = async (id) => {
     if (!confirm("Are you sure you want to delete this Notice?")) return;
-    
-    // Optimistic Delete
     const prevNotices = [...notices];
     setNotices((prev) => prev.filter((n) => n.id !== id)); 
-
     try {
       const res = await fetch(`/api/notice/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error("Server error");
       fetchDashboardData(true);
-    } catch (error) { 
-      alert("❌ Failed to delete notice. Please check backend."); 
-      setNotices(prevNotices); // Revert fail hole
-    }
+    } catch (error) { alert("❌ Failed to delete notice. Please check backend."); setNotices(prevNotices); }
   };
 
-const fetchEvents = async () => {
+  const fetchEvents = async () => {
     try {
       const res = await fetch("/api/events");
       const data = await res.json();
       if (data.success) setEvents(data.data);
-    } catch (error) {
-      console.error("Failed to fetch events:", error);
-    }
+    } catch (error) { console.error("Failed to fetch events:", error); }
   };
  
-   // 🟢 Create & Update Event
   const handleEventSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingEvent(true);
     try {
       const url = editingEventId ? `/api/events/${editingEventId}` : "/api/events";
       const method = editingEventId ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventForm),
-      });
-      
+      const res = await fetch(url, { method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(eventForm), });
       const data = await res.json();
-      if (data.success) {
-        alert(editingEventId ? "Event Successfully Updated!" : "Event Successfully Posted!");
-        cancelEventEdit();
-        fetchEvents();
-      } else {
-        alert("Error: " + data.message);
-      }
-    } catch (error) {
-      alert("Failed to save event.");
-    } finally {
-      setIsSubmittingEvent(false);
-    }
+      if (data.success) { alert(editingEventId ? "Event Successfully Updated!" : "Event Successfully Posted!"); cancelEventEdit(); fetchEvents(); } 
+      else { alert("Error: " + data.message); }
+    } catch (error) { alert("Failed to save event."); } 
+    finally { setIsSubmittingEvent(false); }
   };
-  // 📊 STATS BOARD STATE
+
   const [stats, setStats] = useState([]);
   const [isSubmittingStat, setIsSubmittingStat] = useState(false);
   const [editingStatId, setEditingStatId] = useState(null);
   const [statForm, setStatForm] = useState({ title: "", value: "", icon: "👥" });
 
-  // 🟢 Fetch Stats
   const fetchStats = async () => {
     try {
       const res = await fetch("/api/stats");
       const data = await res.json();
       if (data.success) setStats(data.data);
-    } catch (error) {
-      console.error("Failed to fetch stats:", error);
-    }
+    } catch (error) { console.error("Failed to fetch stats:", error); }
   };
 
-  // 🟢 Submit / Update Stat
   const handleStatSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingStat(true);
     try {
       const url = editingStatId ? `/api/stats/${editingStatId}` : "/api/stats";
       const method = editingStatId ? "PATCH" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(statForm),
-      });
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(statForm), });
       const data = await res.json();
-      if (data.success) {
-        alert(editingStatId ? "Stat Successfully Updated!" : "Stat Successfully Added!");
-        cancelStatEdit();
-        fetchStats();
-      } else alert("Error: " + data.message);
-    } catch (error) {
-      alert("Failed to save stat.");
-    } finally {
-      setIsSubmittingStat(false);
-    }
+      if (data.success) { alert(editingStatId ? "Stat Successfully Updated!" : "Stat Successfully Added!"); cancelStatEdit(); fetchStats(); } 
+      else alert("Error: " + data.message);
+    } catch (error) { alert("Failed to save stat."); } 
+    finally { setIsSubmittingStat(false); }
   };
 
-  // 🟡 Edit & Cancel Actions
-  const handleEditStatClick = (stat) => {
-    setEditingStatId(stat.id);
-    setStatForm({ title: stat.title, value: stat.value, icon: stat.icon });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  const cancelStatEdit = () => {
-    setEditingStatId(null);
-    setStatForm({ title: "", value: "", icon: "👥" });
-  };
+  const handleEditStatClick = (stat) => { setEditingStatId(stat.id); setStatForm({ title: stat.title, value: stat.value, icon: stat.icon }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelStatEdit = () => { setEditingStatId(null); setStatForm({ title: "", value: "", icon: "👥" }); };
+  const handleDeleteStat = async (id) => { if (!confirm("Are you sure you want to delete this stat?")) return; try { const res = await fetch(`/api/stats/${id}`, { method: "DELETE" }); if ((await res.json()).success) fetchStats(); } catch (error) { alert("Failed to delete stat."); } };
 
-  // 🔴 Delete Stat
-  const handleDeleteStat = async (id) => {
-    if (!confirm("Are you sure you want to delete this stat?")) return;
-    try {
-      const res = await fetch(`/api/stats/${id}`, { method: "DELETE" });
-      if ((await res.json()).success) fetchStats();
-    } catch (error) {
-      alert("Failed to delete stat.");
-    }
-  };
+  const handleEditEventClick = (event) => { setEditingEventId(event.id); setEventForm({ title: event.title, tag: event.tag || "", time: event.time || "", image: event.image || "", description: event.description || "", extraNote: event.extraNote || "", category: event.category || "upcoming" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelEventEdit = () => { setEditingEventId(null); setEventForm({ title: "", tag: "Upcoming", time: "", image: "", description: "", extraNote: "", category: "upcoming" }); };
+  const handleEventDelete = async (id) => { if (!confirm("Are you sure you want to delete this event?")) return; try { const res = await fetch(`/api/events/${id}`, { method: "DELETE" }); const data = await res.json(); if (data.success) { fetchEvents(); } } catch (error) { alert("Failed to delete event."); } };
 
-  // 🟡 Edit Button e click korle data form e ashbe
-  const handleEditEventClick = (event) => {
-    setEditingEventId(event.id);
-    setEventForm({
-      title: event.title,
-      tag: event.tag || "",
-      time: event.time || "",
-      image: event.image || "",
-      description: event.description || "",
-      extraNote: event.extraNote || "",
-      category: event.category || "upcoming"
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Form er kache scroll hobe
-  };
-
-  // 🔴 Edit Cancel Korle
-  const cancelEventEdit = () => {
-    setEditingEventId(null);
-    setEventForm({ title: "", tag: "Upcoming", time: "", image: "", description: "", extraNote: "", category: "upcoming" });
-  };
-
-  // 🔴 Delete Event
-  const handleEventDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this event?")) return;
-    try {
-      const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) {
-        fetchEvents(); // List update korbe
-      }
-    } catch (error) {
-      alert("Failed to delete event.");
-    }
-  };
-
-
-
-  // --- COMMITTEE LOGIC ---
   const handleCommitteeChange = (e) => setNewCommittee({ ...newCommittee, [e.target.name]: e.target.value });
   const handleEditClick = (member) => { setEditingId(member.id); setNewCommittee({ fullName: member.fullName, designation: member.designation, mobileNumber: member.mobileNumber, email: member.email || "", bloodGroup: member.bloodGroup || "A+", password: "" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEdit = () => { setEditingId(null); setNewCommittee({ fullName: "", designation: "", mobileNumber: "", email: "", bloodGroup: "A+", password: "" }); };
   const handleCommitteeSubmit = async (e) => { e.preventDefault(); setIsSubmitting(true); try { const url = editingId ? `/api/committee/${editingId}` : '/api/committee'; const method = editingId ? 'PATCH' : 'POST'; const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCommittee) }); const result = await res.json(); if (result.success) { alert(editingId ? "Updated Successfully!" : `Added! System ID: ${result.data.memberId}`); cancelEdit(); fetchDashboardData(); } else alert("Error: " + result.message); } catch (error) { alert("Server error."); } finally { setIsSubmitting(false); } };
   const handleDeleteCommittee = async (id) => { if (!confirm("⚠️ Delete this committee member permanently?")) return; try { const res = await fetch(`/api/committee/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
 
-  // --- REUNION LOGIC ---
   const handleEditReunionClick = (reg) => { setEditingReunionId(reg.id); setEditReunionData({ fullName: reg.fullName, batchPassingYear: reg.batchPassingYear, mobileNumber: reg.mobileNumber, transactionId: reg.transactionId, tShirtSize: reg.tShirtSize || "M" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelReunionEdit = () => setEditingReunionId(null);
   const handleReunionUpdate = async (e) => { e.preventDefault(); try { const res = await fetch(`/api/register/${editingReunionId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editReunionData) }); if ((await res.json()).success) { alert("Reunion Data Updated!"); cancelReunionEdit(); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
   const handleDeleteReunion = async (id) => { if (!confirm("⚠️ Delete this Reunion Registration permanently?")) return; try { const res = await fetch(`/api/register/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
   const downloadReunionExcel = () => { if (reunionData.length === 0) return alert("No data available!"); const headers = ["Full Name", "Batch", "Mobile Number", "TrxID", "T-Shirt Size"]; const rows = reunionData.map(reg => [reg.fullName, reg.batchPassingYear, reg.mobileNumber, reg.transactionId, reg.tShirtSize || "M"]); const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n"); const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "MOC_Reunion_Data.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); };
 
-  // --- MEMBERSHIP LOGIC ---
   const handleApprove = async (id) => { if (!confirm("Approve this member?")) return; try { const res = await fetch(`/api/join/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: "APPROVED" }) }); if ((await res.json()).success) { alert("Approved!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
   const handleEditJoinClick = (app) => { setEditingJoinId(app.id); setEditJoinData({ fullName: app.fullName, mobileNumber: app.mobileNumber, bloodGroup: app.bloodGroup || "A+", presentAddress: app.presentAddress || "" }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelJoinEdit = () => setEditingJoinId(null);
   const handleJoinUpdate = async (e) => { e.preventDefault(); try { const res = await fetch(`/api/join/${editingJoinId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editJoinData) }); if ((await res.json()).success) { alert("Membership Data Updated!"); cancelJoinEdit(); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
   const handleDeleteJoin = async (id) => { if (!confirm("⚠️ Delete this Membership Application permanently?")) return; try { const res = await fetch(`/api/join/${id}`, { method: 'DELETE' }); if ((await res.json()).success) { alert("Deleted!"); fetchDashboardData(); } } catch (error) { alert("Server error."); } };
 
-  // --- ALBUM GALLERY LOGIC ---
   const handleGalleryUploadSuccess = (result) => { setGalleryImages((prev) => [...prev, result.info.secure_url]); };
-  
-  const handleGallerySubmit = async (e) => {
-    e.preventDefault();
-    if (galleryImages.length === 0) return alert("❌ Bhai, kompokkhe ekta chobi upload koro!");
-    setIsGallerySubmitting(true);
-    try {
-      const res = await fetch("/api/gallery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: galleryTitle, category: galleryCategory, images: galleryImages }), });
-      const data = await res.json();
-      if (data.success) { alert("🎉 Album successfully database-e save hoyeche!"); setGalleryTitle(""); setGalleryImages([]); fetchDashboardData(); } 
-      else alert("❌ Error: " + data.message);
-    } catch (error) { alert("Server error during gallery upload."); } finally { setIsGallerySubmitting(false); }
-  };
+  const handleGallerySubmit = async (e) => { e.preventDefault(); if (galleryImages.length === 0) return alert("❌ Bhai, kompokkhe ekta chobi upload koro!"); setIsGallerySubmitting(true); try { const res = await fetch("/api/gallery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: galleryTitle, category: galleryCategory, images: galleryImages }), }); const data = await res.json(); if (data.success) { alert("🎉 Album successfully database-e save hoyeche!"); setGalleryTitle(""); setGalleryImages([]); fetchDashboardData(); } else alert("❌ Error: " + data.message); } catch (error) { alert("Server error during gallery upload."); } finally { setIsGallerySubmitting(false); } };
+  const handleDeleteAlbum = async (id) => { if (!confirm("⚠️ Tumi ki shotti ei Album ar er vitorer SHOB chobi muchhe felte chaw?")) return; try { const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' }); const data = await res.json(); if (data.success) { alert("✅ Album Deleted!"); fetchDashboardData(); } else alert("❌ Failed to delete!"); } catch (error) { alert("Server error."); } };
 
-  const handleDeleteAlbum = async (id) => {
-    if (!confirm("⚠️ Tumi ki shotti ei Album ar er vitorer SHOB chobi muchhe felte chaw?")) return;
-    try {
-      const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) { alert("✅ Album Deleted!"); fetchDashboardData(); } else alert("❌ Failed to delete!");
-    } catch (error) { alert("Server error."); }
-  };
-
-  // 🌟 NEW: Album Edit Handlers 🌟
-  const handleEditAlbumClick = (album) => {
-    setEditingAlbumId(album.id);
-    setEditAlbumData({ title: album.title, category: album.category });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleEditAlbumClick = (album) => { setEditingAlbumId(album.id); setEditAlbumData({ title: album.title, category: album.category }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelAlbumEdit = () => setEditingAlbumId(null);
+  const handleAlbumUpdate = async (e) => { e.preventDefault(); try { const res = await fetch(`/api/gallery/${editingAlbumId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editAlbumData) }); const data = await res.json(); if (data.success) { alert("✅ Album Info Updated!"); cancelAlbumEdit(); fetchDashboardData(); } else alert("❌ Error: " + data.message); } catch (error) { alert("Server error."); } };
 
-  const handleAlbumUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`/api/gallery/${editingAlbumId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editAlbumData)
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("✅ Album Info Updated!");
-        cancelAlbumEdit();
-        fetchDashboardData();
-      } else alert("❌ Error: " + data.message);
-    } catch (error) { alert("Server error."); }
-  };
-
-  // -----------------------------------------
-  // 🌟 ULTRA-PREMIUM RENDER UI 🌟
-  // -----------------------------------------
   return (
-    <div className="min-h-screen bg-[#F4F7FE] flex flex-col md:flex-row font-sans text-slate-800">
+    <div className="min-h-screen bg-[#F4F7FE] flex flex-col md:flex-row relative font-sans text-slate-800">
       
-      {/* 🌟 PREMIUM SIDEBAR 🌟 */}
-      <aside className="w-full md:w-[280px] bg-[#0B1437] text-white flex-shrink-0 md:min-h-screen flex flex-col shadow-[10px_0_20px_rgba(0,0,0,0.05)] z-20">
-        <div className="p-6 flex items-center gap-4 border-b border-white/10">
+      {/* 📱 MOBILE HEADER */}
+      <div className="md:hidden bg-[#0B1437] text-white p-4 flex justify-between items-center shadow-md z-40 sticky top-0">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#7CD326] to-[#4CAE4C] rounded-lg flex items-center justify-center font-bold text-white text-xs">MOC</div>
+          <h1 className="font-bold text-lg tracking-wider">Portal.</h1>
+        </div>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-2xl focus:outline-none bg-white/10 w-10 h-10 rounded-lg flex items-center justify-center border border-white/20">
+          {isMobileMenuOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* 📱 MOBILE OVERLAY */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
+      )}
+
+      {/* 🌟 PREMIUM RESPONSIVE SIDEBAR 🌟 */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-full max-w-[280px] bg-[#0B1437] text-white flex-shrink-0 md:min-h-screen flex flex-col shadow-[10px_0_20px_rgba(0,0,0,0.05)] transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="p-6 hidden md:flex items-center gap-4 border-b border-white/10">
           <div className="w-12 h-12 bg-gradient-to-br from-[#7CD326] to-[#4CAE4C] rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-green-500/30">MOC</div>
           <div>
             <h2 className="text-white font-extrabold text-xl tracking-wide">Portal<span className="text-[#7CD326]">.</span></h2>
@@ -588,23 +401,20 @@ const fetchEvents = async () => {
 
         <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest px-6 py-4 mt-2">Menu Structure</div>
         
-        <nav className="flex-1 flex flex-col px-4 gap-2">
-   {['dashboard', 'events', 'stats', 'reunion', 'membership', 'committee', 'gallery', 'notices', 'chat'].map((menu) => {
+        <nav className="flex-1 flex flex-col px-4 gap-2 overflow-y-auto">
+          {['dashboard', 'events', 'stats', 'reunion', 'membership', 'committee', 'gallery', 'notices', 'chat'].map((menu) => {
             const isActive = activeMenu === menu;
             return (
               <button 
                 key={menu} 
-                onClick={() => setActiveMenu(menu)} 
+                onClick={() => { setActiveMenu(menu); setIsMobileMenuOpen(false); }} 
                 className={`relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 overflow-hidden group ${
                   isActive 
                     ? 'bg-[#111C44] text-white shadow-lg transform scale-[1.02]' 
                     : 'text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1'
                 }`}
               >
-                {/* Active Indicator Bar */}
                 {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-[#7CD326] rounded-r-full shadow-[0_0_10px_#7CD326]"></div>}
-                
-                {/* Icon Wrapper */}
                 <div className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${
                   isActive ? 'bg-[#7CD326] text-[#0B1437] shadow-[0_0_15px_rgba(124,211,38,0.4)] scale-110' : 'bg-white/5 group-hover:bg-white/10'
                 }`}>
@@ -632,10 +442,10 @@ const fetchEvents = async () => {
       </aside>
 
       {/* 🌟 MAIN CONTENT AREA 🌟 */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FE]">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F4F7FE] w-full">
         
         {/* Glassmorphism Header */}
-        <header className="bg-white/70 backdrop-blur-xl border-b border-slate-200/50 h-[76px] flex items-center justify-between px-8 sticky top-0 z-10">
+        <header className="hidden md:flex bg-white/70 backdrop-blur-xl border-b border-slate-200/50 h-[76px] items-center justify-between px-8 sticky top-0 z-10 shrink-0">
           <div>
             <h1 className="text-[#2B3674] font-extrabold text-2xl capitalize tracking-tight">
               {activeMenu.replace("-", " ")} Management
@@ -643,24 +453,22 @@ const fetchEvents = async () => {
             <p className="text-slate-500 text-xs font-medium mt-0.5">Mokamia Orient Club Admin System</p>
           </div>
           <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-            <span className="text-sm font-bold text-[#2B3674] hidden sm:block">Welcome, {adminUser ? adminUser.name : 'Admin'}</span>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#7CD326] to-[#4CAE4C] text-white flex items-center justify-center font-bold shadow-md">
-              A
-            </div>
+            <span className="text-sm font-bold text-[#2B3674]">Welcome, {adminUser ? adminUser.name : 'Admin'}</span>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#7CD326] to-[#4CAE4C] text-white flex items-center justify-center font-bold shadow-md">A</div>
           </div>
         </header>
 
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto">
           {isLoading ? (
              <div className="flex justify-center items-center h-full">
                <div className="w-12 h-12 border-4 border-slate-200 border-t-[#7CD326] rounded-full animate-spin"></div>
              </div>
           ) : (
             <>
-              {/* DASHBOARD TAB (Premium Design) */}
+              {/* --- DASHBOARD TAB --- */}
               {activeMenu === "dashboard" && (
                 <div className="space-y-8 animate-fade-in">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-white p-6 rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:-translate-y-1 transition-transform group">
                       <div className="flex justify-between items-center mb-4"><h3 className="text-slate-400 text-sm font-bold uppercase tracking-wider">Total Reunion</h3><div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">🌙</div></div>
                       <p className="text-4xl font-extrabold text-[#2B3674]">{reunionData.length}</p>
@@ -679,7 +487,6 @@ const fetchEvents = async () => {
                     </div>
                   </div>
 
-                  {/* System Activity & Analytics Mockup */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 bg-white rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] p-6 border border-slate-100">
                        <h3 className="text-[#2B3674] font-bold text-lg mb-6">Activity Overview</h3>
@@ -705,7 +512,7 @@ const fetchEvents = async () => {
                              <div className="w-3 h-3 rounded-full bg-blue-500 mt-1.5 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
                              <div>
                                <p className="text-sm font-bold text-[#2B3674]">Database Synced</p>
-                               <p className="text-xs text-slate-400 mt-1">All {reunionData.length} reunion records secure.</p>
+                               <p className="text-xs text-slate-400 mt-1">All records secure.</p>
                              </div>
                           </div>
                        </div>
@@ -714,10 +521,91 @@ const fetchEvents = async () => {
                 </div>
               )}
 
- 
-       
+              {/* --- EVENTS TAB --- */}
+              {activeMenu === "events" && (
+                <div className="space-y-8 animate-fade-in">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                     <div className="flex justify-between items-center mb-6">
+                       <h3 className="text-xl font-bold text-gray-800">{editingEventId ? "✏️ Edit Event" : "➕ Create New Event"}</h3>
+                       {editingEventId && <button onClick={cancelEventEdit} className="text-red-600 font-bold text-sm hover:underline">Cancel Edit</button>}
+                     </div>
+                    <form onSubmit={handleEventSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label className="text-xs font-bold text-gray-500 mb-1 block">Event Title *</label><input type="text" required value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Winter Short Pitch" /></div>
+                        <div><label className="text-xs font-bold text-gray-500 mb-1 block">Image URL (Cloudinary) *</label><input type="text" required value={eventForm.image} onChange={(e) => setEventForm({...eventForm, image: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Paste image link here" /></div>
+                        <div><label className="text-xs font-bold text-gray-500 mb-1 block">Status Tag</label><input type="text" value={eventForm.tag} onChange={(e) => setEventForm({...eventForm, tag: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Just Concluded" /></div>
+                        <div><label className="text-xs font-bold text-gray-500 mb-1 block">Time / Date</label><input type="text" value={eventForm.time} onChange={(e) => setEventForm({...eventForm, time: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Dec / Jan" /></div>
+                        <div><label className="text-xs font-bold text-gray-500 mb-1 block">Category</label><select value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"><option value="upcoming">Mega Upcoming</option><option value="concluded">Just Concluded</option><option value="winter">Winter Sports</option><option value="tradition">Signature Tradition</option></select></div>
+                      </div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Description *</label><textarea required value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm h-24" placeholder="Event details..."></textarea></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Executive Notice (Optional)</label><input type="text" value={eventForm.extraNote} onChange={(e) => setEventForm({...eventForm, extraNote: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Any special instruction..." /></div>
+                      <button type="submit" disabled={isSubmittingEvent} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition-colors shadow-md disabled:opacity-50">{isSubmittingEvent ? "Posting..." : "Publish Event"}</button>
+                    </form>
+                  </div>
 
-              {/* REUNION TAB (User's Exact Forms, wrapped in Premium CSS) */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">📋 Manage Events</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead><tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider"><th className="p-3">Title</th><th className="p-3">Category</th><th className="p-3">Time</th><th className="p-3">Action</th></tr></thead>
+                        <tbody>
+                          {events.length === 0 ? (
+                            <tr><td colSpan="4" className="p-4 text-center text-gray-500 text-sm">No events found.</td></tr>
+                          ) : (
+                            events.map(event => (
+                              <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td className="p-3 text-sm font-bold text-gray-700">{event.title}</td><td className="p-3 text-xs uppercase text-gray-500">{event.category}</td><td className="p-3 text-sm text-gray-600">{event.time}</td>
+                                <td className="p-3"><button onClick={() => handleEventDelete(event.id)} className="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors">Delete</button><button onClick={() => handleEditEventClick(event)} className="bg-amber-100 text-amber-700 hover:bg-amber-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors mr-2">Edit</button></td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- STATS MANAGEMENT TAB --- */}
+              {activeMenu === "stats" && (
+                <div className="space-y-10 animate-fade-in max-w-6xl mx-auto">
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <div className="bg-[#2B3674] text-white p-4 rounded-xl mb-6 flex justify-between items-center"><h3 className="font-bold text-lg">🏆 MPL Point Table Manager</h3>{editingPointId && <button onClick={() => {setEditingPointId(null); setPointForm({ teamName: "", played: 0, won: 0, drawn: 0, lost: 0, points: 0 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}</div>
+                    <form onSubmit={handlePointSubmit} className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div className="col-span-2 md:col-span-1"><label className="text-xs font-bold text-gray-500 mb-1 block">Team Name</label><input required value={pointForm.teamName} onChange={(e)=>setPointForm({...pointForm, teamName: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. Mokamia Lusitans" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Played (P)</label><input type="number" required value={pointForm.played} onChange={(e)=>setPointForm({...pointForm, played: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Won (W)</label><input type="number" required value={pointForm.won} onChange={(e)=>setPointForm({...pointForm, won: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Drawn (D)</label><input type="number" required value={pointForm.drawn} onChange={(e)=>setPointForm({...pointForm, drawn: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Lost (L)</label><input type="number" required value={pointForm.lost} onChange={(e)=>setPointForm({...pointForm, lost: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Total Points</label><input type="number" required value={pointForm.points} onChange={(e)=>setPointForm({...pointForm, points: e.target.value})} className="w-full p-2 border rounded outline-none text-sm border-[#7CD326]" /></div>
+                      <div className="col-span-2 md:col-span-6 flex justify-end mt-2"><button type="submit" disabled={isSubmittingPoint} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors">{isSubmittingPoint ? "Saving..." : (editingPointId ? "Update Team" : "Add Team to Table")}</button></div>
+                    </form>
+                    <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-gray-100 text-gray-600 font-bold uppercase text-xs"><tr><th className="p-3">Team Name</th><th className="p-3">P</th><th className="p-3">W</th><th className="p-3">D</th><th className="p-3">L</th><th className="p-3 text-[#7CD326]">PTS</th><th className="p-3 text-right">Actions</th></tr></thead>
+                        <tbody>{pointsTable.map(pt => (<tr key={pt.id} className="border-b hover:bg-gray-50"><td className="p-3 font-bold text-[#2B3674]">{pt.teamName}</td><td className="p-3">{pt.played}</td><td className="p-3">{pt.won}</td><td className="p-3">{pt.drawn}</td><td className="p-3">{pt.lost}</td><td className="p-3 font-black text-lg">{pt.points}</td><td className="p-3 text-right"><button onClick={() => {setEditingPointId(pt.id); setPointForm(pt); window.scrollTo({top:0});}} className="text-amber-600 font-bold text-xs mr-3">Edit</button><button onClick={()=>deletePoint(pt.id)} className="text-red-600 font-bold text-xs">Del</button></td></tr>))}</tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <div className="bg-emerald-700 text-white p-4 rounded-xl mb-6 flex justify-between items-center"><h3 className="font-bold text-lg">🏃‍♂️ Tactical Player Stats (Ground View)</h3>{editingTacticalId && <button onClick={() => {setEditingTacticalId(null); setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", slot: 1 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}</div>
+                    <form onSubmit={handleTacticalSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Sport Type</label><select value={tacticalForm.sport} onChange={(e)=>setTacticalForm({...tacticalForm, sport: e.target.value})} className="w-full p-2 border rounded outline-none text-sm"><option value="cricket">🏏 Cricket</option><option value="football">⚽ Football</option><option value="badminton">🏸 Badminton</option></select></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Name (e.g. Ifti)</label><input required value={tacticalForm.name} onChange={(e)=>setTacticalForm({...tacticalForm, name: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Name" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Key Stats (e.g. 143R + 8W)</label><input required value={tacticalForm.stats} onChange={(e)=>setTacticalForm({...tacticalForm, stats: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Stats" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Field Slot Position (1 to 11)</label><input type="number" required value={tacticalForm.slot} onChange={(e)=>setTacticalForm({...tacticalForm, slot: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. 1" /></div>
+                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Image URL</label><input value={tacticalForm.image} onChange={(e)=>setTacticalForm({...tacticalForm, image: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. /ifti.jpg" /></div>
+                      <div className="md:col-span-4 flex justify-between items-center mt-2"><div className="w-1/2 pr-4"><label className="text-xs font-bold text-gray-500 mb-1 block">Optional Tag (e.g. Singles Champ / C / VC)</label><input value={tacticalForm.tag} onChange={(e)=>setTacticalForm({...tacticalForm, tag: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Optional Badge" /></div><button type="submit" disabled={isSubmittingTactical} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg text-sm mt-4">{isSubmittingTactical ? "Saving..." : (editingTacticalId ? "Update Player" : "Add Player to Field")}</button></div>
+                    </form>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {tacticalPlayers.map(tp => (<div key={tp.id} className="border border-gray-200 rounded-xl p-4 flex justify-between items-center bg-gray-50"><div className="flex gap-3 items-center"><div className="w-10 h-10 rounded-full bg-[#2B3674] text-white flex items-center justify-center font-bold">{tp.name.charAt(0)}</div><div><p className="font-bold text-sm text-[#2B3674] leading-tight">{tp.name} <span className="text-[10px] text-gray-400">({tp.sport})</span></p><p className="text-xs font-black text-emerald-600">{tp.stats}</p>{tp.tag && <span className="text-[9px] bg-amber-100 text-amber-700 px-1 rounded uppercase font-bold">{tp.tag}</span>}</div></div><div className="flex flex-col gap-2"><button onClick={() => {setEditingTacticalId(tp.id); setTacticalForm(tp);}} className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">Edit</button><button onClick={() => deleteTactical(tp.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">Del</button></div></div>))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- REUNION TAB --- */}
               {activeMenu === "reunion" && (
                 <div className="space-y-6 animate-fade-in">
                   {editingReunionId && (
@@ -756,7 +644,7 @@ const fetchEvents = async () => {
                 </div>
               )}
 
-              {/* MEMBERSHIP TAB (User's Exact Forms, wrapped in Premium CSS) */}
+              {/* --- MEMBERSHIP TAB --- */}
               {activeMenu === "membership" && (
                 <div className="space-y-6 animate-fade-in">
                   {editingJoinId && (
@@ -788,7 +676,7 @@ const fetchEvents = async () => {
                 </div>
               )}
 
-              {/* COMMITTEE TAB (User's Exact Forms, wrapped in Premium CSS) */}
+              {/* --- COMMITTEE TAB --- */}
               {activeMenu === "committee" && (
                 <div className="space-y-6 animate-fade-in">
                   <div className={`bg-white border-0 ${editingId ? 'ring-2 ring-amber-400 bg-amber-50/50' : ''} rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] overflow-hidden`}>
@@ -818,10 +706,9 @@ const fetchEvents = async () => {
                 </div>
               )}
 
-              {/* GALLERY TAB (User's Exact Forms, wrapped in Premium CSS) */}
+              {/* --- GALLERY TAB --- */}
               {activeMenu === "gallery" && (
                 <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                  
                   {editingAlbumId && (
                     <div className="bg-amber-50 border border-amber-400 rounded-2xl shadow-sm mb-6">
                       <div className="border-b border-amber-200 px-6 py-4 flex justify-between items-center">
@@ -830,31 +717,16 @@ const fetchEvents = async () => {
                       </div>
                       <form onSubmit={handleAlbumUpdate} className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                          <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Album Title *</label>
-                            <input required value={editAlbumData.title} onChange={(e)=>setEditAlbumData({...editAlbumData, title: e.target.value})} className="w-full border border-amber-200 bg-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Category *</label>
-                            <select value={editAlbumData.category} onChange={(e)=>setEditAlbumData({...editAlbumData, category: e.target.value})} className="w-full border border-amber-200 bg-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm">
-                              <option value="football">⚽ Football</option>
-                              <option value="cricket">🏏 Cricket</option>
-                              <option value="badminton">🏸 Badminton</option>
-                              <option value="social">🤝 Social Work</option>
-                            </select>
-                          </div>
+                          <div><label className="block text-sm font-bold text-slate-700 mb-2">Album Title *</label><input required value={editAlbumData.title} onChange={(e)=>setEditAlbumData({...editAlbumData, title: e.target.value})} className="w-full border border-amber-200 bg-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm" /></div>
+                          <div><label className="block text-sm font-bold text-slate-700 mb-2">Category *</label><select value={editAlbumData.category} onChange={(e)=>setEditAlbumData({...editAlbumData, category: e.target.value})} className="w-full border border-amber-200 bg-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm"><option value="football">⚽ Football</option><option value="cricket">🏏 Cricket</option><option value="badminton">🏸 Badminton</option><option value="social">🤝 Social Work</option></select></div>
                         </div>
-                        <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-sm">
-                          Save Changes
-                        </button>
+                        <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-sm">Save Changes</button>
                       </form>
                     </div>
                   )}
 
-                  <div className="bg-white rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] border-0 overflow-hidden">
-                    <div className="bg-[#2B3674] text-white px-8 py-5 flex justify-between items-center">
-                      <h2 className="text-lg font-bold">📸 Create Media Album</h2>
-                    </div>
+                  <div className="bg-white border-0 rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] overflow-hidden">
+                    <div className="bg-[#2B3674] text-white px-8 py-5 flex justify-between items-center"><h2 className="text-lg font-bold">📸 Create Media Album</h2></div>
                     <div className="p-8">
                       <form onSubmit={handleGallerySubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -865,66 +737,37 @@ const fetchEvents = async () => {
                         <div className="border-2 border-dashed border-slate-300 hover:border-[#7CD326] bg-slate-50 p-8 text-center rounded-2xl transition-all">
                           <CldUploadWidget uploadPreset="moc_gallery" options={{ multiple: true }} onSuccess={handleGalleryUploadSuccess}>
                             {({ open }) => (
-                              <button type="button" onClick={() => open()} className="bg-white text-[#2B3674] px-6 py-3 rounded-xl shadow-sm border border-slate-200 text-sm font-bold transition-all hover:border-[#7CD326] hover:shadow-md">
-                                📤 Select Multiple Photos
-                              </button>
+                              <button type="button" onClick={() => open()} className="bg-white text-[#2B3674] px-6 py-3 rounded-xl shadow-sm border border-slate-200 text-sm font-bold transition-all hover:border-[#7CD326] hover:shadow-md">📤 Select Multiple Photos</button>
                             )}
                           </CldUploadWidget>
-                          
                           {galleryImages.length > 0 && (
                             <div className="mt-6 text-left">
                               <p className="text-sm font-bold text-slate-700 mb-3">Selected Photos ({galleryImages.length}):</p>
                               <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                                {galleryImages.map((img, i) => (
-                                  <div key={i} className="relative h-20 w-full rounded-lg overflow-hidden border border-slate-200 shadow-sm"><img src={img} alt="preview" className="h-full w-full object-cover" />{i === 0 && <span className="absolute bottom-1 right-1 bg-[#7CD326] text-[#1A0F2E] text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">COVER</span>}</div>
-                                ))}
+                                {galleryImages.map((img, i) => (<div key={i} className="relative h-20 w-full rounded-lg overflow-hidden border border-slate-200 shadow-sm"><img src={img} alt="preview" className="h-full w-full object-cover" />{i === 0 && <span className="absolute bottom-1 right-1 bg-[#7CD326] text-[#1A0F2E] text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">COVER</span>}</div>))}
                               </div>
                             </div>
                           )}
                         </div>
-                        <button type="submit" disabled={isGallerySubmitting} className="w-full bg-gradient-to-r from-[#7CD326] to-[#4CAE4C] hover:from-[#68B61D] hover:to-[#3e8e3e] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/30 transition-all text-sm disabled:opacity-50">
-                          {isGallerySubmitting ? "Creating Album..." : "🚀 Publish Album"}
-                        </button>
+                        <button type="submit" disabled={isGallerySubmitting} className="w-full bg-gradient-to-r from-[#7CD326] to-[#4CAE4C] hover:from-[#68B61D] hover:to-[#3e8e3e] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/30 transition-all text-sm disabled:opacity-50">{isGallerySubmitting ? "Creating Album..." : "🚀 Publish Album"}</button>
                       </form>
                     </div>
                   </div>
 
                   <div className="bg-white border-0 rounded-3xl shadow-[0_5px_20px_rgba(0,0,0,0.03)] overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center">
-                      <h3 className="font-bold text-[#2B3674]">Manage Uploaded Albums</h3>
-                      <button onClick={() => fetchDashboardData(false)} className="bg-white text-[#2B3674] border border-slate-200 px-3 py-1.5 text-xs rounded-lg font-bold shadow-sm hover:border-[#7CD326] transition-colors">Refresh List</button>
-                    </div>
+                    <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center"><h3 className="font-bold text-[#2B3674]">Manage Uploaded Albums</h3><button onClick={() => fetchDashboardData(false)} className="bg-white text-[#2B3674] border border-slate-200 px-3 py-1.5 text-xs rounded-lg font-bold shadow-sm hover:border-[#7CD326] transition-colors">Refresh List</button></div>
                     <div className="overflow-x-auto p-4">
                       <table className="w-full text-sm text-left">
-                        <thead className="text-slate-400 border-b border-slate-100">
-                          <tr><th className="p-3 font-semibold">Cover</th><th className="p-3 font-semibold">Album Title</th><th className="p-3 font-semibold">Category</th><th className="p-3 font-semibold">Photos</th><th className="p-3 font-semibold text-center">Action</th></tr>
-                        </thead>
+                        <thead className="text-slate-400 border-b border-slate-100"><tr><th className="p-3 font-semibold">Cover</th><th className="p-3 font-semibold">Album Title</th><th className="p-3 font-semibold">Category</th><th className="p-3 font-semibold">Photos</th><th className="p-3 font-semibold text-center">Action</th></tr></thead>
                         <tbody>
                           {albums.length === 0 ? (
                             <tr><td colSpan="5" className="p-4 text-center text-slate-500">No albums found.</td></tr>
                           ) : (
                             albums.map((album) => (
                               <tr key={album.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                <td className="p-3">
-                                  <Image 
-                                    src={album.coverImage || "https://placehold.co/100x100/png?text=No+Image"} 
-                                    alt="cover" 
-                                    width={48} 
-                                    height={48} 
-                                    className="object-cover rounded-lg border border-slate-200 shadow-sm h-12 w-12" 
-                                  />
-                                </td>
-                                <td className="p-3 font-bold text-[#2B3674]">{album.title}</td>
-                                <td className="p-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">{album.category}</td>
-                                <td className="p-3 font-bold text-slate-600">{album.photos?.length || 1}</td>
-                                <td className="p-3 text-center flex justify-center gap-2">
-                                  <button onClick={() => handleEditAlbumClick(album)} className="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg shadow-sm text-xs font-bold transition-colors">
-                                    Edit
-                                  </button>
-                                  <button onClick={() => handleDeleteAlbum(album.id)} className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg shadow-sm text-xs font-bold transition-colors">
-                                    Del
-                                  </button>
-                                </td>
+                                <td className="p-3"><Image src={album.coverImage || "https://placehold.co/100x100/png?text=No+Image"} alt="cover" width={48} height={48} className="object-cover rounded-lg border border-slate-200 shadow-sm h-12 w-12" /></td>
+                                <td className="p-3 font-bold text-[#2B3674]">{album.title}</td><td className="p-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">{album.category}</td><td className="p-3 font-bold text-slate-600">{album.photos?.length || 1}</td>
+                                <td className="p-3 text-center flex justify-center gap-2"><button onClick={() => handleEditAlbumClick(album)} className="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg shadow-sm text-xs font-bold transition-colors">Edit</button><button onClick={() => handleDeleteAlbum(album.id)} className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg shadow-sm text-xs font-bold transition-colors">Del</button></td>
                               </tr>
                             ))
                           )}
@@ -935,246 +778,31 @@ const fetchEvents = async () => {
 
                 </div>
               )}
-              {/* --- 🌟 NEW: NOTICES TAB 🌟 --- */}
+
+              {/* --- NOTICES TAB --- */}
               {activeMenu === "notices" && (
                 <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-                   
                   <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-[#2B3674] text-white px-8 py-5"><h2 className="text-lg font-bold">📢 Post a Notice</h2></div>
                     <form onSubmit={handleNoticeSubmit} className="p-8 space-y-5">
                       <input required value={newNotice.title} onChange={(e)=>setNewNotice({...newNotice, title: e.target.value})} placeholder="Notice Headline" className="w-full border border-slate-300 p-3.5 rounded-xl outline-none font-bold" />
                       <textarea required value={newNotice.content} onChange={(e)=>setNewNotice({...newNotice, content: e.target.value})} placeholder="Notice details..." rows="4" className="w-full border border-slate-300 p-3.5 rounded-xl outline-none" />
-                      <div className="flex items-center gap-3">
-                        <input type="checkbox" id="urgent" checked={newNotice.isUrgent} onChange={(e)=>setNewNotice({...newNotice, isUrgent: e.target.checked})} className="w-5 h-5 accent-red-500" />
-                        <label htmlFor="urgent" className="font-bold text-slate-700 cursor-pointer">Mark as URGENT</label>
-                      </div>
+                      <div className="flex items-center gap-3"><input type="checkbox" id="urgent" checked={newNotice.isUrgent} onChange={(e)=>setNewNotice({...newNotice, isUrgent: e.target.checked})} className="w-5 h-5 accent-red-500" /><label htmlFor="urgent" className="font-bold text-slate-700 cursor-pointer">Mark as URGENT</label></div>
                       <button type="submit" disabled={isNoticeSubmitting} className="w-full bg-[#7CD326] text-[#0B1437] font-bold py-3.5 rounded-xl shadow-md">{isNoticeSubmitting ? "Publishing..." : "Post Notice"}</button>
                     </form>
                   </div>
                   {notices.map((notice) => (
                     <div key={notice.id} className={`bg-white rounded-2xl p-6 shadow-sm border-l-4 ${notice.isUrgent ? 'border-red-500 bg-red-50/10' : 'border-[#7CD326]'} relative group`}>
-                      
-                      {/* Delete Button (Hover korle ashbe) */}
-                      <button 
-                        onClick={() => handleDeleteNotice(notice.id)} 
-                        className="absolute top-4 right-4 bg-red-100 hover:bg-red-500 text-red-600 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-sm"
-                        title="Delete Notice"
-                      >
-                        🗑️
-                      </button>
-
-                      <div className="flex justify-between items-start mb-2 pr-10">
-                        <h3 className={`font-bold text-lg ${notice.isUrgent ? 'text-red-600' : 'text-[#2B3674]'}`}>{notice.isUrgent && "🚨 "} {notice.title}</h3>
-                        <span className="text-xs font-bold text-slate-400 whitespace-nowrap">{new Date(notice.createdAt).toLocaleDateString()}</span>
-                      </div>
+                      <button onClick={() => handleDeleteNotice(notice.id)} className="absolute top-4 right-4 bg-red-100 hover:bg-red-500 text-red-600 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-sm" title="Delete Notice">🗑️</button>
+                      <div className="flex justify-between items-start mb-2 pr-10"><h3 className={`font-bold text-lg ${notice.isUrgent ? 'text-red-600' : 'text-[#2B3674]'}`}>{notice.isUrgent && "🚨 "} {notice.title}</h3><span className="text-xs font-bold text-slate-400 whitespace-nowrap">{new Date(notice.createdAt).toLocaleDateString()}</span></div>
                       <p className="text-slate-600 text-sm mb-4 whitespace-pre-wrap">{notice.content}</p>
-                      <div className="text-xs font-bold text-slate-400 border-t border-gray-100 pt-3 flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-gray-600">{notice.authorName?.charAt(0) || 'A'}</div>
-                        Posted by {notice.authorName}
-                      </div>
+                      <div className="text-xs font-bold text-slate-400 border-t border-gray-100 pt-3 flex items-center gap-2"><div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-gray-600">{notice.authorName?.charAt(0) || 'A'}</div>Posted by {notice.authorName}</div>
                     </div>
                   ))}
                 </div>
               )}
 
- 
-        {/* --- 🏆 EVENTS MANAGEMENT TAB --- */}
-        {activeMenu === "events" && (
-          <div className="space-y-8 animate-fade-in">
-            
-            {/* ADD NEW EVENT FORM */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-               <div className="flex justify-between items-center mb-6">
-  <h3 className="text-xl font-bold text-gray-800">
-    {editingEventId ? "✏️ Edit Event" : "➕ Create New Event"}
-  </h3>
-  {editingEventId && (
-    <button onClick={cancelEventEdit} className="text-red-600 font-bold text-sm hover:underline">Cancel Edit</button>
-  )}
-</div>
-              
-              <form onSubmit={handleEventSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-1 block">Event Title *</label>
-                    <input type="text" required value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Winter Short Pitch" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-1 block">Image URL (Cloudinary) *</label>
-                    <input type="text" required value={eventForm.image} onChange={(e) => setEventForm({...eventForm, image: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Paste image link here" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-1 block">Status Tag</label>
-                    <input type="text" value={eventForm.tag} onChange={(e) => setEventForm({...eventForm, tag: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Just Concluded" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-1 block">Time / Date</label>
-                    <input type="text" value={eventForm.time} onChange={(e) => setEventForm({...eventForm, time: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="e.g., Dec / Jan" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-1 block">Category</label>
-                    <select value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm">
-                      <option value="upcoming">Mega Upcoming</option>
-                      <option value="concluded">Just Concluded</option>
-                      <option value="winter">Winter Sports</option>
-                      <option value="tradition">Signature Tradition</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-500 mb-1 block">Description *</label>
-                  <textarea required value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm h-24" placeholder="Event details..."></textarea>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-500 mb-1 block">Executive Notice (Optional)</label>
-                  <input type="text" value={eventForm.extraNote} onChange={(e) => setEventForm({...eventForm, extraNote: e.target.value})} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="Any special instruction..." />
-                </div>
-
-                <button type="submit" disabled={isSubmittingEvent} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition-colors shadow-md disabled:opacity-50">
-                  {isSubmittingEvent ? "Posting..." : "Publish Event"}
-                </button>
-              </form>
-            </div>
-
-            {/* EVENT LIST (MANAGE) */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">📋 Manage Events</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
-                      <th className="p-3">Title</th>
-                      <th className="p-3">Category</th>
-                      <th className="p-3">Time</th>
-                      <th className="p-3">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {events.length === 0 ? (
-                      <tr><td colSpan="4" className="p-4 text-center text-gray-500 text-sm">No events found.</td></tr>
-                    ) : (
-                      events.map(event => (
-                        <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="p-3 text-sm font-bold text-gray-700">{event.title}</td>
-                          <td className="p-3 text-xs uppercase text-gray-500">{event.category}</td>
-                          <td className="p-3 text-sm text-gray-600">{event.time}</td>
-                          <td className="p-3">
-                            <button onClick={() => handleEventDelete(event.id)} className="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors">Delete</button>
-                            <button onClick={() => handleEditEventClick(event)} className="bg-amber-100 text-amber-700 hover:bg-amber-600 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-colors mr-2">
-  Edit
-</button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-
-
-
-
-        {/* --- 📈 STATS MANAGEMENT TAB --- */}
-             {/* --- 📈 PREMIUM SPORTS ANALYTICS PANEL --- */}
-              {activeMenu === "stats" && (
-                <div className="space-y-10 animate-fade-in max-w-6xl mx-auto">
-                  
-                  {/* --- 🏆 POINT TABLE SECTION --- */}
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <div className="bg-[#2B3674] text-white p-4 rounded-xl mb-6 flex justify-between items-center">
-                      <h3 className="font-bold text-lg">🏆 MPL Point Table Manager</h3>
-                      {editingPointId && <button onClick={() => {setEditingPointId(null); setPointForm({ teamName: "", played: 0, won: 0, drawn: 0, lost: 0, points: 0 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}
-                    </div>
-
-                    {/* Point Table Form */}
-                    <form onSubmit={handlePointSubmit} className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <div className="col-span-2 md:col-span-1"><label className="text-xs font-bold text-gray-500 mb-1 block">Team Name</label><input required value={pointForm.teamName} onChange={(e)=>setPointForm({...pointForm, teamName: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. Mokamia Lusitans" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Played (P)</label><input type="number" required value={pointForm.played} onChange={(e)=>setPointForm({...pointForm, played: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Won (W)</label><input type="number" required value={pointForm.won} onChange={(e)=>setPointForm({...pointForm, won: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Drawn (D)</label><input type="number" required value={pointForm.drawn} onChange={(e)=>setPointForm({...pointForm, drawn: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Lost (L)</label><input type="number" required value={pointForm.lost} onChange={(e)=>setPointForm({...pointForm, lost: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Total Points</label><input type="number" required value={pointForm.points} onChange={(e)=>setPointForm({...pointForm, points: e.target.value})} className="w-full p-2 border rounded outline-none text-sm border-[#7CD326]" /></div>
-                      
-                      <div className="col-span-2 md:col-span-6 flex justify-end mt-2">
-                        <button type="submit" disabled={isSubmittingPoint} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-colors">{isSubmittingPoint ? "Saving..." : (editingPointId ? "Update Team" : "Add Team to Table")}</button>
-                      </div>
-                    </form>
-
-                    {/* Point Table List */}
-                    <div className="overflow-x-auto border border-gray-100 rounded-xl">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-100 text-gray-600 font-bold uppercase text-xs">
-                          <tr><th className="p-3">Team Name</th><th className="p-3">P</th><th className="p-3">W</th><th className="p-3">D</th><th className="p-3">L</th><th className="p-3 text-[#7CD326]">PTS</th><th className="p-3 text-right">Actions</th></tr>
-                        </thead>
-                        <tbody>
-                          {pointsTable.map(pt => (
-                            <tr key={pt.id} className="border-b hover:bg-gray-50"><td className="p-3 font-bold text-[#2B3674]">{pt.teamName}</td><td className="p-3">{pt.played}</td><td className="p-3">{pt.won}</td><td className="p-3">{pt.drawn}</td><td className="p-3">{pt.lost}</td><td className="p-3 font-black text-lg">{pt.points}</td><td className="p-3 text-right"><button onClick={() => {setEditingPointId(pt.id); setPointForm(pt); window.scrollTo({top:0});}} className="text-amber-600 font-bold text-xs mr-3">Edit</button><button onClick={()=>deletePoint(pt.id)} className="text-red-600 font-bold text-xs">Del</button></td></tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* --- 🏃‍♂️ TACTICAL PLAYERS SECTION --- */}
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <div className="bg-emerald-700 text-white p-4 rounded-xl mb-6 flex justify-between items-center">
-                      <h3 className="font-bold text-lg">🏃‍♂️ Tactical Player Stats (Ground View)</h3>
-                      {editingTacticalId && <button onClick={() => {setEditingTacticalId(null); setTacticalForm({ sport: "cricket", name: "", stats: "", tag: "", slot: 1 })}} className="text-xs bg-red-500 px-3 py-1 rounded shadow">Cancel Edit</button>}
-                    </div>
-
-                    {/* Tactical Form */}
-                    <form onSubmit={handleTacticalSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 mb-1 block">Sport Type</label>
-                        <select value={tacticalForm.sport} onChange={(e)=>setTacticalForm({...tacticalForm, sport: e.target.value})} className="w-full p-2 border rounded outline-none text-sm">
-                          <option value="cricket">🏏 Cricket</option>
-                          <option value="football">⚽ Football</option>
-                          <option value="badminton">🏸 Badminton</option>
-                        </select>
-                      </div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Name (e.g. Ifti)</label><input required value={tacticalForm.name} onChange={(e)=>setTacticalForm({...tacticalForm, name: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Name" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Key Stats (e.g. 143R + 8W)</label><input required value={tacticalForm.stats} onChange={(e)=>setTacticalForm({...tacticalForm, stats: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Stats" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Field Slot Position (1 to 11)</label><input type="number" required value={tacticalForm.slot} onChange={(e)=>setTacticalForm({...tacticalForm, slot: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. 1" /></div>
-                      <div><label className="text-xs font-bold text-gray-500 mb-1 block">Player Image URL</label><input value={tacticalForm.image} onChange={(e)=>setTacticalForm({...tacticalForm, image: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="e.g. /ifti.jpg" /></div>
-                      
-                      <div className="md:col-span-4 flex justify-between items-center mt-2">
-                        <div className="w-1/2 pr-4"><label className="text-xs font-bold text-gray-500 mb-1 block">Optional Tag (e.g. Singles Champ / C / VC)</label><input value={tacticalForm.tag} onChange={(e)=>setTacticalForm({...tacticalForm, tag: e.target.value})} className="w-full p-2 border rounded outline-none text-sm" placeholder="Optional Badge" /></div>
-                        <button type="submit" disabled={isSubmittingTactical} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg text-sm mt-4">{isSubmittingTactical ? "Saving..." : (editingTacticalId ? "Update Player" : "Add Player to Field")}</button>
-                      </div>
-                    </form>
-
-                    {/* Tactical List */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {tacticalPlayers.map(tp => (
-                        <div key={tp.id} className="border border-gray-200 rounded-xl p-4 flex justify-between items-center bg-gray-50">
-                          <div className="flex gap-3 items-center">
-                            <div className="w-10 h-10 rounded-full bg-[#2B3674] text-white flex items-center justify-center font-bold">{tp.name.charAt(0)}</div>
-                            <div>
-                              <p className="font-bold text-sm text-[#2B3674] leading-tight">{tp.name} <span className="text-[10px] text-gray-400">({tp.sport})</span></p>
-                              <p className="text-xs font-black text-emerald-600">{tp.stats}</p>
-                              {tp.tag && <span className="text-[9px] bg-amber-100 text-amber-700 px-1 rounded uppercase font-bold">{tp.tag}</span>}
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <button onClick={() => {setEditingTacticalId(tp.id); setTacticalForm(tp);}} className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">Edit</button>
-                            <button onClick={() => deleteTactical(tp.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">Del</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              )} 
-
-
-              {/* --- 🌟 NEW: SUPER CHAT TAB 🌟 --- */}
+              {/* --- CHAT TAB --- */}
               {activeMenu === "chat" && (
                 <div className="flex flex-col h-[calc(100vh-140px)] bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden animate-fade-in shadow-sm">
                   <div className="bg-[#2B3674] text-white px-6 py-4 shadow-sm z-10"><h2 className="font-bold">💬 Committee Hub</h2></div>
@@ -1182,53 +810,18 @@ const fetchEvents = async () => {
                     {messages.length === 0 ? (<div className="h-full flex items-center justify-center text-slate-400 font-bold">Start the conversation!</div>) : (
                       messages.map((msg, idx) => {
                         const isMe = msg.senderName === adminUser?.name;
-                       return (
-                          <div key={idx} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} group`}>
-                             {!isMe && <span className="text-[10px] font-bold text-slate-400 ml-2 mb-1">{msg.senderName}</span>}
-                             
-                             <div className={`relative max-w-[75%] p-3 shadow-sm ${isMe ? 'bg-[#7CD326] text-[#0B1437] rounded-2xl rounded-tr-sm' : 'bg-white text-slate-700 rounded-2xl rounded-tl-sm border border-slate-100'}`}>
-                               
-                               {/* 🌟 Laptop/Desktop Action Menu (Hidden on mobile, shows on hover) */}
-                               {isMe && (
-                                 <div className="md:absolute md:top-1/2 md:-translate-y-1/2 md:-left-16 md:flex hidden group-hover:flex gap-1 bg-white shadow-sm border border-slate-200 rounded-lg p-1 animate-fade-in z-10">
-                                   <button onClick={() => { setEditingMsgId(msg.id); setEditMsgInput(msg.content); }} className="text-xs hover:bg-amber-100 text-amber-600 p-1.5 rounded-md transition-colors" title="Edit">✏️</button>
-                                   <button onClick={() => handleDeleteChat(msg.id)} className="text-xs hover:bg-red-100 text-red-600 p-1.5 rounded-md transition-colors" title="Delete">🗑️</button>
-                                 </div>
-                               )}
-
-                               {msg.imageUrl && (
-                                 <img src={msg.imageUrl} alt="attachment" className="w-full max-w-[250px] rounded-lg mb-2 object-cover border border-black/10 shadow-sm" />
-                               )}
-                               
-                               {/* 🌟 Inline Edit Form vs Normal Text */}
-                               {editingMsgId === msg.id ? (
-                                 <form onSubmit={(e) => handleUpdateChat(e, msg.id)} className="flex items-center gap-2 mt-1 bg-white p-1 rounded-lg">
-                                   <input autoFocus value={editMsgInput} onChange={(e) => setEditMsgInput(e.target.value)} className="text-sm px-2 py-1 rounded bg-transparent border-none outline-none text-slate-700 w-full min-w-[150px]" />
-                                   <button type="submit" className="text-[10px] bg-[#7CD326] text-[#0B1437] px-2 py-1.5 rounded-md font-bold shadow-sm hover:scale-105 transition-transform">SAVE</button>
-                                   <button type="button" onClick={() => setEditingMsgId(null)} className="text-[10px] bg-red-100 text-red-700 px-2 py-1.5 rounded-md font-bold hover:bg-red-200 transition-colors">CANCEL</button>
-                                 </form>
-                               ) : (
-                                 <p className="text-sm font-medium px-2 whitespace-pre-wrap">{msg.content}</p>
-                               )}
-                             </div>
-                             
-                             {/* 🌟 Time Stamp & Mobile Specific Action Links */}
-                             <div className="flex items-center gap-3 mt-1 mx-1 text-[10px] font-bold text-slate-400">
-                               <span>
-                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                               </span>
-                               
-                               {/* Only shows on mobile devices (md:hidden) and when not currently editing */}
-                               {isMe && editingMsgId !== msg.id && (
-                                 <div className="flex gap-2 md:hidden border-l border-slate-200 pl-2 text-[11px]">
-                                   <button onClick={() => { setEditingMsgId(msg.id); setEditMsgInput(msg.content); }} className="text-amber-600 active:scale-95 transition-transform">Edit</button>
-                                   <button onClick={() => handleDeleteChat(msg.id)} className="text-red-500 active:scale-95 transition-transform">Delete</button>
-                                 </div>
-                               )}
-                             </div>
-
+                        return (
+                          <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`relative max-w-[85%] md:max-w-[70%] group ${isMe ? 'bg-[#7CD326] text-[#0B1437] rounded-l-xl rounded-tr-xl' : 'bg-white border border-slate-200 text-slate-700 rounded-r-xl rounded-tl-xl'} p-4 shadow-sm`}>
+                              {!isMe && <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1.5">{msg.senderName}</p>}
+                              {msg.imageUrl ? <img src={msg.imageUrl} className="rounded-xl w-full max-w-sm mb-2" alt="upload" /> : <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
+                              <span className="text-[9px] opacity-40 absolute bottom-1 right-3">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              {isMe && (
+                                <button onClick={() => handleDeleteChat(msg.id)} className="absolute -left-10 top-1/2 -translate-y-1/2 bg-red-100 hover:bg-red-500 text-red-500 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-sm" title="Delete">🗑️</button>
+                              )}
+                            </div>
                           </div>
-                        ) 
+                        )
                       })
                     )}
                     <div ref={chatEndRef} />
@@ -1237,14 +830,12 @@ const fetchEvents = async () => {
                     <div className="flex gap-2 items-center">
                       <CldUploadWidget uploadPreset="moc_gallery" onSuccess={handleChatImageUpload}>
                         {({ open }) => (
-                          <button type="button" onClick={() => open()} className="bg-slate-100 hover:bg-slate-200 text-slate-600 w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-inner text-lg">
-                            📎
-                          </button>
+                          <button type="button" onClick={() => open()} className="bg-slate-100 hover:bg-slate-200 text-slate-600 w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-inner text-xl">📎</button>
                         )}
                       </CldUploadWidget>
                       <form onSubmit={handleSendMessage} className="flex flex-1 gap-2">
-                        <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a message..." className="flex-1 border border-slate-300 rounded-full px-4 outline-none text-sm" />
-                        <button type="submit" disabled={!chatInput.trim()} className="bg-[#2B3674] text-white w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-50 shadow-md transition-transform active:scale-95">➤</button>
+                        <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a message..." className="flex-1 border border-slate-300 rounded-full px-6 outline-none text-sm focus:border-[#2B3674] focus:ring-1 focus:ring-[#2B3674] transition-all" />
+                        <button type="submit" disabled={!chatInput.trim()} className="bg-[#2B3674] hover:bg-[#111C44] text-white w-12 h-12 rounded-full flex items-center justify-center disabled:opacity-50 shadow-md transition-all active:scale-95 text-lg">➤</button>
                       </form>
                     </div>
                   </div>
@@ -1256,4 +847,4 @@ const fetchEvents = async () => {
       </main>
     </div>
   );
-}
+} 
