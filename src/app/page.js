@@ -629,146 +629,238 @@ export default function Home() {
       <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 md:p-8">
         
         {/* --- HOME TAB --- */}
+         {/* --- 🔥 FIRE HOME TAB (V2.0 PRO MAX DESIGN) 🔥 --- */}
         {activeTab === "home" && (
-          <div className="animate-fade-in">
-             <div data-aos="zoom-in" data-aos-duration="1000" className="relative rounded-2xl overflow-hidden mb-10 shadow-2xl flex flex-col items-center justify-center text-center px-6 py-20 md:py-32 bg-[#2D1B4E]">
-               <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2D1B4E] via-[#7CD326] to-[#2D1B4E]"></div>
-               <div className="relative z-10 text-white w-full max-w-4xl mx-auto">
-                 <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-[#7CD326] text-xs font-bold tracking-widest mb-6 uppercase">Est. 1985 • Mokamia, Bangladesh</span>
- <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight font-serif h-[100px] md:h-auto">
-  Built on <br className="block md:hidden"/>
-  <span className="text-[#7CD326] italic">
-    <TypeAnimation
-      sequence={[
-        'Brotherhood', 2000,
-        'Village Pride', 2000,
-        'Sports Majesty', 2000,
-        'Unity', 2000
-      ]}
-      wrapper="span"
-      speed={50}
-      repeat={Infinity}
-      className="inline-block drop-shadow-[0_0_10px_rgba(124,211,38,0.8)]"
-    />
-  </span>
-</h2>
-                 <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto text-gray-200 font-light leading-relaxed">What started as a group of passionate sports lovers has evolved into a thriving community club of 200+ active members uniting brothers across generations.</p>
-                 <button onClick={() => setActiveTab("reunion")} className="bg-[#7CD326] hover:bg-[#68B61D] text-[#2D1B4E] px-8 py-3 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(124,211,38,0.4)]">🎓 Register for Primary School Reunion</button>
+          <div className="animate-fade-in w-full max-w-[1200px] mx-auto mb-20 space-y-8">
+            
+            {/* 🎬 1. HYPER-CINEMATIC HERO SECTION */}
+            {/* 🎬 1. HYPER-CINEMATIC HERO SECTION (FIXED OVERLAP & SPACING) */}
+            <div data-aos="zoom-in" data-aos-duration="1200" className="relative w-full rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden bg-[#030108] border border-white/5 shadow-[0_0_80px_rgba(124,211,38,0.1)] min-h-[70vh] md:min-h-[75vh] flex items-center justify-center isolate group py-12 md:py-16">
+               
+               {/* 🌌 Next-Gen Ambient Glows (Moving Aurora) */}
+               <div className="absolute top-[-20%] left-[-10%] w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] bg-[#7CD326]/15 blur-[120px] md:blur-[150px] rounded-full mix-blend-screen animate-pulse pointer-events-none transition-transform duration-1000 group-hover:scale-[1.15]"></div>
+               <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] md:w-[40vw] h-[60vw] md:h-[40vw] bg-[#2D1B4E]/40 blur-[120px] md:blur-[150px] rounded-full mix-blend-screen animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
+               
+               {/* 📐 High-Tech Grid Overlay */}
+               <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+               {/* ✨ Floating Glass Badge (FIXED: Moved to Top Right Corner) */}
+               <div className="hidden lg:flex absolute top-8 right-8 xl:top-10 xl:right-10 bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-2xl shadow-2xl transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-500 animate-[bounce_6s_infinite] items-center gap-3 cursor-pointer z-30" onClick={() => handleNavigation("reunion")}>
+                  <div className="relative flex items-center justify-center w-8 h-8 bg-red-500/20 rounded-full border border-red-500/50">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 relative z-10 shadow-[0_0_10px_#FF3B30]"></div>
+                  </div>
+                  <div>
+                    <p className="text-white text-[11px] font-black tracking-widest drop-shadow-md">MEGA REUNION</p>
+                    <p className="text-[#7CD326] text-[9px] uppercase font-bold tracking-wider">Registration Live</p>
+                  </div>
+               </div>
+
+               {/* 🚀 Main Hero Content (FIXED: Reduced Margins) */}
+               {/* 🚀 Main Hero Content (FIXED: Reduced Margins + 🍎 APPLE WWDC LOGO EFFECT) */}
+               <div className="relative z-20 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
+                  
+                  {/* 🍎 APPLE WWDC STYLE GLOWING LOGO 🍎 */}
+                  <div className="relative flex justify-center items-center mb-8 mt-2 group cursor-pointer" data-aos="zoom-in" data-aos-delay="200">
+                    {/* The rotating gradient background (Sweeping neon light effect) */}
+                    <div className="absolute w-32 h-32 md:w-44 md:h-44 rounded-full animate-[spin_3s_linear_infinite]" 
+                         style={{ background: 'conic-gradient(from 0deg, transparent 40%, rgba(124, 211, 38, 0.8) 80%, rgba(255, 255, 255, 1) 100%)' }}>
+                    </div>
+                    {/* The heavy blur effect to create the glowing halo */}
+                    <div className="absolute w-32 h-32 md:w-44 md:h-44 rounded-full blur-xl animate-[spin_3s_linear_infinite]" 
+                         style={{ background: 'conic-gradient(from 0deg, transparent 40%, rgba(124, 211, 38, 0.5) 80%, rgba(255, 255, 255, 0.8) 100%)' }}>
+                    </div>
+                    {/* Inner dark mask to create the ring gap between glow and logo */}
+                    <div className="absolute w-[120px] h-[120px] md:w-[164px] md:h-[164px] bg-[#030108] rounded-full z-10"></div>
+                    
+                    {/* The Actual Club Logo floating inside the ring */}
+                    <div className="relative z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full p-1 bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md border border-white/10 shadow-[0_0_40px_rgba(124,211,38,0.2)]">
+                      <img src="/moc-logo.jpeg" alt="MOC Logo" className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(e)=>{e.target.style.display='none'}} />
+                    </div>
+                  </div>
+
+                  {/* Premium Glowing Pill */}
+                  <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-white/5 to-white/0 border border-white/10 backdrop-blur-2xl mb-5 shadow-2xl hover:bg-white/10 hover:border-[#7CD326]/50 transition-all duration-300 cursor-pointer group/pill">
+                     <span className="w-2 h-2 rounded-full bg-[#7CD326] shadow-[0_0_12px_#7CD326] animate-pulse"></span>
+                     <span className="text-gray-300 text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase group-hover/pill:text-white transition-colors">The Pride of Mokamia Village</span>
+                     <span className="text-[#7CD326] opacity-0 group-hover/pill:opacity-100 group-hover/pill:translate-x-1 transition-all duration-300 -ml-2 group-hover/pill:ml-0">→</span>
+                  </div>
+
+                  {/* Ultimate Title */}
+                  <h1 className="text-5xl md:text-6xl lg:text-[6rem] font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-100 to-gray-500 mb-4 leading-tight tracking-tighter font-serif drop-shadow-2xl">
+                     Legacy Built on <br className="hidden md:block"/>
+                     <span className="relative inline-block mt-1 md:mt-2">
+                        <span className="absolute -inset-2 bg-[#7CD326] blur-[60px] opacity-20"></span>
+                        <span className="relative text-[#7CD326] drop-shadow-[0_0_30px_rgba(124,211,38,0.8)] italic pr-2">
+                          <TypeAnimation sequence={['Brotherhood', 2500, 'Sports Majesty', 2500, 'Community', 2500, 'Unity', 2500]} wrapper="span" speed={40} repeat={Infinity} className="inline-block" />
+                        </span>
+                     </span>
+                  </h1>
+
+                  <p className="text-gray-400 text-sm md:text-lg max-w-2xl mx-auto font-medium leading-relaxed mb-8 drop-shadow-md px-2">
+                     More than just a sports team. We are a thriving ecosystem of 200+ active youth, uniting generations and driving social excellence since 1985.
+                  </p>
+
+                  {/* Ultra Premium Interactive Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center z-20">
+                     <button onClick={() => handleNavigation("reunion")} className="relative group w-full sm:w-auto px-8 py-3.5 bg-[#7CD326] text-[#090514] font-black rounded-full transition-all duration-300 hover:scale-105 uppercase tracking-widest text-sm shadow-[0_0_40px_rgba(124,211,38,0.4)] overflow-hidden">
+                        🎟️ Claim VIP Pass
+                     </button>
+                     <button onClick={() => handleNavigation("join")} className="w-full sm:w-auto px-8 py-3.5 bg-transparent text-white font-bold rounded-full border border-white/20 hover:bg-white/10 hover:border-white/40 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] backdrop-blur-xl transition-all duration-300 uppercase tracking-widest text-sm group">
+                        Become a Member <span className="inline-block transform group-hover:translate-x-2 transition-transform duration-300">➔</span>
+                     </button>
+                  </div>
+               </div>
+
+               {/* Sleek Mouse Scroll Indicator */}
+               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60 hidden md:flex z-10">
+                 <div className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center pt-1.5">
+                   <div className="w-1 h-1.5 bg-[#7CD326] rounded-full animate-bounce shadow-[0_0_8px_#7CD326]"></div>
+                 </div>
                </div>
             </div>
- <div data-aos="fade-up" data-aos-delay="100" className="mb-12">
-    <AdvisorsSlider />
-</div>
-             <div data-aos="fade-up" data-aos-delay="300" className="bg-[#2D1B4E] border-b-4 border-[#7CD326] rounded-xl p-8 mb-12 shadow-2xl flex flex-wrap justify-around items-center text-center relative overflow-hidden">
-               <div className="absolute inset-0 bg-white opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #7CD326 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-               <div className="p-4 relative z-10 group">
-                 <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 transition-transform"><CountUpAnimation target={200} suffix="+" duration={2000} /></h4>
-                 <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Active Members</p>
+
+            {/* ⚡ 2. DYNAMIC SCROLLING ADVISORS */}
+            <div data-aos="fade-up" data-aos-delay="100" className="pt-2 mb-2">
+               <AdvisorsSlider />
+            </div>
+
+            {/* 🍱 3. THE BENTO GRID STATS (Vercel High-Tech Style) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0">
+               {/* Bento 1: Growth */}
+               <div data-aos="fade-up" data-aos-delay="200" className="bg-[#111C44]/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group cursor-pointer hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 flex flex-col justify-between min-h-[250px]">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#7CD326]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="absolute -right-10 -bottom-10 text-[150px] opacity-[0.03] transform group-hover:-rotate-12 group-hover:scale-110 transition-all duration-700 blur-[2px]">👥</div>
+                  <div className="z-10">
+                    <span className="bg-[#7CD326]/10 text-[#7CD326] border border-[#7CD326]/20 font-black px-4 py-1.5 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md">Growing Daily</span>
+                  </div>
+                  <div className="z-10 mt-10">
+                    <h3 className="text-white text-6xl md:text-7xl font-black font-serif tracking-tighter mb-1 drop-shadow-lg"><CountUpAnimation target={200} suffix="+" duration={2000} /></h3>
+                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest group-hover:text-gray-300 transition-colors">Active Brotherhood</p>
+                  </div>
                </div>
-               <div className="w-px h-16 bg-gray-600 hidden md:block relative z-10"></div>
-               <div className="p-4 relative z-10 group">
-                 <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 transition-transform"><CountUpAnimation target={1985} duration={2500} /></h4>
-                 <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Established</p>
-               </div>
-               <div className="w-px h-16 bg-gray-600 hidden md:block relative z-10"></div>
-               <div className="p-4 relative z-10 group">
-                 <h4 className="text-4xl md:text-5xl font-extrabold text-white font-serif mb-2 group-hover:scale-110 transition-transform"><CountUpAnimation target={24} suffix="/7" duration={2500} /></h4>
-                 <p className="text-[#7CD326] text-sm font-bold uppercase tracking-wider">Active Community</p>
+
+               {/* Bento 2: Heritage */}
+               <div data-aos="fade-up" data-aos-delay="300" className="md:col-span-2 bg-[#1A0F2E] rounded-[2.5rem] p-8 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group min-h-[250px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8 hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-[#7CD326]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="z-10 flex-1">
+                     <span className="text-[#7CD326] font-black text-[10px] uppercase tracking-[0.3em] mb-4 block flex items-center gap-2">
+                       <div className="w-2 h-2 rounded-full bg-[#7CD326] animate-pulse shadow-[0_0_8px_#7CD326]"></div> Our Heritage
+                     </span>
+                     <h3 className="text-white text-5xl md:text-6xl font-black font-serif tracking-tight mb-4">Est. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-400 drop-shadow-[0_0_15px_rgba(124,211,38,0.3)]"><CountUpAnimation target={1985} duration={2500} /></span></h3>
+                     <p className="text-gray-400 text-sm leading-relaxed max-w-md group-hover:text-gray-300 transition-colors">Nearly 4 decades of unyielding passion. From a tiny village ground to a mega club driving sports, social work, and unshakeable unity.</p>
+                  </div>
+                  <div className="relative w-full md:w-auto flex justify-end z-10">
+                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-white/10 flex items-center justify-center relative bg-white/5 backdrop-blur-md shadow-2xl group-hover:border-[#7CD326]/50 transition-colors duration-500">
+                        <div className="absolute inset-[-10px] border border-dashed border-[#7CD326]/30 rounded-full animate-[spin_20s_linear_infinite]"></div>
+                        <img src="/moc-logo.jpeg" alt="Logo" className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-[0_0_30px_rgba(124,211,38,0.2)] group-hover:shadow-[0_0_40px_rgba(124,211,38,0.5)] transition-shadow duration-500" onError={(e)=>{e.target.style.display='none'}} />
+                     </div>
+                  </div>
                </div>
             </div>
-{/* 🌟 NEW: PUBLIC NOTICE BOARD 🌟 */}
+
+            {/* 📢 4. ULTRA PREMIUM PUBLIC NOTICE BOARD */}
             {publicNotices.length > 0 && (
-              <div className="mb-12">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="bg-[#FF3B30] text-white p-2 rounded-full animate-pulse">📢</span>
-                  <h3 className="text-2xl font-bold text-[#2D1B4E] font-serif tracking-wide">Official Club Notices</h3>
-                  <div className="flex-1 h-px bg-gray-200 ml-4 hidden sm:block"></div>
+              <div className="mt-16 max-w-[1200px] mx-auto px-4 md:px-0">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20 shadow-inner">
+                    <span className="text-2xl animate-pulse">📢</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-[#2D1B4E] font-serif tracking-wide">Official Club Notices</h3>
+                    <p className="text-gray-500 text-sm font-medium mt-1">Important announcements from the executive panel</p>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {publicNotices.map((notice, index) => (
-  <div 
-    key={notice.id} 
-    data-aos="fade-right" 
-    data-aos-delay={index * 150} // protita notice ektu por por ashbe
-    className={`bg-white p-6 rounded-xl shadow-md border-l-4 transition-all hover:-translate-y-1 ${notice.isUrgent ? 'border-[#FF3B30] bg-red-50/10' : 'border-[#7CD326]'}`}
-  >
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className={`font-bold text-lg leading-snug ${notice.isUrgent ? 'text-[#FF3B30]' : 'text-[#2D1B4E]'}`}>
-                          {notice.isUrgent && "🚨 "} {notice.title}
+                    <div 
+                      key={notice.id} 
+                      data-aos="fade-up" 
+                      data-aos-delay={index * 100}
+                      className={`bg-white p-6 md:p-8 rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] border-l-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] cursor-pointer group ${notice.isUrgent ? 'border-[#FF3B30] bg-red-50/30' : 'border-[#7CD326]'}`}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <h4 className={`font-black text-xl leading-snug pr-4 transition-colors ${notice.isUrgent ? 'text-[#FF3B30]' : 'text-[#2D1B4E] group-hover:text-[#7CD326]'}`}>
+                          {notice.isUrgent && <span className="animate-pulse mr-2">🚨</span>} 
+                          {notice.title}
                         </h4>
-                        <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                        <span className="text-[10px] font-black tracking-widest text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full whitespace-nowrap">
                           {new Date(notice.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{notice.content}</p>
-                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#2D1B4E] text-white flex items-center justify-center text-[10px] font-bold">
+                      <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap mb-6">{notice.content}</p>
+                      
+                      <div className="pt-4 border-t border-gray-100 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2D1B4E] to-[#1A0F2E] text-white flex items-center justify-center text-[11px] font-black shadow-md border border-white/20">
                           {notice.authorName?.charAt(0) || 'A'}
                         </div>
-                        <p className="text-xs font-bold text-gray-500">Posted by {notice.authorName}</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Posted by <span className="text-gray-700">{notice.authorName}</span></p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            {/* 🌟 END PUBLIC NOTICE BOARD 🌟 */}
-            {/* 🎟️ 3D VIP TICKET CTA */}
-            <div data-aos="fade-up" className="relative w-full max-w-3xl mx-auto mb-20 group cursor-pointer" onClick={() => setActiveTab("reunion")}>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#7CD326] to-emerald-500 rounded-2xl blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
-              <div className="relative bg-[#2D1B4E] border border-[#7CD326]/30 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] overflow-hidden">
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
+
+            {/* 🎟️ 5. 3D VIP TICKET CTA (Neon Glowing Box) */}
+            <div data-aos="fade-up" className="relative w-full max-w-4xl mx-auto mb-20 mt-16 group cursor-pointer" onClick={() => handleNavigation("reunion")}>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#7CD326] to-emerald-500 rounded-3xl blur-[40px] opacity-20 group-hover:opacity-60 transition-opacity duration-700"></div>
+              <div className="relative bg-[#090514] border border-[#7CD326]/30 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] overflow-hidden">
+                <div className="absolute -top-32 -right-32 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                
                 <div className="md:w-2/3 text-center md:text-left z-10">
-                  <span className="inline-block px-3 py-1 bg-[#7CD326]/20 text-[#7CD326] text-[10px] font-black tracking-widest uppercase rounded-full mb-3 border border-[#7CD326]/50">Limited Slots</span>
-                  <h3 className="text-3xl font-black text-white font-serif mb-2">Claim Your Reunion VIP Pass</h3>
-                  <p className="text-gray-400 text-sm">Join the grandest gathering of Mokamia Govt. Primary School alumni. Experience the nostalgia, brotherhood, and a day to remember.</p>
+                  <span className="inline-block px-4 py-1.5 bg-[#7CD326]/10 text-[#7CD326] text-[10px] font-black tracking-widest uppercase rounded-full mb-4 border border-[#7CD326]/30">Limited Slots Available</span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white font-serif mb-3 tracking-tight">Claim Your Reunion VIP Pass</h3>
+                  <p className="text-gray-400 text-sm md:text-base leading-relaxed">Join the grandest gathering of Mokamia Govt. Primary School alumni. Experience the nostalgia, brotherhood, and a day to remember.</p>
                 </div>
-                <div className="mt-6 md:mt-0 z-10">
-                  <button className="bg-[#7CD326] text-[#2D1B4E] px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_#7CD326] hover:bg-white transition-colors">Register Now 🎟️</button>
+                <div className="mt-8 md:mt-0 z-10 w-full md:w-auto">
+                  <button className="w-full md:w-auto bg-gradient-to-r from-[#7CD326] to-[#5a9c1c] text-[#090514] px-10 py-5 rounded-2xl font-black uppercase tracking-widest shadow-[0_0_30px_rgba(124,211,38,0.3)] group-hover:shadow-[0_0_50px_rgba(124,211,38,0.6)] hover:brightness-110 transition-all text-sm">Register Now 🎟️</button>
                 </div>
               </div>
             </div>
 
-            {/* 🍏 APPLE-STYLE NEON TIMELINE (THE LEGACY) */}
-            <div data-aos="fade-up" className="bg-white rounded-2xl p-8 md:p-12 mb-12 shadow-xl border border-gray-100 max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <span className="text-[#7CD326] font-black tracking-widest text-xs uppercase">Heritage & History</span>
-                <h3 className="text-[#2D1B4E] font-black text-3xl md:text-5xl font-serif mt-2">Our Legacy</h3>
+            {/* 🍏 6. APPLE-STYLE NEON TIMELINE (THE LEGACY) */}
+            <div data-aos="fade-up" className="bg-white rounded-[2.5rem] p-8 md:p-14 mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 max-w-5xl mx-auto">
+              <div className="text-center mb-16">
+                <span className="text-[#7CD326] font-black tracking-[0.3em] text-xs uppercase bg-[#7CD326]/10 px-4 py-2 rounded-full inline-block mb-4">Heritage & History</span>
+                <h3 className="text-[#2D1B4E] font-black text-4xl md:text-5xl font-serif tracking-tight">The MOC Legacy</h3>
               </div>
 
               {/* The Glowing Vertical Line */}
-              <div className="relative border-l-4 border-gray-200 ml-4 md:ml-10 py-6 space-y-16">
+              <div className="relative border-l-4 border-gray-100 ml-4 md:ml-12 py-6 space-y-20">
                 
                 {/* Timeline Item 1 */}
-                <div className="relative pl-8 md:pl-12 group">
-                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-150 group-hover:shadow-[0_0_20px_#7CD326] transition-all duration-300"></div>
-                  <span className="text-gray-400 font-black text-xl md:text-2xl tracking-widest block mb-1 group-hover:text-[#7CD326] transition-colors">1985</span>
-                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">The Genesis of Brotherhood</h4>
-                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">Founded by a group of passionate village youths, Mokamia Orient Club started its journey not just as a sports team, but as a movement to unite the community and foster lifelong bonds.</p>
+                <div className="relative pl-10 md:pl-16 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-[1.7] group-hover:shadow-[0_0_25px_#7CD326] transition-all duration-500"></div>
+                  <span className="text-gray-400 font-black text-2xl md:text-3xl tracking-widest block mb-2 group-hover:text-[#7CD326] transition-colors">1985</span>
+                  <h4 className="text-[#2D1B4E] font-black text-2xl md:text-3xl font-serif tracking-tight">The Genesis of Brotherhood</h4>
+                  <p className="text-gray-500 text-base mt-3 leading-relaxed max-w-3xl">Founded by a group of passionate village youths, Mokamia Orient Club started its journey not just as a sports team, but as a movement to unite the community and foster lifelong bonds.</p>
                 </div>
 
                 {/* Timeline Item 2 */}
-                <div className="relative pl-8 md:pl-12 group">
-                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-150 group-hover:shadow-[0_0_20px_#7CD326] transition-all duration-300"></div>
-                  <span className="text-gray-400 font-black text-xl md:text-2xl tracking-widest block mb-1 group-hover:text-[#7CD326] transition-colors">2010s</span>
-                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">Era of Social Empowerment</h4>
-                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">Beyond sports, the club established itself as the social backbone of Mokamia, initiating yearly scholarships (Shikkhabritti), emergency medical funds, and blood donation drives.</p>
+                <div className="relative pl-10 md:pl-16 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#2D1B4E] rounded-full group-hover:bg-[#7CD326] group-hover:border-[#7CD326] group-hover:scale-[1.7] group-hover:shadow-[0_0_25px_#7CD326] transition-all duration-500"></div>
+                  <span className="text-gray-400 font-black text-2xl md:text-3xl tracking-widest block mb-2 group-hover:text-[#7CD326] transition-colors">2010s</span>
+                  <h4 className="text-[#2D1B4E] font-black text-2xl md:text-3xl font-serif tracking-tight">Era of Social Empowerment</h4>
+                  <p className="text-gray-500 text-base mt-3 leading-relaxed max-w-3xl">Beyond sports, the club established itself as the social backbone of Mokamia, initiating yearly scholarships (Shikkhabritti), emergency medical funds, and blood donation drives.</p>
                 </div>
 
                 {/* Timeline Item 3 */}
-                <div className="relative pl-8 md:pl-12 group">
-                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-white border-4 border-[#7CD326] rounded-full scale-125 shadow-[0_0_15px_rgba(124,211,38,0.5)]"></div>
-                  <span className="text-[#7CD326] font-black text-xl md:text-2xl tracking-widest block mb-1">Present</span>
-                  <h4 className="text-[#2D1B4E] font-black text-xl md:text-2xl font-serif">A Modern Legacy</h4>
-                  <p className="text-gray-600 text-sm mt-2 leading-relaxed max-w-2xl">With 200+ active members, blockbuster tournaments like the MPL, and the upcoming grand Primary School Reunion, MOC stands stronger and more united than ever before.</p>
+                <div className="relative pl-10 md:pl-16 group">
+                  <div className="absolute -left-[14px] top-1 w-6 h-6 bg-[#7CD326] border-4 border-white rounded-full scale-[1.5] shadow-[0_0_20px_rgba(124,211,38,0.8)]"></div>
+                  <span className="text-[#7CD326] font-black text-2xl md:text-3xl tracking-widest block mb-2">Present</span>
+                  <h4 className="text-[#2D1B4E] font-black text-2xl md:text-3xl font-serif tracking-tight">A Modern Legacy</h4>
+                  <p className="text-gray-500 text-base mt-3 leading-relaxed max-w-3xl">With 200+ active members, blockbuster tournaments like the MPL, and the upcoming grand Primary School Reunion, MOC stands stronger and more united than ever before.</p>
                 </div>
 
               </div>
             </div>
+
           </div>
         )}
+        {/* --- 🔥 END FIRE HOME TAB 🔥 --- */}
 
         {/* --- EVENTS TAB --- */}
         {/* --- 🏆 PREMIUM EVENTS & TOURNAMENTS DASHBOARD 🏆 --- */}
