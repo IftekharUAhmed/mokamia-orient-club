@@ -726,21 +726,38 @@ export default function Home() {
             </div>
 
             {/* 🍱 3. THE BENTO GRID STATS (Vercel High-Tech Style) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0">
-               {/* Bento 1: Growth */}
-               <div data-aos="fade-up" data-aos-delay="200" className="bg-[#111C44]/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group cursor-pointer hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 flex flex-col justify-between min-h-[250px]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#7CD326]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  <div className="absolute -right-10 -bottom-10 text-[150px] opacity-[0.03] transform group-hover:-rotate-12 group-hover:scale-110 transition-all duration-700 blur-[2px]">👥</div>
+          {/* 🍱 3. THE BENTO GRID STATS (Restored Green + 3D Glass Shine Effect) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0 mt-4">
+               
+               {/* Bento 1: Growth (Signature MOC Green with Shine Effect) */}
+               <div data-aos="fade-up" data-aos-delay="200" className="relative bg-gradient-to-br from-[#7CD326] to-emerald-500 rounded-[2.5rem] p-8 md:p-10 shadow-[0_20px_40px_rgba(124,211,38,0.3)] overflow-hidden group cursor-pointer hover:-translate-y-2 hover:shadow-[0_30px_50px_rgba(124,211,38,0.5)] transition-all duration-500 flex flex-col justify-between min-h-[250px]">
+                  
+                  {/* ✨ Magic Glass Shine Effect (The Matha Noshto Part) */}
+                  <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:animate-[shine_1.5s_ease-in-out]"></div>
+                  <style>{`
+                    @keyframes shine {
+                      100% { left: 200%; opacity: 1; }
+                    }
+                  `}</style>
+
+                  <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  
+                  {/* Giant Background Icon */}
+                  <div className="absolute -right-6 -bottom-6 text-[150px] md:text-[180px] opacity-[0.12] text-black transform group-hover:-rotate-12 group-hover:scale-110 transition-all duration-700 leading-none">👥</div>
+                  
                   <div className="z-10">
-                    <span className="bg-[#7CD326]/10 text-[#7CD326] border border-[#7CD326]/20 font-black px-4 py-1.5 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md">Growing Daily</span>
+                    <span className="bg-[#090514]/10 text-[#090514] font-black px-4 py-2 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md border border-[#090514]/10 shadow-sm inline-block">Growing Daily</span>
                   </div>
+                  
                   <div className="z-10 mt-10">
-                    <h3 className="text-white text-6xl md:text-7xl font-black font-serif tracking-tighter mb-1 drop-shadow-lg"><CountUpAnimation target={200} suffix="+" duration={2000} /></h3>
-                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest group-hover:text-gray-300 transition-colors">Active Brotherhood</p>
+                    <h3 className="text-[#090514] text-6xl md:text-7xl font-black font-serif tracking-tighter mb-1 drop-shadow-sm transform group-hover:scale-105 transition-transform duration-300 origin-left">
+                      <CountUpAnimation target={200} suffix="+" duration={2000} />
+                    </h3>
+                    <p className="text-[#090514] font-bold text-sm uppercase tracking-widest opacity-80">Active Brotherhood</p>
                   </div>
                </div>
 
-               {/* Bento 2: Heritage */}
+               {/* Bento 2: Heritage (Kept Dark for Contrast) */}
                <div data-aos="fade-up" data-aos-delay="300" className="md:col-span-2 bg-[#1A0F2E] rounded-[2.5rem] p-8 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group min-h-[250px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8 hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-[#7CD326]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                   <div className="z-10 flex-1">
