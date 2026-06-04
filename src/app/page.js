@@ -720,11 +720,89 @@ export default function Home() {
                </div>
             </div>
 
-            {/* ⚡ 2. DYNAMIC SCROLLING ADVISORS */}
-            <div data-aos="fade-up" data-aos-delay="100" className="pt-2 mb-2">
-               <AdvisorsSlider />
+
+{/* ⚡ 1.5 INFINITE NEON TICKER TAPE (THE HYPE BUILDER) ⚡ */}
+            <div className="w-full relative overflow-hidden bg-gradient-to-r from-[#7CD326] via-emerald-400 to-[#7CD326] py-3 md:py-4 transform -rotate-2 scale-105 my-16 shadow-[0_0_50px_rgba(124,211,38,0.3)] z-20 border-y-2 border-white/40">
+              <style>{`
+                @keyframes scrollTicker {
+                  0% { transform: translateX(0); }
+                  100% { transform: translateX(-50%); }
+                }
+                .animate-scroll-ticker {
+                  animation: scrollTicker 20s linear infinite;
+                  width: max-content;
+                }
+                .animate-scroll-ticker:hover {
+                  animation-play-state: paused;
+                }
+              `}</style>
+              
+              <div className="flex animate-scroll-ticker cursor-default">
+                {/* 1st Set of Text */}
+                <div className="flex items-center gap-8 text-[#090514] font-black uppercase tracking-[0.2em] text-sm md:text-lg px-4">
+                  <span className="flex items-center gap-2"><span className="text-xl">🏆</span> MPL 5TH EDITION CHAMPIONS</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🏏</span> WINTER SHORT PITCH HEROES</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🏸</span> BADMINTON PRO MASTERS</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🤝</span> FOSTERING BROTHERHOOD SINCE 1985</span>
+                  <span>✧</span>
+                </div>
+                {/* 2nd Set of Text (For Infinite Loop Seamlessly) */}
+                <div className="flex items-center gap-8 text-[#090514] font-black uppercase tracking-[0.2em] text-sm md:text-lg px-4">
+                  <span className="flex items-center gap-2"><span className="text-xl">🏆</span> MPL 5TH EDITION CHAMPIONS</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🏏</span> WINTER SHORT PITCH HEROES</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🏸</span> BADMINTON PRO MASTERS</span>
+                  <span>✧</span>
+                  <span className="flex items-center gap-2"><span className="text-xl">🤝</span> FOSTERING BROTHERHOOD SINCE 1985</span>
+                  <span>✧</span>
+                </div>
+              </div>
             </div>
 
+            
+         {/* 🏆 2. DIGITAL TROPHY CABINET (EXPANDED TO 7 BOXES) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 perspective-1000">
+                    
+                    {/* Reusable Trophy Card Component Function */}
+                    {(() => {
+                      const items = [
+                        { src: "/trophy1.jpeg", title: "MPL Champions", tag: "5th Edition", desc: "Dominated the village football arena." },
+                        { src: "/trophy2.jpeg", title: "Winter Masters", tag: "Badminton Cup", desc: "Undisputed kings of the court." },
+                        { src: "/trophy3.jpeg", title: "Cricket Heroes", tag: "Local Champs", desc: "Explosive batting and lethal bowling." },
+                        { src: "/main gallery trophy.jpeg", title: "Main Gallery", tag: "Club Legacy", desc: "Our core collection of pride." },
+                        { src: "/mpl cricket.jpeg", title: "MPL Cricket", tag: "Tournament", desc: "Tactical brilliance on the field." },
+                        { src: "/external cricket tournament.jpeg", title: "External Cricket", tag: "Open Cup", desc: "Representing MOC beyond borders." },
+                        { src: "/external-football.jpeg", title: "External Football", tag: "Cup Final", desc: "Fought hard with team spirit." },
+                      ];
+
+                      return items.map((item, idx) => (
+                        <div key={idx} className="relative group cursor-pointer">
+                           <div className="absolute inset-0 bg-gradient-to-b from-[#7CD326]/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2.5rem]"></div>
+                           <div className="h-full bg-[#1A0F2E]/60 border border-white/5 rounded-[2.5rem] p-6 flex flex-col items-center justify-center transform transition-all duration-500 group-hover:translate-y-[-12px] group-hover:border-[#7CD326]/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] backdrop-blur-md">
+                              
+                              <div className="w-40 h-52 mb-6 relative flex justify-center items-center">
+                                <div className="absolute inset-0 bg-[#7CD326]/20 rounded-2xl blur-[20px] animate-pulse"></div>
+                                <img 
+                                  src={item.src} 
+                                  alt={item.title} 
+                                  className="w-full h-full object-cover rounded-2xl relative z-10 border border-[#7CD326]/20 shadow-[0_10px_20px_rgba(0,0,0,0.3)] transform group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e) => { e.target.src='https://placehold.co/200x250/transparent/FFFFFF?text=📸' }}
+                                />
+                              </div>
+                              
+                              <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#7CD326] to-transparent rounded-full mb-4 opacity-60"></div>
+                              <h4 className="text-white font-black text-lg text-center uppercase tracking-wide">{item.title}</h4>
+                              <p className="text-[#7CD326] text-[9px] font-black tracking-[0.2em] uppercase mb-3 bg-[#7CD326]/10 px-2 py-0.5 rounded">{item.tag}</p>
+                              <p className="text-gray-400 text-[10px] text-center leading-relaxed font-medium">{item.desc}</p>
+                           </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
             {/* 🍱 3. THE BENTO GRID STATS (Vercel High-Tech Style) */}
           {/* 🍱 3. THE BENTO GRID STATS (Restored Green + 3D Glass Shine Effect) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0 mt-4">
