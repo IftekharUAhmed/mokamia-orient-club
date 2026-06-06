@@ -692,7 +692,7 @@ export default function Home() {
                      <span className="relative inline-block mt-1 md:mt-2">
                         <span className="absolute -inset-2 bg-[#7CD326] blur-[60px] opacity-20"></span>
                         <span className="relative text-[#7CD326] drop-shadow-[0_0_30px_rgba(124,211,38,0.8)] italic pr-2">
-                          <TypeAnimation sequence={['Brotherhood', 2500, 'Sports Majesty', 2500, 'Community', 2500, 'Unity', 2500]} wrapper="span" speed={40} repeat={Infinity} className="inline-block" />
+                          <TypeAnimation sequence={['Brotherhood', 2500, 'Sports', 2500, 'Community', 2500, 'Unity', 2500]} wrapper="span" speed={40} repeat={Infinity} className="inline-block" />
                         </span>
                      </span>
                   </h1>
@@ -768,24 +768,25 @@ export default function Home() {
                <AdvisorsSlider />
             </div>
 
-            
-         {/* 🏆 2. DIGITAL TROPHY CABINET (EXPANDED TO 7 BOXES) */}
-                {/* 🏆 2. DIGITAL TROPHY CABINET (AUTO-SCROLLING HORIZONTAL SLIDER) */}
+           {/* 🏆 2. DIGITAL TROPHY CABINET (AESTHETIC MIDNIGHT VIOLET THEME) */}
             <div data-aos="fade-up" className="max-w-[1200px] mx-auto w-full mb-16 relative z-30 mt-4 px-4 md:px-0">
-               <div className="relative bg-[#050507] rounded-[2.5rem] md:rounded-[3rem] py-8 md:py-12 border border-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.7)] overflow-hidden">
+               {/* 🎨 Premium Aesthetic Container */}
+               <div className="relative bg-[#110A1F] rounded-[2.5rem] md:rounded-[3rem] py-8 md:py-12 border border-[#7CD326]/20 shadow-[0_30px_80px_rgba(26,15,46,0.6)] overflow-hidden">
                   
-                  {/* Background Effects */}
-                  <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-                  <div className="absolute top-[-50%] left-[-10%] w-[500px] h-[500px] bg-purple-950/20 blur-[120px] rounded-full pointer-events-none"></div>
+                  {/* ✨ Vibrant Aurora Orbs (The Magic Aesthetic Glows) */}
+                  <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+                  <div className="absolute top-[-30%] left-[-10%] w-[600px] h-[600px] bg-[#7CD326]/15 blur-[120px] rounded-full pointer-events-none animate-pulse"></div>
+                  <div className="absolute bottom-[-30%] right-[-10%] w-[600px] h-[600px] bg-purple-600/20 blur-[130px] rounded-full pointer-events-none" style={{animationDelay: '2s'}}></div>
+                  <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[800px] h-[300px] bg-blue-600/10 blur-[140px] rounded-full pointer-events-none"></div>
 
                   {/* Header Title */}
                   <div className="text-center mb-10 relative z-10 px-4">
-                    <span className="text-[#7CD326] font-black tracking-[0.4em] text-[9px] md:text-xs uppercase bg-[#7CD326]/5 px-5 py-2 rounded-full inline-block mb-3 border border-[#7CD326]/10">Wall of Glory</span>
-                    <h3 className="text-white font-black text-3xl md:text-4xl font-serif tracking-tight">MOC Hall of Fame</h3>
+                    <span className="text-[#7CD326] font-black tracking-[0.4em] text-[9px] md:text-xs uppercase bg-[#7CD326]/10 px-5 py-2 rounded-full inline-block mb-3 border border-[#7CD326]/20 shadow-[0_0_15px_rgba(124,211,38,0.15)]">Wall of Glory</span>
+                    <h3 className="text-white font-black text-3xl md:text-4xl font-serif tracking-tight drop-shadow-lg">MOC Hall of Fame</h3>
                   </div>
 
-                  {/* Infinite Auto-Scrolling Wrapper */}
-                  <div className="relative w-full overflow-hidden z-10 flex before:absolute before:left-0 before:top-0 before:z-20 before:h-full before:w-12 md:before:w-20 before:bg-gradient-to-r before:from-[#050507] before:to-transparent after:absolute after:right-0 after:top-0 after:z-20 after:h-full after:w-12 md:after:w-20 after:bg-gradient-to-l after:from-[#050507] after:to-transparent">
+                  {/* Infinite Auto-Scrolling Wrapper (Fade masks updated to match Midnight Violet #110A1F) */}
+                  <div className="relative w-full overflow-hidden z-10 flex before:absolute before:left-0 before:top-0 before:z-20 before:h-full before:w-12 md:before:w-24 before:bg-gradient-to-r before:from-[#110A1F] before:to-transparent after:absolute after:right-0 after:top-0 after:z-20 after:h-full after:w-12 md:after:w-24 after:bg-gradient-to-l after:from-[#110A1F] after:to-transparent">
                      
                      <style>{`
                        @keyframes trophyScroll {
@@ -803,7 +804,7 @@ export default function Home() {
                        }
                      `}</style>
 
-                     {/* The Track (Doubled items array for seamless looping) */}
+                     {/* The Track */}
                      <div className="animate-trophy-slider py-4 px-4">
                         {(() => {
                           const items = [
@@ -816,17 +817,16 @@ export default function Home() {
                             { src: "/external-football.jpeg", title: "External Football", tag: "Cup Final" },
                           ];
                           
-                          // Merge array with itself to create infinite loop
                           const doubleItems = [...items, ...items];
 
                           return doubleItems.map((item, idx) => (
-                            <div key={idx} className="w-[180px] md:w-[220px] flex-shrink-0 bg-[#1A0F2E]/40 border border-white/5 rounded-[2rem] p-4 flex flex-col items-center justify-center transition-all duration-500 hover:translate-y-[-8px] hover:border-[#7CD326]/30 hover:bg-[#1A0F2E]/80 group cursor-pointer">
-                              <div className="w-full h-44 md:h-52 relative overflow-hidden rounded-2xl border border-white/5 bg-[#030108]">
+                            <div key={idx} className="w-[180px] md:w-[220px] flex-shrink-0 bg-white/5 border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center transition-all duration-500 hover:translate-y-[-8px] hover:border-[#7CD326]/50 hover:bg-white/10 group cursor-pointer backdrop-blur-sm shadow-xl">
+                              <div className="w-full h-44 md:h-52 relative overflow-hidden rounded-2xl border border-white/10 bg-[#090514]">
                                 <img src={item.src} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/200x250/transparent/FFFFFF?text=📸' }} />
                               </div>
                               <div className="mt-4 text-center w-full">
-                                <h4 className="text-white font-black text-xs md:text-sm uppercase tracking-wide truncate px-1">{item.title}</h4>
-                                <p className="text-[#7CD326] text-[8px] md:text-[9px] font-bold tracking-widest mt-1 uppercase bg-[#7CD326]/5 py-0.5 px-2 rounded inline-block">{item.tag}</p>
+                                <h4 className="text-white font-black text-xs md:text-sm uppercase tracking-wide truncate px-1 group-hover:text-[#7CD326] transition-colors">{item.title}</h4>
+                                <p className="text-[#7CD326] text-[8px] md:text-[9px] font-bold tracking-widest mt-1.5 uppercase bg-[#7CD326]/10 py-0.5 px-2 rounded border border-[#7CD326]/20 inline-block">{item.tag}</p>
                               </div>
                             </div>
                           ));
@@ -834,7 +834,9 @@ export default function Home() {
                      </div>
                   </div>
                </div>
-            </div>
+            </div> 
+          
+           
             {/* 🍱 3. THE BENTO GRID STATS (Vercel High-Tech Style) */}
           {/* 🍱 3. THE BENTO GRID STATS (Restored Green + 3D Glass Shine Effect) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0 mt-4">
