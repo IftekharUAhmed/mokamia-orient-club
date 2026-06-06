@@ -763,46 +763,78 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 🤝 1.8 PATRONS & ADVISORS SLIDER (Shifted to Top for Max Respect) */}
+            <div className="w-full relative z-30 -mt-4 mb-16">
+               <AdvisorsSlider />
+            </div>
+
             
          {/* 🏆 2. DIGITAL TROPHY CABINET (EXPANDED TO 7 BOXES) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 perspective-1000">
-                    
-                    {/* Reusable Trophy Card Component Function */}
-                    {(() => {
-                      const items = [
-                        { src: "/trophy1.jpeg", title: "MPL Champions", tag: "5th Edition", desc: "Dominated the village football arena." },
-                        { src: "/trophy2.jpeg", title: "Winter Masters", tag: "Badminton Cup", desc: "Undisputed kings of the court." },
-                        { src: "/trophy3.jpeg", title: "Cricket Heroes", tag: "Local Champs", desc: "Explosive batting and lethal bowling." },
-                        { src: "/main gallery trophy.jpeg", title: "Main Gallery", tag: "Club Legacy", desc: "Our core collection of pride." },
-                        { src: "/mpl cricket.jpeg", title: "MPL Cricket", tag: "Tournament", desc: "Tactical brilliance on the field." },
-                        { src: "/external cricket tournament.jpeg", title: "External Cricket", tag: "Open Cup", desc: "Representing MOC beyond borders." },
-                        { src: "/external-football.jpeg", title: "External Football", tag: "Cup Final", desc: "Fought hard with team spirit." },
-                      ];
+                {/* 🏆 2. DIGITAL TROPHY CABINET (AUTO-SCROLLING HORIZONTAL SLIDER) */}
+            <div data-aos="fade-up" className="max-w-[1200px] mx-auto w-full mb-16 relative z-30 mt-4 px-4 md:px-0">
+               <div className="relative bg-[#050507] rounded-[2.5rem] md:rounded-[3rem] py-8 md:py-12 border border-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.7)] overflow-hidden">
+                  
+                  {/* Background Effects */}
+                  <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+                  <div className="absolute top-[-50%] left-[-10%] w-[500px] h-[500px] bg-purple-950/20 blur-[120px] rounded-full pointer-events-none"></div>
 
-                      return items.map((item, idx) => (
-                        <div key={idx} className="relative group cursor-pointer">
-                           <div className="absolute inset-0 bg-gradient-to-b from-[#7CD326]/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2.5rem]"></div>
-                           <div className="h-full bg-[#1A0F2E]/60 border border-white/5 rounded-[2.5rem] p-6 flex flex-col items-center justify-center transform transition-all duration-500 group-hover:translate-y-[-12px] group-hover:border-[#7CD326]/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] backdrop-blur-md">
-                              
-                              <div className="w-40 h-52 mb-6 relative flex justify-center items-center">
-                                <div className="absolute inset-0 bg-[#7CD326]/20 rounded-2xl blur-[20px] animate-pulse"></div>
-                                <img 
-                                  src={item.src} 
-                                  alt={item.title} 
-                                  className="w-full h-full object-cover rounded-2xl relative z-10 border border-[#7CD326]/20 shadow-[0_10px_20px_rgba(0,0,0,0.3)] transform group-hover:scale-105 transition-transform duration-500"
-                                  onError={(e) => { e.target.src='https://placehold.co/200x250/transparent/FFFFFF?text=📸' }}
-                                />
-                              </div>
-                              
-                              <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#7CD326] to-transparent rounded-full mb-4 opacity-60"></div>
-                              <h4 className="text-white font-black text-lg text-center uppercase tracking-wide">{item.title}</h4>
-                              <p className="text-[#7CD326] text-[9px] font-black tracking-[0.2em] uppercase mb-3 bg-[#7CD326]/10 px-2 py-0.5 rounded">{item.tag}</p>
-                              <p className="text-gray-400 text-[10px] text-center leading-relaxed font-medium">{item.desc}</p>
-                           </div>
-                        </div>
-                      ));
-                    })()}
+                  {/* Header Title */}
+                  <div className="text-center mb-10 relative z-10 px-4">
+                    <span className="text-[#7CD326] font-black tracking-[0.4em] text-[9px] md:text-xs uppercase bg-[#7CD326]/5 px-5 py-2 rounded-full inline-block mb-3 border border-[#7CD326]/10">Wall of Glory</span>
+                    <h3 className="text-white font-black text-3xl md:text-4xl font-serif tracking-tight">MOC Hall of Fame</h3>
                   </div>
+
+                  {/* Infinite Auto-Scrolling Wrapper */}
+                  <div className="relative w-full overflow-hidden z-10 flex before:absolute before:left-0 before:top-0 before:z-20 before:h-full before:w-12 md:before:w-20 before:bg-gradient-to-r before:from-[#050507] before:to-transparent after:absolute after:right-0 after:top-0 after:z-20 after:h-full after:w-12 md:after:w-20 after:bg-gradient-to-l after:from-[#050507] after:to-transparent">
+                     
+                     <style>{`
+                       @keyframes trophyScroll {
+                         0% { transform: translateX(0); }
+                         100% { transform: translateX(-50%); }
+                       }
+                       .animate-trophy-slider {
+                         animation: trophyScroll 25s linear infinite;
+                         display: flex;
+                         width: max-content;
+                         gap: 1.5rem;
+                       }
+                       .animate-trophy-slider:hover {
+                         animation-play-state: paused;
+                       }
+                     `}</style>
+
+                     {/* The Track (Doubled items array for seamless looping) */}
+                     <div className="animate-trophy-slider py-4 px-4">
+                        {(() => {
+                          const items = [
+                            { src: "/trophy1.jpeg", title: "MPL Champions", tag: "5th Edition" },
+                            { src: "/trophy2.jpeg", title: "Winter Masters", tag: "Badminton Cup" },
+                            { src: "/trophy3.jpeg", title: "Cricket Heroes", tag: "Local Champs" },
+                            { src: "/main gallery trophy.jpeg", title: "Main Gallery", tag: "Club Legacy" },
+                            { src: "/mpl cricket.jpeg", title: "MPL Cricket", tag: "Tournament" },
+                            { src: "/external cricket tournament.jpeg", title: "External Cricket", tag: "Open Cup" },
+                            { src: "/external-football.jpeg", title: "External Football", tag: "Cup Final" },
+                          ];
+                          
+                          // Merge array with itself to create infinite loop
+                          const doubleItems = [...items, ...items];
+
+                          return doubleItems.map((item, idx) => (
+                            <div key={idx} className="w-[180px] md:w-[220px] flex-shrink-0 bg-[#1A0F2E]/40 border border-white/5 rounded-[2rem] p-4 flex flex-col items-center justify-center transition-all duration-500 hover:translate-y-[-8px] hover:border-[#7CD326]/30 hover:bg-[#1A0F2E]/80 group cursor-pointer">
+                              <div className="w-full h-44 md:h-52 relative overflow-hidden rounded-2xl border border-white/5 bg-[#030108]">
+                                <img src={item.src} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/200x250/transparent/FFFFFF?text=📸' }} />
+                              </div>
+                              <div className="mt-4 text-center w-full">
+                                <h4 className="text-white font-black text-xs md:text-sm uppercase tracking-wide truncate px-1">{item.title}</h4>
+                                <p className="text-[#7CD326] text-[8px] md:text-[9px] font-bold tracking-widest mt-1 uppercase bg-[#7CD326]/5 py-0.5 px-2 rounded inline-block">{item.tag}</p>
+                              </div>
+                            </div>
+                          ));
+                        })()}
+                     </div>
+                  </div>
+               </div>
+            </div>
             {/* 🍱 3. THE BENTO GRID STATS (Vercel High-Tech Style) */}
           {/* 🍱 3. THE BENTO GRID STATS (Restored Green + 3D Glass Shine Effect) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0 mt-4">
@@ -949,10 +981,11 @@ export default function Home() {
                   <h4 className="text-[#2D1B4E] font-black text-2xl md:text-3xl font-serif tracking-tight">A Modern Legacy</h4>
                   <p className="text-gray-500 text-base mt-3 leading-relaxed max-w-3xl">With 200+ active members, blockbuster tournaments like the MPL, and the upcoming grand Primary School Reunion, MOC stands stronger and more united than ever before.</p>
                 </div>
-
+ 
               </div>
+            
             </div>
-
+  
           </div>
         )}
         {/* --- 🔥 END FIRE HOME TAB 🔥 --- */}
