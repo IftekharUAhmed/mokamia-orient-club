@@ -52,7 +52,10 @@ export default function Home() {
   const handleNavigation = (tabName) => {
     setActiveTab(tabName);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
   };
+  // 🏆 Trophy Modal State
+  const [selectedTrophy, setSelectedTrophy] = useState(null);
   // 🏆 Event Detail Modal State
   // 🏆 Events State (Database theke anar jonno)
   const [events, setEvents] = useState([]);
@@ -387,7 +390,40 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* 👆👆 EKHANE PLAYER MODAL SHESH 👆👆 */}
+       
+
+
+
+{/* 🏆 TROPHY LIGHTBOX MODAL (NEW) */}
+      {selectedTrophy && (
+        <div className="fixed inset-0 z-[9999999] bg-black/95 backdrop-blur-xl flex flex-col justify-center items-center p-4 md:p-10 animate-fade-in" onClick={() => setSelectedTrophy(null)}>
+          
+          {/* Close Button */}
+          <button onClick={() => setSelectedTrophy(null)} className="absolute top-6 right-6 md:top-10 md:right-10 bg-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#FF3B30] hover:scale-110 transition-all border border-white/20 text-xl font-bold z-[1000000]">✕</button>
+          
+          <div className="relative w-full max-w-xl flex flex-col items-center transform transition-all scale-100" onClick={(e) => e.stopPropagation()}>
+             {/* Image Container with Glow */}
+             <div className="relative w-full h-[50vh] md:h-[65vh] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(124,211,38,0.15)] bg-[#090514] flex justify-center items-center">
+               <div className="absolute inset-0 bg-gradient-to-t from-[#7CD326]/10 to-transparent"></div>
+               <img 
+                 src={selectedTrophy.src} 
+                 alt={selectedTrophy.title} 
+                 className="w-full h-full object-contain relative z-10 p-2 md:p-4"
+                 onError={(e) => { e.target.src='https://placehold.co/600x800/transparent/FFFFFF?text=📸' }}
+               />
+             </div>
+             
+             {/* Text Details */}
+             <div className="mt-6 text-center z-10">
+               <h3 className="text-white text-2xl md:text-4xl font-black font-serif uppercase tracking-widest drop-shadow-md">{selectedTrophy.title}</h3>
+               <p className="text-[#7CD326] font-black tracking-[0.3em] mt-3 uppercase bg-[#7CD326]/10 px-5 py-1.5 rounded-full inline-block border border-[#7CD326]/20 shadow-lg text-[10px] md:text-xs">
+                 {selectedTrophy.tag}
+               </p>
+             </div>
+          </div>
+        </div>
+      )}
+
 
       {/* 🌟 ALBUM MODAL (Popup) (Eita tor aage thekei ache) 🌟 */}
        {/* 👆👆 EKHANE PLAYER MODAL SHESH 👆👆 */}
@@ -819,8 +855,12 @@ export default function Home() {
                           
                           const doubleItems = [...items, ...items];
 
-                          return doubleItems.map((item, idx) => (
-                            <div key={idx} className="w-[180px] md:w-[220px] flex-shrink-0 bg-white/5 border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center transition-all duration-500 hover:translate-y-[-8px] hover:border-[#7CD326]/50 hover:bg-white/10 group cursor-pointer backdrop-blur-sm shadow-xl">
+                           return doubleItems.map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              onClick={() => setSelectedTrophy(item)} /* 👈 EI LINE TA ADD KORSI */
+                              className="w-[180px] md:w-[220px] flex-shrink-0 bg-white/5 border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center transition-all duration-500 hover:translate-y-[-8px] hover:border-[#7CD326]/50 hover:bg-white/10 group cursor-pointer backdrop-blur-sm shadow-xl"
+                            >
                               <div className="w-full h-44 md:h-52 relative overflow-hidden rounded-2xl border border-white/10 bg-[#090514]">
                                 <img src={item.src} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.src='https://placehold.co/200x250/transparent/FFFFFF?text=📸' }} />
                               </div>
