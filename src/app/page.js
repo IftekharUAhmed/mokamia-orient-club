@@ -868,19 +868,25 @@ export default function Home() {
                </div>
 
                {/* Bento 2: Heritage (Kept Dark for Contrast) */}
-               <div data-aos="fade-up" data-aos-delay="300" className="md:col-span-2 bg-[#1A0F2E] rounded-[2.5rem] p-8 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group min-h-[250px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8 hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 cursor-pointer">
+                {/* Bento 2: Heritage (FIXED FOR MOBILE - SIDE BY SIDE) */}
+               <div data-aos="fade-up" data-aos-delay="300" className="md:col-span-2 bg-[#1A0F2E] rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-hidden group min-h-[200px] flex flex-row items-center justify-between gap-4 hover:-translate-y-2 hover:border-[#7CD326]/30 transition-all duration-500 cursor-pointer">
+                  {/* Background Glow */}
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-[#7CD326]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  
+                  {/* Left Side: Text Details */}
                   <div className="z-10 flex-1">
-                     <span className="text-[#7CD326] font-black text-[10px] uppercase tracking-[0.3em] mb-4 block flex items-center gap-2">
+                     <span className="text-[#7CD326] font-black text-[9px] md:text-[10px] uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
                        <div className="w-2 h-2 rounded-full bg-[#7CD326] animate-pulse shadow-[0_0_8px_#7CD326]"></div> Our Heritage
                      </span>
-                     <h3 className="text-white text-5xl md:text-6xl font-black font-serif tracking-tight mb-4">Est. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-400 drop-shadow-[0_0_15px_rgba(124,211,38,0.3)]"><CountUpAnimation target={1985} duration={2500} /></span></h3>
-                     <p className="text-gray-400 text-sm leading-relaxed max-w-md group-hover:text-gray-300 transition-colors">Nearly 4 decades of unyielding passion. From a tiny village ground to a mega club driving sports, social work, and unshakeable unity.</p>
+                     <h3 className="text-white text-4xl md:text-6xl font-black font-serif tracking-tight mb-3">Est. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7CD326] to-emerald-400 drop-shadow-[0_0_15px_rgba(124,211,38,0.3)]"><CountUpAnimation target={1985} duration={2500} /></span></h3>
+                     <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-md group-hover:text-gray-300 transition-colors">Nearly 4 decades of unyielding passion. From a tiny village ground to a mega club driving sports, social work, and unshakeable unity.</p>
                   </div>
-                  <div className="relative w-full md:w-auto flex justify-end z-10">
-                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-white/10 flex items-center justify-center relative bg-white/5 backdrop-blur-md shadow-2xl group-hover:border-[#7CD326]/50 transition-colors duration-500">
-                        <div className="absolute inset-[-10px] border border-dashed border-[#7CD326]/30 rounded-full animate-[spin_20s_linear_infinite]"></div>
-                        <img src="/moc-logo.jpeg" alt="Logo" className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-[0_0_30px_rgba(124,211,38,0.2)] group-hover:shadow-[0_0_40px_rgba(124,211,38,0.5)] transition-shadow duration-500" onError={(e)=>{e.target.style.display='none'}} />
+                  
+                  {/* Right Side: Logo (Shrink-0 added so it doesn't get squeezed by text) */}
+                  <div className="relative flex justify-end z-10 shrink-0">
+                     <div className="w-24 h-24 md:w-40 md:h-40 rounded-full border border-white/10 flex items-center justify-center relative bg-white/5 backdrop-blur-md shadow-2xl group-hover:border-[#7CD326]/50 transition-colors duration-500">
+                        <div className="absolute inset-[-6px] md:inset-[-10px] border border-dashed border-[#7CD326]/30 rounded-full animate-[spin_20s_linear_infinite]"></div>
+                        <img src="/moc-logo.jpeg" alt="Logo" className="w-16 h-16 md:w-28 md:h-28 rounded-full object-cover shadow-[0_0_30px_rgba(124,211,38,0.2)] group-hover:shadow-[0_0_40px_rgba(124,211,38,0.5)] transition-shadow duration-500" onError={(e)=>{e.target.style.display='none'}} />
                      </div>
                   </div>
                </div>
