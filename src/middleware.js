@@ -1,15 +1,19 @@
-import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+ import { NextResponse } from 'next/server';
 
-export async function middleware(request) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  
-  // Jodi portal ba dashboard access kore ar login na thake
+export function middleware(request) {
+  // ১. ইউজারের ব্রাউজার থেকে 'moc_session' নামের চাবিটা (Cookie) খুঁজো
+  const hasSession = request.cookies.get('moc_session');
+
+  // ২. কেউ যদি সরাসরি /portal-এ যেতে চায়...
   if (request.nextUrl.pathname.startsWith('/portal')) {
-    if (!token) {
+    
+    // ৩. এবং তার কাছে যদি চাবি না থাকে...
+    if (!hasSession) {
+      // ঘাড় ধরে /login পেজে পাঠিয়ে দাও!
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
-  
+
+  // চাবি থাকলে ভেতরে ঢুকতে দাও
   return NextResponse.next();
 }

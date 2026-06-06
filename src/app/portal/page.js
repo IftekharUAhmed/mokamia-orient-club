@@ -7,15 +7,7 @@ import Link from "next/link";
 
 
 // /portal/page.js
-export default async function Portal() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== 'admin') {
-    return <p>Access Denied! Tui admin na, ekhane ashbi na.</p>;
-  }
-
-  return <div>Welcome to MOC Portal, Admin!</div>;
-}
+ 
 
 export default function PortalDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
