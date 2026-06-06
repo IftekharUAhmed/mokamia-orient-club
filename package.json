@@ -16,6 +16,7 @@
     "embla-carousel-react": "^8.6.0",
     "html-to-image": "^1.11.13",
     "next": "16.2.6",
+    "next-auth": "^4.24.14",
     "next-cloudinary": "^6.17.5",
     "pusher": "^5.3.3",
     "pusher-js": "^8.5.0",
